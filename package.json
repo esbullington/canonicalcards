@@ -4,7 +4,8 @@
   "description": "HighCharts(tm) on a Budget",
   "main": "index.js",
   "scripts": {
-    "watch": "watchify src/main.ts --debug -p [ tsify --debug --noImplicitAny ] -o public/js/main.js & node server.js",
+    "watch": "watchify src/main.ts -v --debug -p [ tsify --debug --noImplicitAny ] -o public/js/main.js & node server.js",
+    "gwatch": "gulp watch & node server.js",
     "build": "NODE_ENV=production browserify src/main.ts -p [ tsify --noImplicitAny ] | uglifyjs -c > dist/dashstock.js",
     "test": "tsc --module commonjs --noImplicitAny src/main.ts & ./node_modules/karma/bin/karma start karma.conf.js",
     "clean": "rm src/*.js & rm public/js/main.js & rm dist/dashstock.js"
@@ -25,7 +26,12 @@
   "homepage": "https://github.com/esbullington/dashstock",
   "devDependencies": {
     "browserify": "^6.3.3",
+    "event-stream": "^3.1.7",
     "express": "^4.10.4",
+    "gulp": "^3.8.10",
+    "gulp-browserify": "^0.5.0",
+    "gulp-sourcemaps": "^1.2.8",
+    "gulp-typescript": "^2.3.0",
     "karma": "^0.12.28",
     "karma-browserify": "^1.0.0",
     "karma-chai": "^0.1.0",

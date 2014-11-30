@@ -1,6 +1,9 @@
 # Ignore generated js files
 src/*.js
 
+# No sourcemaps
+*.map
+
 # Created by https://www.gitignore.io
 ### Node ###
 # Logs
