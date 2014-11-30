@@ -1,0 +1,23 @@
+{
+  "name": "dashstock",
+  "version": "0.0.1",
+  "description": "HighCharts(tm) on a Budget",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:esbullington/dashstock.git"
+  },
+  "keywords": [
+    "stock",
+    "charts"
+  ],
+  "author": "Eric S. Bullington",
+  "license": "Proprietary -- All Rights Reserved",
+  "bugs": {
+    "url": "https://github.com/esbullington/dashstock/issues"
+  },
+  "homepage": "https://github.com/esbullington/dashstock"
+}
