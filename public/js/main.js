@@ -9223,5 +9223,8 @@ var d3 = require('d3');
 // Create stack layout
 var stackLayout = d3.layout.stack();
 console.log(typeof stackLayout);
+module.exports.testFunction = function (a, b) {
+    return a + b;
+};
 
 },{"d3":"/home/eric/repos/dashstock/node_modules/d3/d3.js"}]},{},["/home/eric/repos/dashstock/src/main.ts"]);

@@ -10,3 +10,6 @@ var d3: D3.Base = require('d3');
 var stackLayout = d3.layout.stack();
 console.log(typeof stackLayout);
 
+module.exports.testFunction = function(a: number, b: number) {
+  return a + b;
+}

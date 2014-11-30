@@ -6,7 +6,8 @@
   "scripts": {
     "watch": "watchify src/main.ts -p [ tsify --noImplicitAny ] -o public/js/main.js & node server.js",
     "build": "NODE_ENV=production browserify src/main.ts -p [ tsify --noImplicitAny ] | uglifyjs -c > dist/dashstock.js",
-    "test": "./node_modules/karma/bin/karma start karma.conf.js"
+    "test": "tsc --module commonjs --noImplicitAny src/main.ts & ./node_modules/karma/bin/karma start karma.conf.js",
+    "clean": "rm src/*.js & rm public/js/main.js & rm dist/dashstock.js"
   },
   "repository": {
     "type": "git",

@@ -21,10 +21,10 @@ module.exports = function(config) {
       'tests/index.js': ['browserify']
     },
 
-    browserify: {
-      debug: true,
-      transform: [ 'tsify' ]
-    },
+    // browserify: {
+    //   debug: true,
+    //   transform: [ 'reactify' ]
+    // },
 
     // test results reporter to use
     // possible values: 'dots', 'progress'
@@ -47,11 +47,10 @@ module.exports = function(config) {
     plugins: [
       // 'karma-chrome-launcher',
       'karma-phantomjs-launcher',
-      'karma-jasmine',
       'karma-mocha',
       'karma-chai',
       'karma-chai-plugins',
-      'karma-bro'
+      'karma-browserify'
     ],
 
     // start these browsers
