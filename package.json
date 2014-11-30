@@ -4,7 +4,7 @@
   "description": "HighCharts(tm) on a Budget",
   "main": "index.js",
   "scripts": {
-    "watch": "watchify src/main.ts -p [ tsify --noImplicitAny ] -o public/js/main.js",
+    "watch": "watchify src/main.ts -p [ tsify --noImplicitAny ] -o public/js/main.js & node server.js",
     "build": "NODE_ENV=production browserify src/main.ts -p [ tsify --noImplicitAny ] | uglifyjs -c > dist/dashstock.js",
     "test": "./node_modules/karma/bin/karma start karma.conf.js"
   },
@@ -24,6 +24,7 @@
   "homepage": "https://github.com/esbullington/dashstock",
   "devDependencies": {
     "browserify": "^6.3.3",
+    "express": "^4.10.4",
     "karma": "^0.12.28",
     "karma-browserify": "^1.0.0",
     "karma-chai": "^0.1.0",

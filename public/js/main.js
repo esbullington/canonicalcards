@@ -9218,6 +9218,10 @@
 /// <reference path="defs/browserify/browserify.d.ts" />
 /// <reference path="defs/lodash/lodash.d.ts" />
 /// <reference path="defs/d3/d3.d.ts" />
+"use strict";
 var d3 = require('d3');
+// Create stack layout
+var stackLayout = d3.layout.stack();
+console.log(typeof stackLayout);
 
 },{"d3":"/home/eric/repos/dashstock/node_modules/d3/d3.js"}]},{},["/home/eric/repos/dashstock/src/main.ts"]);
