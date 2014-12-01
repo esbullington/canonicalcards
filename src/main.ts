@@ -10,7 +10,7 @@ var parseDate = d3.time.format("%d-%b-%y").parse;
 
 d3.text("data/data.tsv", function(indata: string ) {
 
+  chart.renderIt(indata);
   console.log('testing');
-  chart.Chart.renderIt(indata);
 
 });

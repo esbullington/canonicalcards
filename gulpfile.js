@@ -6,6 +6,28 @@ var less = require('gulp-less');
 var prefixer = require('gulp-autoprefixer');
 var gutil = require('gulp-util');
 var plumber = require('gulp-plumber');
+var refresh = require('gulp-livereload');
+var lrserver = require('tiny-lr')();
+var express = require('express');
+var livereload = require('connect-livereload');
+
+var livereloadport = 35729;
+var serverport = 4000;
+
+//We only configure the server here and start it only when running the watch task
+var server = express();
+//Add livereload middleware before static-middleware
+server.use(livereload({
+  port: livereloadport
+}));
+server.use(express.static('./public'));
+
+ 
+gulp.task('serve', function() {
+  //Set up your static fileserver, which serves files in the build dir
+  server.listen(serverport);
+});
+ 
 
 gulp.task('less', function() {
   gulp
@@ -19,7 +41,8 @@ gulp.task('less', function() {
     .pipe(less())
     .pipe(prefixer('last 4 versions', 'ie 8'))
     .pipe(sourcemaps.write())
-    .pipe(gulp.dest('./public/css'));
+    .pipe(gulp.dest('./public/css'))
+    .pipe(refresh(lrserver));
 });
 
 gulp.task('less:watch', function(){
@@ -53,13 +76,14 @@ gulp.task('scripts', ['tsc'], function() {
       debug: true
     }))
     .pipe(sourcemaps.write())
-    .pipe(gulp.dest('public/js'));
+    .pipe(gulp.dest('public/js'))
+    .pipe(refresh(lrserver));
 });
 
 gulp.task('scripts:watch', ['scripts'], function() {
   gulp.watch('src/*.ts', ['scripts']);
 });
 
-gulp.task('watch', ['scripts:watch', 'less:watch', 'scripts', 'less']);
+gulp.task('watch', ['scripts:watch', 'less:watch', 'scripts', 'less', 'serve']);
 
 gulp.task('default', ['scripts', 'less']);

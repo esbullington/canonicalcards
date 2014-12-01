@@ -126,13 +126,9 @@ exports.renderChart = function(config: IConfig) {
 
 };
 
-export module Chart {
-  'use strict';
+export function renderIt(indata: string) {
 
-  export function renderIt(indata: string) {
+  console.log(indata);
+  console.log("You got it!");
 
-    console.log(indata);
-    console.log("You got it!");
-
-  };
-}
+};
