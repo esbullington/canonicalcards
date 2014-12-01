@@ -5,6 +5,10 @@ module.exports = function(config) {
     // base path that will be used to resolve all patterns (eg. files, exclude)
     basePath: '',
 
+    client: {
+          captureConsole: true
+    },
+
     // frameworks to use
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
     frameworks: ['mocha', 'browserify', 'chai', 'chai-as-promised'],
@@ -40,6 +44,8 @@ module.exports = function(config) {
     // level of logging
     // possible values: config.LOG_DISABLE || config.LOG_ERROR || config.LOG_WARN || config.LOG_INFO || config.LOG_DEBUG
     logLevel: config.LOG_INFO,
+
+    loggers: [{type: 'console'}],
 
     // enable / disable watching file and executing tests whenever any file changes
     autoWatch: false,

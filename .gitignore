@@ -1,5 +1,6 @@
 # Ignore generated js files
 src/*.js
+build/*
 
 # No sourcemaps
 *.map
