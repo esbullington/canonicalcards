@@ -2,6 +2,9 @@
 src/*.js
 build/*
 
+# Backup
+public/js/.main.js
+
 # No sourcemaps
 *.map
 

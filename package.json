@@ -4,12 +4,10 @@
   "description": "HighCharts(tm) on a Budget",
   "main": "index.js",
   "scripts": {
-    "watch": "watchify src/main.ts -v --debug -p [ tsify --debug --noImplicitAny ] -o public/js/main.js & node server.js & node scripts/less-watch-compiler.js public/less public/css",
-    "gwatch": "gulp watch & node server.js & node scripts/less-watch-compiler.js public/less public/css",
+    "watch": "watchify src/main.js -v --debug -o public/js/main.js & node server.js",
     "gulpwatch": "gulp watch & node server.js",
-    "build": "NODE_ENV=production browserify src/main.ts -p [ tsify --noImplicitAny ] | uglifyjs -c > dist/dashstock.js",
-    "test": "tsc --module commonjs --noImplicitAny src/main.ts & ./node_modules/karma/bin/karma start karma.conf.js",
-    "clean": "rm src/*.js & rm public/js/main.js & rm dist/dashstock.js"
+    "build": "NODE_ENV=production browserify src/main.js | uglifyjs -c > dist/dashstock.js",
+    "test": "./node_modules/mocha-phantomjs/bin/mocha-phantomjs tests/index.html -R spec"
   },
   "repository": {
     "type": "git",
@@ -38,13 +36,7 @@
     "gulp-sourcemaps": "^1.2.8",
     "gulp-typescript": "^2.3.0",
     "gulp-util": "^3.0.1",
-    "jsdom": "^1.3.1",
-    "karma": "^0.12.28",
-    "karma-browserify": "^1.0.0",
-    "karma-chai": "^0.1.0",
-    "karma-chai-plugins": "^0.2.3",
-    "karma-mocha": "^0.1.9",
-    "karma-phantomjs-launcher": "^0.1.4",
+    "mocha-phantomjs": "^3.5.1",
     "tiny-lr": "^0.1.4",
     "tsify": "^0.6.3",
     "watchify": "^2.1.1"
