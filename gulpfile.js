@@ -63,7 +63,7 @@ gulp.task('less:watch', function(){
 });
 
 gulp.task('scripts', function() {
-  return gulp.src('src/main.js')
+  return gulp.src('src/dashstock.js')
     .pipe(sourcemaps.init())
     .pipe(browserify({
     }))
@@ -73,7 +73,7 @@ gulp.task('scripts', function() {
 });
 
 gulp.task('scripts:build', function() {
-  return gulp.src('src/main.js')
+  return gulp.src('src/dashstock.js')
     .pipe(sourcemaps.init())
     .pipe(browserify({
     }))
