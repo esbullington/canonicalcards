@@ -58,12 +58,12 @@ gulp.task('less:build', function() {
     .pipe(gulp.dest('./public/css'));
 });
 
-gulp.task('less:watch', function(){
-    gulp.watch(['./public/less/*.less', './public/less/**/*.less'])
+gulp.task('less:watch', ['less'], function(){
+    gulp.watch(['./public/less/*.less', './public/less/**/*.less'], ['less'])
 });
 
 gulp.task('scripts', function() {
-  return gulp.src('src/dashstock.js')
+  return gulp.src('src/main.js')
     .pipe(sourcemaps.init())
     .pipe(browserify({
     }))
@@ -73,7 +73,7 @@ gulp.task('scripts', function() {
 });
 
 gulp.task('scripts:build', function() {
-  return gulp.src('src/dashstock.js')
+  return gulp.src('src/main.js')
     .pipe(sourcemaps.init())
     .pipe(browserify({
     }))
@@ -82,10 +82,18 @@ gulp.task('scripts:build', function() {
 });
 
 
+gulp.task('html:watch', function() {
+  gulp.watch('public/index.html', function() {
+    return gulp.src('public/index.html')
+      .pipe(refresh(lrserver));
+  });
+});
+
 gulp.task('scripts:watch', ['scripts'], function() {
   gulp.watch('src/*.js', ['scripts']);
 });
 
-gulp.task('watch', ['scripts:watch', 'less:watch', 'scripts', 'less', 'serve']);
+
+gulp.task('watch', ['scripts:watch', 'less:watch', 'html:watch', 'serve']);
 
 gulp.task('default', ['scripts:build', 'less:build']);

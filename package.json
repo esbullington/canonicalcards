@@ -1,48 +1,49 @@
 {
-  "name": "dashstock",
+  "name": "flashcards",
   "version": "0.0.1",
-  "description": "HighCharts(tm) on a Budget",
+  "description": "Flashcards",
   "main": "index.js",
   "scripts": {
     "watch": "watchify src/main.js -v --debug -o public/js/main.js & node server.js",
     "gulpwatch": "gulp watch & node server.js",
-    "build": "NODE_ENV=production browserify src/main.js | uglifyjs -c > dist/dashstock.js",
+    "build": "NODE_ENV=production browserify src/main.js | uglifyjs -c > dist/main.js",
     "test": "./node_modules/mocha-phantomjs/bin/mocha-phantomjs tests/index.html -R spec"
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:esbullington/dashstock.git"
+    "url": "git@github.com:esbullington/flashcards.git"
   },
   "keywords": [
-    "stock",
+    "flashcards",
     "charts"
   ],
   "author": "Eric S. Bullington",
   "license": "Proprietary -- All Rights Reserved",
   "bugs": {
-    "url": "https://github.com/esbullington/dashstock/issues"
+    "url": "https://github.com/esbullington/flashcards/issues"
   },
   "homepage": "https://github.com/esbullington/dashstock",
   "devDependencies": {
     "browserify": "^6.3.3",
+    "chai": "^1.10.0",
     "connect-livereload": "^0.5.2",
     "event-stream": "^3.1.7",
     "express": "^4.10.4",
     "gulp": "^3.8.10",
     "gulp-autoprefixer": "^2.0.0",
     "gulp-browserify": "^0.5.0",
+    "gulp-less": "^2.0.1",
     "gulp-livereload": "^2.1.1",
     "gulp-plumber": "^0.6.6",
     "gulp-sourcemaps": "^1.2.8",
-    "gulp-typescript": "^2.3.0",
     "gulp-util": "^3.0.1",
+    "jsdom": "^1.4.0",
+    "mocha": "^2.0.1",
     "mocha-phantomjs": "^3.5.1",
     "tiny-lr": "^0.1.4",
-    "tsify": "^0.6.3",
     "watchify": "^2.1.1"
   },
   "dependencies": {
-    "d3": "^3.4.13",
     "lodash": "^2.4.1"
   }
 }

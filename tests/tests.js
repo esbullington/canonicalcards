@@ -33,6 +33,8 @@ describe('Setting Up', function(){
 
 describe('Render Chart', function(){
 
+  var config;
+
   before(function(done) {
 
     var arr = [
@@ -68,11 +70,15 @@ describe('Render Chart', function(){
 
   describe('Chart div', function(){
     it('should exist and have a svg child', function() {
-      var chart = document.getElementById("chart");
-      expect('test').to.exist;
-      var svg = chart.getElementsByTagName("svg");
+      var chart = $("#chart");
+      expect(chart).to.exist;
+      var svg = chart.find("svg");
       expect(svg).to.exist;
-      expect(svg).to.have.length(1);
+    })
+    it('svg child should have width/height given in config', function() {
+      var svg = $("#chart svg");
+      expect(svg.height()).to.equal(config.height);
+      expect(svg.width()).to.equal(config.width);
     })
   })
 
@@ -84,7 +90,6 @@ describe('Render Chart', function(){
     it('should have rect child', function() {
       var r = $("#clip rect");
       expect(r).to.exist;
-      console.log("height: ", r.prop("height").baseVal.value);
       var height = r.prop("height").baseVal.value;
       expect(height).to.equal(390);
     })
