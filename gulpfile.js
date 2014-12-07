@@ -1,4 +1,5 @@
 var gulp = require('gulp');
+var fs = require('fs');
 var browserify = require('gulp-browserify');
 var sourcemaps = require('gulp-sourcemaps');
 var less = require('gulp-less');
@@ -8,20 +9,41 @@ var plumber = require('gulp-plumber');
 var refresh = require('gulp-livereload');
 var lrserver = require('tiny-lr')();
 var express = require('express');
+var parse = require('csv-parse');
 var livereload = require('connect-livereload');
 
 var livereloadport = 35729;
 var serverport = 4000;
+var CSV_ARRAY;
 
-//We only configure the server here and start it only when running the watch task
 var server = express();
+
 //Add livereload middleware before static-middleware
 server.use(livereload({
   port: livereloadport
 }));
-server.use(express.static('./public'));
-
  
+//We only configure the server here and start it only when running the watch task
+
+
+server.use(express.static(__dirname + '/public'));
+
+fs.createReadStream('data/cards.csv').pipe(
+  parse({delimiter: ','}, function(err, output) {
+    CSV_ARRAY = output;
+  })
+);
+
+server.get('/query', function(req, res) {
+
+  console.log(req.query);
+
+  var i = parseInt(req.query.index);
+
+  res.json({'result': 'success', 'data': CSV_ARRAY[i]});
+
+});
+
 gulp.task('serve', function() {
   //Set up your static fileserver, which serves files in the build dir
   server.listen(serverport);
