@@ -1,22 +1,4 @@
-"use strict";
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+console.log('testing');
 
-var parseDate = d3.time.format("%d-%b-%y").parse;
-
-d3.text("data/data.tsv", function (indata) {
-  var lines = indata.split('\n');
-  var i,
-    data = [],
-    len = lines.length;
-  for (i = 0; i < len - 1; i++) {
-    if (i === 0) {
-      continue;
-    }
-    var arr = lines[i].split('\t');
-    data.push(arr);
-  };
-  var config = {
-    el: "#chart",
-    data: data
-  };
-  DashStock.renderChart(config);
-});
+},{}]},{},[1])
