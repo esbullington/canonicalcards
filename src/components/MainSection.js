@@ -1,7 +1,4 @@
 var React = require('react');
-var rb = require('react-bootstrap');
-var Carousel = rb.Carousel;
-var CarouselItem = rb.CarouselItem;
 var ReactPropTypes = React.PropTypes;
 var FlashCardActions = require('../actions/FlashCardActions');
 var Footer = require('./Footer');
