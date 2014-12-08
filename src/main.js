@@ -8,10 +8,10 @@
  */
 
 var React = require('react');
+var Router = require('react-router');
 
-var FlashCardApp = require('./components/FlashCardApp');
+var routes = require('./components/App').routes;
 
-React.render(
-  <FlashCardApp />,
-  document.body
-);
+Router.run(routes, function (Handler) {
+  React.render(<Handler/>, document.body);
+});

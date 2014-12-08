@@ -1,15 +1,24 @@
 var React = require('react');
 var ReactPropTypes = React.PropTypes;
-var FlashCardActions = require('../actions/FlashCardActions');
-
+var Firebase = require("firebase");
+var firebaseRef = new Firebase("https://flashcardsapp.firebaseio.com/");
 
 var Container  = React.createClass({
 
   getInitialState: function() {
     return {
       index: 0,
-      direction: null
+      direction: null,
+      cards: []
     }
+  },
+
+  componentDidMount: function() {
+
+    firebaseRef.child('cards').on('value', function(snapshot) {
+      this.setState({cards: snapshot.val()});
+    }.bind(this));
+
   },
 
   handleSelect: function(selectedIndex, selectedDirection) {
@@ -22,20 +31,27 @@ var Container  = React.createClass({
 
     var self = this;
 
-    var carouselInstance = (
-      <div id="carousel-example-generic" className="carousel slide" data-ride="carousel" data-interval={false} data-wrap={false} >
-        <div className="carousel-inner" role="listbox"  >
-        {this.props.pages.map(function(el, idx) {
+    var renderCards = function() {
+      if (self.state.cards.length > 0) {
+        return self.state.cards.map(function(el, idx) {
           return (
               <div className={"item " + (self.state.index === idx ? "active" : "")} key={idx} >
                 <div className="carousel-wrapped">
-                  <h3>{el.color}</h3>
+                  <h3>{el.front}</h3>
                   <p>Nulla vitae elit libero, a pharetra augue mollis interdum.</p>
                 </div>
               </div>
             )
-          })
-        }
+          });
+      } else {
+        return <span></span>;
+      }
+    };
+
+    return  (
+      <div id="carousel-example-generic" className="carousel slide" data-ride="carousel" data-interval={false} data-wrap={false} >
+        <div className="carousel-inner" role="listbox"  >
+        {renderCards()}
         </div>
         <a className="left carousel-control" href="#carousel-example-generic" role="button" data-slide="prev">
           <span className="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
@@ -47,9 +63,6 @@ var Container  = React.createClass({
         </a>
       </div>
     );
-
-
-    return carouselInstance;
 
   }
 

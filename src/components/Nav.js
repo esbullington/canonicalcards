@@ -1,5 +1,44 @@
 var React = require('react');
 
+var NAV_LINKS = [
+  {
+    name: 'hd.payment',
+    title: 'Payment'
+  },
+  {
+    name: 'hd.dashboard',
+    title: 'Dashboard'
+  },
+  {
+    name: 'hd.about',
+    title: 'About'
+  },
+  {
+    name: 'hd.settings',
+    title: 'Settings'
+  },
+  {
+    name: 'hd.logout',
+    title: 'Logout'
+  }
+];
+
+var LOGIN_LINKS = [
+  {
+    name: 'hd.login',
+    title: 'Login'
+  },
+  {
+    name: 'hd.about',
+    title: 'About'
+  },
+  {
+    name: 'hd.register',
+    title: 'Register New Account'
+  }
+];
+
+
 var Nav = React.createClass({
 
   render: function() {
@@ -33,6 +72,15 @@ var Nav = React.createClass({
       );
   }
 
+            // {/* We only check local auth. state for proper menu, not to display potentially sensitive user data*/}
+            // { (this.props.loggedIn) ? 
+            //   NAV_LINKS.map( function(el) {
+            //    return this.renderNavItem(el);
+            //  }, this) :
+            //   LOGIN_LINKS.map( function(el) {
+            //    return this.renderNavItem(el);
+            //  }, this)
+            // }
 });
 
 module.exports = Nav;

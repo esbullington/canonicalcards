@@ -1,6 +1,5 @@
 var React = require('react');
 var ReactPropTypes = React.PropTypes;
-var FlashCardActions = require('../actions/FlashCardActions');
 var Footer = require('./Footer');
 
 var MainSection = React.createClass({
