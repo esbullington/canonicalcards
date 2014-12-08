@@ -8,8 +8,10 @@ var Header = React.createClass({
    */
   render: function() {
     return (
-      <header id="header">
-        <h1>todos</h1>
+      <header className="row" id="header">
+        <div className="col-md-12" >
+          <h1>Flashcard App</h1>
+        </div>
       </header>
     );
   },

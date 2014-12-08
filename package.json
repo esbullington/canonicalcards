@@ -39,7 +39,6 @@
     "gulp-util": "^3.0.1",
     "jsdom": "^1.4.0",
     "keymirror": "^0.1.0",
-    "merry-go-round": "0.0.2",
     "mocha": "^2.0.1",
     "mocha-phantomjs": "^3.5.1",
     "object-assign": "^2.0.0",

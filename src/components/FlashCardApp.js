@@ -1,6 +1,6 @@
-var Footer = require('./Footer');
-var Header = require('./Header');
 var MainSection = require('./MainSection');
+var CardContainer = require('./CardContainer');
+var Nav = require('./Nav');
 var React = require('react');
 var FlashCardStore = require('../stores/FlashCardStore');
 
@@ -33,11 +33,11 @@ var FlashCardApp = React.createClass({
   render: function() {
   	return (
       <div>
-        <Header />
+        <Nav />
+        <CardContainer />
         <MainSection
           allFlashCards={this.state.allFlashCards}
         />
-        <Footer allFlashCards={this.state.allFlashCards} />
       </div>
   	);
   },

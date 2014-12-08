@@ -2,6 +2,26 @@
 @import "bootstrap/bootstrap.less";
 @import "font-awesome/font-awesome.less";
 
-#main {
-  height: 100px;
+@site-carousel-color: black;
+
+@carousel-control-color: black;
+@carousel-control-opacity: 100%;
+@carousel-control-width: 10%;
+
+.card-container {
+}
+
+.carousel-inner {
+  height: 80%;
+  border-style: solid;
+  border-color: @site-carousel-color;
+  border-width: 5px;
+}
+
+.carousel-control span:hover {
+  color: lighten(@site-carousel-color, 50%);
+}
+
+.carousel-inner * .carousel-wrapped {
+  margin-left: 10%;
 }
