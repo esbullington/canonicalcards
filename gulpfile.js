@@ -1,6 +1,7 @@
 var gulp = require('gulp');
 var fs = require('fs');
 var browserify = require('gulp-browserify');
+var greact = require('gulp-react');
 var sourcemaps = require('gulp-sourcemaps');
 var less = require('gulp-less');
 var prefixer = require('gulp-autoprefixer');
@@ -84,8 +85,14 @@ gulp.task('less:watch', ['less'], function(){
     gulp.watch(['./public/less/*.less', './public/less/**/*.less'], ['less'])
 });
 
-gulp.task('scripts', function() {
-  return gulp.src('src/main.js')
+gulp.task('jsx', function() {
+  return gulp.src('src/**/*.js')
+             .pipe(greact({harmony: true}))
+             .pipe(gulp.dest('build'));
+});
+
+gulp.task('scripts', ['jsx'], function() {
+  return gulp.src('build/main.js')
     .pipe(sourcemaps.init())
     .pipe(browserify({
     }))
@@ -94,8 +101,8 @@ gulp.task('scripts', function() {
     .pipe(refresh(lrserver));
 });
 
-gulp.task('scripts:build', function() {
-  return gulp.src('src/main.js')
+gulp.task('scripts:build', ['jsx'], function() {
+  return gulp.src('build/main.js')
     .pipe(sourcemaps.init())
     .pipe(browserify({
     }))
@@ -112,7 +119,7 @@ gulp.task('html:watch', function() {
 });
 
 gulp.task('scripts:watch', ['scripts'], function() {
-  gulp.watch('src/*.js', ['scripts']);
+  gulp.watch('src/**/*.js', ['scripts']);
 });
 
 
