@@ -1,9 +1,25 @@
 var React = require('react');
 var ReactPropTypes = React.PropTypes;
+var Router = require('react-router');
+var Link = Router.Link;
 var Firebase = require("firebase");
 var CardItem = require('./CardItem');
 var firebaseRef = new Firebase("https://flashcardsapp.firebaseio.com/");
 var $ = window.jQuery;
+
+/**
+ * Randomize array element order in-place.
+ * Using Fisher-Yates shuffle algorithm.
+ */
+function shuffleArray(array) {
+    for (var i = array.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+    }
+    return array;
+}
 
 var Container  = React.createClass({
 
@@ -23,26 +39,16 @@ var Container  = React.createClass({
 
   },
 
-  handleSelect: function(selectedIndex, selectedDirection) {
-    console.log('selected=' + selectedIndex + ', direction=' + selectedDirection);
-    this.setState({index: selectedIndex, direction: selectedDirection});
-  },
-
-  formatAnswers: function(arr) {
+  formatCandidates: function(question, cards) {
     var res = [];
-    arr.map(function(el, idx) {
+    cards.map(function(el, idx) {
       var o = {
-        text: el.back,
-        result: this.state.index === idx ? true : false
+        text: el.answer,
+        result: el.question === question ? true : false
       };
       res.push(o);
     }, this)
-    return res;
-  },
-
-  advanceFrame: function(e) {
-    console.log('clicked!');
-    $('.carousel').carousel('next');
+    return shuffleArray(res);
   },
 
   renderCards: function() {
@@ -54,8 +60,8 @@ var Container  = React.createClass({
         return (
             <div className={"item " + (this.state.index === idx ? "active" : "")} key={idx} >
               <div className="carousel-wrapped">
-                <h3>{el.front}</h3>
-                <CardItem answers={this.formatAnswers(cards)} />
+                <h3>{el.question}</h3>
+                <CardItem candidates={this.formatCandidates(el.question, cards)} />
               </div>
             </div>
           )
@@ -93,6 +99,7 @@ var CardContainer = React.createClass({
     return (
       <div className="card-container">
         <Container pages={this.state.pages} />
+        <span id="ribbon"><Link to="dashboard">Dashboard</Link></span>
       </div>
     );
   }

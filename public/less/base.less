@@ -1,26 +1,42 @@
 @import "bootstrap/bootstrap.less";
 @import "font-awesome/font-awesome.less";
+@import "ribbon.less";
+
+// Sticky footer
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+#wrap {
+  // Margin bottom by footer height
+  margin-bottom: 60px;
+}
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  // Set the fixed height of the footer here
+  height: 60px;
+  background-color: #f5f5f5;
+}
+
+// End sticky footer
+
 
 @site-carousel-color: black;
-
 @carousel-control-color: black;
 @carousel-control-opacity: 100%;
 @carousel-control-width: 10%;
 
 .card-container {
-}
-
-.carousel-inner {
-  height: 80%;
+  height: 100%;
   border-style: solid;
   border-color: @site-carousel-color;
   border-width: 5px;
 }
 
-.carousel-control span:hover {
-  color: lighten(@site-carousel-color, 50%);
-}
-
+// Not needed if carousel arrows are removed
 .carousel-inner * .carousel-wrapped {
   margin-left: 10%;
 }

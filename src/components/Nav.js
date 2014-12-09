@@ -17,10 +17,6 @@ var NAV_LINKS = [
     title: 'Settings'
   },
   {
-    name: 'about',
-    title: 'About'
-  },
-  {
     name: 'logout',
     title: 'Logout'
   }
@@ -30,6 +26,10 @@ var LOGIN_LINKS = [
   {
     name: 'login',
     title: 'Login'
+  },
+  {
+    name: 'register',
+    title: 'Register'
   },
   {
     name: 'about',

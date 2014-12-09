@@ -3,7 +3,7 @@ var Router = require('react-router');
 var { Route, RouteHandler, Link } = Router;
 var auth = require('./auth');
 
-var Login = React.createClass({
+var Register = React.createClass({
 
   mixins: [ Router.Navigation ],
 
@@ -19,19 +19,23 @@ var Login = React.createClass({
 
   handleSubmit: function (event) {
     event.preventDefault();
-    var email = this.refs.email.getDOMNode().value;
     var password = this.refs.password.getDOMNode().value;
+    var repeatPassword = this.refs.repeatPassword.getDOMNode().value;
+    if (password != repeatPassword) {
+      this.setState({error: true});
+      return false;
+    }
     var user = {
-      email: email,
-      password: password
+      email: this.refs.email.getDOMNode().value,
+      password: this.refs.password.getDOMNode().value
     };
-    auth.login(user, function (error, authData) {
+    auth.createUser(user, function (error, authData) {
       if (error) {
         return this.setState({ error: true });
       }
-      if (Login.attemptedTransition) {
-        var transition = Login.attemptedTransition;
-        Login.attemptedTransition = null;
+      if (Register.attemptedTransition) {
+        var transition = Register.attemptedTransition;
+        Register.attemptedTransition = null;
         transition.retry();
       } else {
         this.replaceWith('/cards');
@@ -44,17 +48,22 @@ var Login = React.createClass({
     return (
       <div className="col-md-4">
         <div className="panel panel-default">
-          <div className="panel-heading"><h3 className="panel-title"><strong>Sign In </strong></h3></div>
+          <div className="panel-heading"><h3 className="panel-title"><strong>Register New User</strong></h3></div>
             <div className="panel-body">
               <form role="form" onSubmit={this.handleSubmit} >
                 <div className="form-group">
-                  <label htmlFor="inputEmail">Username or Email</label>
+                  <label htmlFor="inputEmail">Email</label>
                   <input type="email" className="form-control" ref="email" id="inputEmail" placeholder="Enter email" />
                 </div>
                 <div className="form-group">
-                  <label htmlFor="inputPassword">Password <a href="/sessions/forgot_password">(forgot password)</a>
+                  <label htmlFor="inputPassword">Password
                   </label>
-                  <input type="password" ref="password" className="form-control" id="inputPassword1" placeholder="Password"/>
+                  <input type="password" ref="password" className="form-control" id="inputPassword" placeholder="Password"/>
+                </div>
+                <div className="form-group">
+                  <label htmlFor="repeatPassword">Password (Again)
+                  </label>
+                  <input type="password" ref="repeatPassword" className="form-control" id="repeatPassword" placeholder="Repeat Password"/>
                 </div>
                 <button type="submit" className="btn btn-sm btn-default">Sign in</button>
               </form>
@@ -66,4 +75,4 @@ var Login = React.createClass({
 });
 
 
-module.exports = Login;
+module.exports = Register;

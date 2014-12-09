@@ -2,6 +2,7 @@ var React = require('react');
 var Router = require('react-router');
 var { Route, RouteHandler, Link } = Router;
 var Nav = require('./Nav');
+var Footer = require('./Footer');
 var Firebase = require('firebase');
 var presenceRef = new Firebase('https://flashcardsapp.firebaseio.com/disconnectmessage');
 var initPresenceMonitor = require('../controllers/appController').initPresenceMonitor;
@@ -23,7 +24,6 @@ var App = React.createClass({
 
   componentWillMount: function () {
     auth.onChange = this.setStateOnAuth;
-    auth.login();
   },
 
   componentDidMount: function() {
@@ -34,10 +34,7 @@ var App = React.createClass({
   render: function () {
     return (
       <div>
-        <Nav loggedIn={this.state.loggedIn} />
-        <div>
-          <RouteHandler/>
-        </div>
+        <RouteHandler/>
       </div>
     );
   }
