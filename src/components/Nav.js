@@ -1,45 +1,59 @@
 var React = require('react');
+var Router = require('react-router');
+var { Route, RouteHandler, Link } = Router;
+var auth = require('./auth');
 
 var NAV_LINKS = [
   {
-    name: 'hd.payment',
-    title: 'Payment'
+    name: 'cards',
+    title: 'Cards'
   },
   {
-    name: 'hd.dashboard',
+    name: 'dashboard',
     title: 'Dashboard'
   },
   {
-    name: 'hd.about',
-    title: 'About'
-  },
-  {
-    name: 'hd.settings',
+    name: 'settings',
     title: 'Settings'
   },
   {
-    name: 'hd.logout',
+    name: 'about',
+    title: 'About'
+  },
+  {
+    name: 'logout',
     title: 'Logout'
   }
 ];
 
 var LOGIN_LINKS = [
   {
-    name: 'hd.login',
+    name: 'login',
     title: 'Login'
   },
   {
-    name: 'hd.about',
+    name: 'about',
     title: 'About'
-  },
-  {
-    name: 'hd.register',
-    title: 'Register New Account'
   }
 ];
 
 
 var Nav = React.createClass({
+
+  getInitialState: function() {
+    return {
+      activePage: ''
+    }
+  },
+
+  renderNavItem: function (link) {
+    return (
+        <li className={this.state.activePage === link.name ? 'active' : ''} key={link.name}>
+          <Link data-link-name={link.name} to={link.name} >{link.title}</Link>
+        </li>
+      );
+  },
+
 
   render: function() {
     return (
@@ -56,15 +70,15 @@ var Nav = React.createClass({
               </div>
               <div className="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                   <ul className="nav navbar-nav">
-                      <li>
-                          <a href="#">About</a>
-                      </li>
-                      <li>
-                          <a href="#">Services</a>
-                      </li>
-                      <li>
-                          <a href="#">Contact</a>
-                      </li>
+                    {/* We only check local auth. state for proper menu, not to display potentially sensitive user data*/}
+                    { (this.props.loggedIn) ? 
+                      NAV_LINKS.map( function(el) {
+                       return this.renderNavItem(el);
+                     }, this) :
+                      LOGIN_LINKS.map( function(el) {
+                       return this.renderNavItem(el);
+                     }, this)
+                    }
                   </ul>
               </div>
           </div>
@@ -72,15 +86,6 @@ var Nav = React.createClass({
       );
   }
 
-            // {/* We only check local auth. state for proper menu, not to display potentially sensitive user data*/}
-            // { (this.props.loggedIn) ? 
-            //   NAV_LINKS.map( function(el) {
-            //    return this.renderNavItem(el);
-            //  }, this) :
-            //   LOGIN_LINKS.map( function(el) {
-            //    return this.renderNavItem(el);
-            //  }, this)
-            // }
 });
 
 module.exports = Nav;

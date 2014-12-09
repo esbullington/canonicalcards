@@ -1,6 +1,7 @@
 var React = require('react');
 var ReactPropTypes = React.PropTypes;
 var Firebase = require("firebase");
+var CardItem = require('./CardItem');
 var firebaseRef = new Firebase("https://flashcardsapp.firebaseio.com/");
 
 var Container  = React.createClass({
@@ -26,10 +27,23 @@ var Container  = React.createClass({
     this.setState({index: selectedIndex, direction: selectedDirection});
   },
 
+  formatAnswers: function(arr) {
+    var res = [];
+    arr.map(function(el, idx) {
+      var o = {
+        text: el.back,
+        result: this.state.index === idx ? true : false
+      };
+      res.push(o);
+    }, this)
+    return res;
+  },
 
   render: function () {
 
     var self = this;
+
+    var cards = this.state.cards;
 
     var renderCards = function() {
       if (self.state.cards.length > 0) {
@@ -38,7 +52,7 @@ var Container  = React.createClass({
               <div className={"item " + (self.state.index === idx ? "active" : "")} key={idx} >
                 <div className="carousel-wrapped">
                   <h3>{el.front}</h3>
-                  <p>Nulla vitae elit libero, a pharetra augue mollis interdum.</p>
+                  <CardItem answers={self.formatAnswers(cards)} />
                 </div>
               </div>
             )

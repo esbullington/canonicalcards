@@ -50,4 +50,4 @@ function pretendRequest(email, pass, cb) {
   }, 0);
 }
 
-module.exports = routes;
+module.exports = auth;
