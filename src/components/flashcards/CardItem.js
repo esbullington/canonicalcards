@@ -3,23 +3,39 @@ var ReactPropTypes = React.PropTypes;
 var Firebase = require('firebase');
 var constants = require('../../constants/AppConstants');
 var localStorageKey = constants.localStorageKey;
+var spacedRepetition = require('./spacedRepetition');
 var ref = new Firebase("https://flashcardsapp.firebaseio.com/");
 var $ = window.jQuery;
+
+
+function getRepIntervalAndQuestionDate(attemptedQuestions, grade, val) {
+  var repIntervalAndQuestionDate;
+  var lastRepetitionInterval = val ? val.lastRepetitionInterval: 1;
+  var easinessFactor = val && val.easinessFactor ? val.easinessFactor: 2.5;
+  var i = spacedRepetition.getNextRepetitionInterval(attemptedQuestions, grade, lastRepetitionInterval, easinessFactor);
+  console.log('next rep interval', i);
+  var today = new Date();
+  var nextQuestionDate = today.getTime() + (24*60*60*1000*i); 
+  repIntervalAndQuestionDate = {
+    lastRepetitionInterval: i,
+    nextQuestionDate: nextQuestionDate
+  };
+  return repIntervalAndQuestionDate;
+}
 
 var CardItem = React.createClass({
 
   getInitialState: function() {
     return {
       done: false,
-      isCorrect: false,
-      auth: null 
+      isCorrect: null,
+      auth: null,
+      startTime: 0
     };
   },
 
-  recordAnswer: function(hash, result) {
-    console.log('hash', hash)
-    console.log('result', result)
-    console.log('auth', this.state.auth)
+  recordAnswer: function(hash, result, grade) {
+    var self = this;
     if (this.state.auth) {
       var counterRef = ref.child('users').child(this.state.auth.uid).child(hash);
       counterRef.once('value', function(snapshot) {
@@ -30,9 +46,16 @@ var CardItem = React.createClass({
         } else {
           var correctQuestions = val ? val.correctQuestions: 0;
         }
+        var o = getRepIntervalAndQuestionDate(attemptedQuestions, grade, val);
+        var hesitationInterval = (new Date().getTime()) - self.state.startTime;
+        var hesitation = val && val.hesitation ? val.hesitation + ';' + hesitationInterval.toString() : hesitationInterval.toString();
+        console.log('hesitation', hesitation);
         var toSave = {
           correctQuestions: correctQuestions,
-          attemptedQuestions: attemptedQuestions
+          attemptedQuestions: attemptedQuestions,
+          lastRepetitionInterval: o.lastRepetitionInterval,
+          nextQuestionDate: o.nextQuestionDate,
+          hesitation: hesitation
         };
         counterRef.set(toSave, function(error) {
           if (error) {
@@ -51,41 +74,99 @@ var CardItem = React.createClass({
     var thisAnswerCandidate = this.props.candidates[i];
     if (thisAnswerCandidate.result) {
       this.setState({isCorrect: true});
-      this.recordAnswer(this.props.question.hash, true);
       console.log('Answer is: ', true);
     } else {
       console.log('Answer is: ', false);
-      this.recordAnswer(this.props.question.hash, false);
       this.setState({isCorrect: false});
     }
     this.setState({done: true});
   },
 
-  advanceFrame: function(e) {
+  advanceFrame: function() {
     this.setState({done: false, isCorrect: false});
     console.log('clicked!');
     $('.carousel').carousel('next');
   },
 
-  componentDidMount: function() {
+  componentDidMount: function(e) {
     if (this.isMounted()) {
+      var now = new Date();
+      this.setState({startTime: now.getTime()});
       var auth = JSON.parse(localStorage.getItem(localStorageKey));
       this.setState({auth: auth});
     }
   },
 
+  checkGrade: function(e) {
+    e.preventDefault;
+    var grade = +e.target.value;
+    console.log("Grade: " + grade);
+    if (this.state.isCorrect !== null) {
+      this.recordAnswer(this.props.question.hash, this.state.isCorrect, grade);
+    }
+  },
+
+  renderGrades: function(isCorrect) {
+    var correctGrades = {
+      3: 'correct response recalled with serious difficulty',
+      4: 'correct response after a hesitation',
+      5: 'perfect response'
+    };
+    var incorrectGrades = {
+      0: 'complete blackout',
+      1: 'incorrect response; the correct one remembered',
+      2: 'incorrect response; where the correct one seemed easy to recall',
+    };
+    if (isCorrect) {
+      return (
+          <div>
+          {Object.keys(correctGrades).map(function(val, idx) {
+            return (
+              <div key={idx} >
+                <label>
+                  <input onClick={this.checkGrade} type="radio" id="possibleGrades" name="grades" value={val} style={{"display":"none"}} />
+                  {correctGrades[val]}
+                </label> 
+              </div>
+                )
+            }, this)
+          }
+          </div>
+        );
+    } else {
+      return (
+          <div>
+          {Object.keys(incorrectGrades).map(function(val, idx) {
+            return (
+              <div key={idx} >
+                <label>
+                  <input onClick={this.checkGrade} type="radio" id="possibleGrades" name="grades" value={val} style={{"display":"none"}} />
+                  {incorrectGrades[val]}
+                </label> 
+              </div>
+                )
+            }, this)
+          }
+          </div>
+        );
+    }
+  },
+
   renderResult: function() {
     if (this.state.done && this.state.isCorrect) {
+      var isCorrect = this.state.isCorrect;
       return (
       <div>
         <div>Right!</div>
+        {this.renderGrades(isCorrect)}
         <button onClick={this.advanceFrame} className="btn btn-default">Next</button>
       </div>
         );
     } else if (this.state.done) {
       return (
       <div>
-        <div>Wrong!</div>
+        <div>Wrong! The correct answer is: {this.props.question.answer} </div>
+        {this.renderGrades(isCorrect)}
         <button onClick={this.advanceFrame} className="btn btn-default">Next</button>
       </div>
       );

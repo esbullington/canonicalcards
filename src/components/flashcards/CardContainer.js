@@ -39,6 +39,10 @@ var Container  = React.createClass({
 
   },
 
+  setIndex: function(i) {
+    this.setState({index: i});
+  },
+
   formatCandidates: function(question, cards) {
     var res = [];
     cards.map(function(el, idx) {
@@ -62,7 +66,7 @@ var Container  = React.createClass({
             <div className={"item " + (this.state.index === idx ? "active" : "")} key={idx} >
               <div className="carousel-wrapped">
                 <h3>{el.question}</h3>
-                <CardItem candidates={this.formatCandidates(el.question, cards)} question={el} />
+                <CardItem setIndex={this.setIndex} candidates={this.formatCandidates(el.question, cards)} question={el} />
               </div>
             </div>
           )
