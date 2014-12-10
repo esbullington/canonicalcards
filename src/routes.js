@@ -13,18 +13,18 @@ var Display = require('./components/Display');
 var NotFound = require('./components/NotFound');
 
 var routes = (
-  <Route handler={App} path="/" >
-    <DefaultRoute handler={Login} />
+  <Route handler={App}  >
+    <DefaultRoute handler={Login}/>
     <Route name="cards" handler={Cards}/>
-    <Route name="display" path="/" handler={Display} >
+    <Route name="display"  handler={Display} >
       <Route name="login" handler={Login}/>
       <Route name="logout" handler={Logout}/>
       <Route name="register" handler={Register}/>
       <Route name="about" handler={About}/>
       <Route name="dashboard" handler={Dashboard}/>
       <Route name="settings" handler={Settings}/>
-    <NotFoundRoute handler={NotFound}/>
     </Route>
+    <NotFoundRoute handler={Login}/>
   </Route>
 );
 

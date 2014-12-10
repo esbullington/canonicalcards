@@ -2,7 +2,7 @@
 
 var Firebase = require('firebase');
 var PubSub = require('pubsub-js');
-var EventTypes = require('../constants/pubsub');
+var EventTypes = require('../constants/EventTypes');
 var MAKE_FLASH = EventTypes.MAKE_FLASH;
 var ref = new Firebase("https://flashcardsapp.firebaseio.com/");
 var authRef = ref.child('.info').child('authenticated');

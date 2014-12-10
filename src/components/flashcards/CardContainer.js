@@ -43,6 +43,7 @@ var Container  = React.createClass({
     var res = [];
     cards.map(function(el, idx) {
       var o = {
+        hash: el.hash,
         text: el.answer,
         result: el.question === question ? true : false
       };
@@ -61,7 +62,7 @@ var Container  = React.createClass({
             <div className={"item " + (this.state.index === idx ? "active" : "")} key={idx} >
               <div className="carousel-wrapped">
                 <h3>{el.question}</h3>
-                <CardItem candidates={this.formatCandidates(el.question, cards)} />
+                <CardItem candidates={this.formatCandidates(el.question, cards)} question={el} />
               </div>
             </div>
           )
@@ -89,16 +90,10 @@ var Container  = React.createClass({
 
 var CardContainer = React.createClass({
 
-  getInitialState: function() {
-    return {
-      pages: [{color: 'black'}, {color: 'orange'}]
-    }
-  },
-
   render: function() {
     return (
       <div className="card-container">
-        <Container pages={this.state.pages} />
+        <Container />
         <span id="ribbon"><Link to="dashboard">Dashboard</Link></span>
       </div>
     );

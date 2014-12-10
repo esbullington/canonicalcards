@@ -2,7 +2,7 @@ var React = require('react');
 var Router= require('react-router')
 var RouteHandler = Router.RouteHandler;
 var Nav = require('./Nav');
-var Footer = require('./Footer'); 
+var Footer = require('./partials/Footer'); 
 var auth = require('./auth');
 
 var Display = React.createClass({

@@ -1,5 +1,7 @@
 var React = require('react');
 var Authentication = require('./Authentication');
+var Firebase = require('firebase');
+var ref = new Firebase("https://flashcardsapp.firebaseio.com/");
 var auth = require('./auth');
 
 var Dashboard = React.createClass({
