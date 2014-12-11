@@ -1,10 +1,10 @@
 var React = require('react');
 var ReactPropTypes = React.PropTypes;
 var Firebase = require('firebase');
+var ref = new Firebase("https://flashcardsapp.firebaseio.com/");
 var constants = require('../../constants/AppConstants');
 var localStorageKey = constants.localStorageKey;
 var spacedRepetition = require('./spacedRepetition');
-var ref = new Firebase("https://flashcardsapp.firebaseio.com/");
 var $ = window.jQuery;
 
 
@@ -30,6 +30,7 @@ var CardItem = React.createClass({
       done: false,
       isCorrect: null,
       auth: null,
+      settings: null,
       startTime: 0
     };
   },
@@ -82,6 +83,22 @@ var CardItem = React.createClass({
     this.setState({done: true});
   },
 
+  checkSRSAnswer: function(e) {
+    e.preventDefault;
+    var i = +e.target.value;
+    // We've pre-checked the array of answer candidates for the correct answer
+    // So we only have to check if the pre-checked result is true
+    var thisAnswerCandidate = this.props.candidates[i];
+    if (thisAnswerCandidate.result) {
+      this.setState({isCorrect: true});
+      console.log('Answer is: ', true);
+    } else {
+      console.log('Answer is: ', false);
+      this.setState({isCorrect: false});
+    }
+    this.setState({done: true});
+  },
+
   advanceFrame: function() {
     this.setState({done: false, isCorrect: false});
     console.log('clicked!');
@@ -94,6 +111,11 @@ var CardItem = React.createClass({
       this.setState({startTime: now.getTime()});
       var auth = JSON.parse(localStorage.getItem(localStorageKey));
       this.setState({auth: auth});
+      var settingsRef = ref.child('users').child(auth.uid).child('settings');
+      settingsRef.once('value', function(snapshot) {
+        var settings = snapshot.val();
+        this.setState({settings: settings});
+      }, this);
     }
   },
 
@@ -153,23 +175,42 @@ var CardItem = React.createClass({
   },
 
   renderResult: function() {
-    if (this.state.done && this.state.isCorrect) {
-      var isCorrect = this.state.isCorrect;
-      return (
-      <div>
-        <div>Right!</div>
-        {this.renderGrades(isCorrect)}
-        <button onClick={this.advanceFrame} className="btn btn-default">Next</button>
-      </div>
-        );
-    } else if (this.state.done) {
-      return (
-      <div>
-        <div>Wrong! The correct answer is: {this.props.question.answer} </div>
-        {this.renderGrades(isCorrect)}
-        <button onClick={this.advanceFrame} className="btn btn-default">Next</button>
-      </div>
-      );
+    if (this.state.done && this.state.settings) {
+      // First, the render right/wrong paths for those not wanting SRS
+      if (!this.state.settings.srs && this.state.isCorrect) {
+        return (
+            <div>
+              <div>Right!</div>
+              <button onClick={this.advanceFrame} className="btn btn-default">Next</button>
+            </div>
+          );
+      } else if (!this.state.settings.srs) {
+        return (
+            <div>
+              <div>Wrong: </div>
+              <button onClick={this.advanceFrame} className="btn btn-default">Next</button>
+            </div>
+          );
+      }
+      // For SRS results
+      if (this.state.settings.srs && this.state.isCorrect) {
+        var isCorrect = this.state.isCorrect;
+        return (
+            <div>
+              <div>Right!</div>
+              {this.renderGrades(isCorrect)}
+              <button onClick={this.advanceFrame} className="btn btn-default">Next</button>
+            </div>
+          );
+      } else if (this.state.settings.srs) {
+        return (
+            <div>
+              <div>Wrong! The correct answer is: {this.props.question.answer} </div>
+              {this.renderGrades(isCorrect)}
+              <button onClick={this.advanceFrame} className="btn btn-default">Next</button>
+            </div>
+          );
+      }
     }
   },
 
@@ -181,7 +222,7 @@ var CardItem = React.createClass({
           return (
             <div key={idx} >
               <label>
-                <input onClick={this.checkAnswer} type="radio" id="possibleAnswers" name="candidates" value={idx} style={{"display":"none"}} />
+                <input onClick={this.checkSRSAnswer} type="radio" id="possibleAnswers" name="candidates" value={idx} style={{"display":"none"}} />
                 {el.text}
               </label> 
             </div>
