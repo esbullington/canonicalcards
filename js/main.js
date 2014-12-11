@@ -768,10 +768,10 @@ module.exports = CardContainer;
 var React = require('react');
 var ReactPropTypes = React.PropTypes;
 var Firebase = require('firebase');
+var ref = new Firebase("https://flashcardsapp.firebaseio.com/");
 var constants = require('../../constants/AppConstants');
 var localStorageKey = constants.localStorageKey;
 var spacedRepetition = require('./spacedRepetition');
-var ref = new Firebase("https://flashcardsapp.firebaseio.com/");
 var $ = window.jQuery;
 
 
@@ -797,6 +797,7 @@ var CardItem = React.createClass({displayName: 'CardItem',
       done: false,
       isCorrect: null,
       auth: null,
+      settings: null,
       startTime: 0
     };
   },
@@ -849,6 +850,22 @@ var CardItem = React.createClass({displayName: 'CardItem',
     this.setState({done: true});
   },
 
+  checkSRSAnswer: function(e) {
+    e.preventDefault;
+    var i = +e.target.value;
+    // We've pre-checked the array of answer candidates for the correct answer
+    // So we only have to check if the pre-checked result is true
+    var thisAnswerCandidate = this.props.candidates[i];
+    if (thisAnswerCandidate.result) {
+      this.setState({isCorrect: true});
+      console.log('Answer is: ', true);
+    } else {
+      console.log('Answer is: ', false);
+      this.setState({isCorrect: false});
+    }
+    this.setState({done: true});
+  },
+
   advanceFrame: function() {
     this.setState({done: false, isCorrect: false});
     console.log('clicked!');
@@ -861,6 +878,11 @@ var CardItem = React.createClass({displayName: 'CardItem',
       this.setState({startTime: now.getTime()});
       var auth = JSON.parse(localStorage.getItem(localStorageKey));
       this.setState({auth: auth});
+      var settingsRef = ref.child('users').child(auth.uid).child('settings');
+      settingsRef.once('value', function(snapshot) {
+        var settings = snapshot.val();
+        this.setState({settings: settings});
+      }, this);
     }
   },
 
@@ -920,23 +942,42 @@ var CardItem = React.createClass({displayName: 'CardItem',
   },
 
   renderResult: function() {
-    if (this.state.done && this.state.isCorrect) {
-      var isCorrect = this.state.isCorrect;
-      return (
-      React.createElement("div", null, 
-        React.createElement("div", null, "Right!"), 
-        this.renderGrades(isCorrect), 
-        React.createElement("button", {onClick: this.advanceFrame, className: "btn btn-default"}, "Next")
-      )
-        );
-    } else if (this.state.done) {
-      return (
-      React.createElement("div", null, 
-        React.createElement("div", null, "Wrong! The correct answer is: ", this.props.question.answer, " "), 
-        this.renderGrades(isCorrect), 
-        React.createElement("button", {onClick: this.advanceFrame, className: "btn btn-default"}, "Next")
-      )
-      );
+    if (this.state.done && this.state.settings) {
+      // First, the render right/wrong paths for those not wanting SRS
+      if (!this.state.settings.srs && this.state.isCorrect) {
+        return (
+            React.createElement("div", null, 
+              React.createElement("div", null, "Right!"), 
+              React.createElement("button", {onClick: this.advanceFrame, className: "btn btn-default"}, "Next")
+            )
+          );
+      } else if (!this.state.settings.srs) {
+        return (
+            React.createElement("div", null, 
+              React.createElement("div", null, "Wrong: "), 
+              React.createElement("button", {onClick: this.advanceFrame, className: "btn btn-default"}, "Next")
+            )
+          );
+      }
+      // For SRS results
+      if (this.state.settings.srs && this.state.isCorrect) {
+        var isCorrect = this.state.isCorrect;
+        return (
+            React.createElement("div", null, 
+              React.createElement("div", null, "Right!"), 
+              this.renderGrades(isCorrect), 
+              React.createElement("button", {onClick: this.advanceFrame, className: "btn btn-default"}, "Next")
+            )
+          );
+      } else if (this.state.settings.srs) {
+        return (
+            React.createElement("div", null, 
+              React.createElement("div", null, "Wrong! The correct answer is: ", this.props.question.answer, " "), 
+              this.renderGrades(isCorrect), 
+              React.createElement("button", {onClick: this.advanceFrame, className: "btn btn-default"}, "Next")
+            )
+          );
+      }
     }
   },
 
@@ -948,7 +989,7 @@ var CardItem = React.createClass({displayName: 'CardItem',
           return (
             React.createElement("div", {key: idx}, 
               React.createElement("label", null, 
-                React.createElement("input", {onClick: this.checkAnswer, type: "radio", id: "possibleAnswers", name: "candidates", value: idx, style: {"display":"none"}}), 
+                React.createElement("input", {onClick: this.checkSRSAnswer, type: "radio", id: "possibleAnswers", name: "candidates", value: idx, style: {"display":"none"}}), 
                 el.text
               )
             )
