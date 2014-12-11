@@ -24,7 +24,7 @@ var App = React.createClass({displayName: 'App',
 
   getInitialState: function () {
     return {
-      loggedIn: auth.loggedIn()
+      loggedIn: auth.loggedIn(),
     };
   },
 
@@ -39,8 +39,10 @@ var App = React.createClass({displayName: 'App',
   },
 
   componentDidMount: function() {
-    var userId = '';
-    initPresenceMonitor(userId);
+    if (this.state.loggedIn) {
+      var userId = this.state.loggedIn.uid;
+      initPresenceMonitor(userId);
+    }
   },
 
   render: function () {
@@ -107,12 +109,19 @@ var Router= require('react-router')
 var RouteHandler = Router.RouteHandler;
 var Nav = require('./Nav');
 var Footer = require('./partials/Footer'); 
+var PubSub = require('pubsub-js');
+var EventTypes = require('../constants/EventTypes');
+// User Events
+var FLASH_OPEN = EventTypes.FLASH_OPEN;
+var FLASH_CLOSE = EventTypes.FLASH_CLOSE;
 var auth = require('./auth');
 
 var Display = React.createClass({displayName: 'Display',
 
   getInitialState: function () {
     return {
+      flash: {},
+      alertVisible: false,
       loggedIn: auth.loggedIn()
     };
   },
@@ -125,6 +134,58 @@ var Display = React.createClass({displayName: 'Display',
 
   componentWillMount: function () {
     auth.onChange = this.setStateOnAuth;
+    var self = this;
+    PubSub.subscribe(FLASH_CLOSE, function(msg, data) {
+      if (self.isMounted()) {
+        self.setAlertState(false);
+      }
+    });
+    PubSub.subscribe(FLASH_OPEN, function(msg, data) {
+      if (self.isMounted()) {
+        self.raiseFlash(data);
+      }
+    });
+  },
+
+  raiseFlash: function(flash) {
+    if (this.isMounted()) {
+      this.setState({flash: flash});
+      this.setState({alertVisible: true});
+    }
+  },
+
+  setAlertState: function(state) {
+    if (this.isMounted()) {
+      this.setState({alertVisible: state});
+    }
+  },
+  
+  renderFlashMessage: function() {
+    var html = this.state.flash.html;
+    if (html) {
+      var key = {
+        __html: html
+      };
+      return React.createElement("div", {id: "flash-html", dangerouslySetInnerHTML: key});
+    } else {
+      return React.createElement("span", {id: "flash-message"}, this.state.flash.message);
+    }
+  },
+
+  renderFlash: function() {
+    var alertStyle = {
+      'margin-top': '20px'
+    };
+    if (this.state.alertVisible) {
+      return (
+        React.createElement("div", {className: "alert alert-dismissible alert-" + this.state.flash.type + " fade in", role: "alert"}, 
+          React.createElement("button", {id: this.state.flash.id, type: "button", className: "close", 'data-dismiss': "alert"}, 
+          React.createElement("span", {'aria-hidden': "true"}, "×"), 
+          React.createElement("span", {className: "sr-only"}, "Close")), 
+          React.createElement("strong", null, this.state.flash.header), " ", this.renderFlashMessage()
+        )
+      );
+    }
   },
 
   render: function() {
@@ -132,6 +193,11 @@ var Display = React.createClass({displayName: 'Display',
       React.createElement("div", {id: "wrap"}, 
         React.createElement(Nav, {loggedIn: this.state.loggedIn}), 
         React.createElement("div", {className: "container"}, 
+          React.createElement("div", {className: "row"}, 
+            React.createElement("div", {className: "col-md-10"}, 
+               this.renderFlash() 
+            )
+          ), 
           React.createElement("div", {className: "row"}, 
             React.createElement(RouteHandler, null)
           )
@@ -146,7 +212,7 @@ var Display = React.createClass({displayName: 'Display',
 
 module.exports = Display;
 
-},{"./Nav":8,"./auth":12,"./partials/Footer":16,"react":216,"react-router":38}],6:[function(require,module,exports){
+},{"../constants/EventTypes":18,"./Nav":8,"./auth":12,"./partials/Footer":16,"pubsub-js":28,"react":216,"react-router":38}],6:[function(require,module,exports){
 var React = require('react');
 var Router = require('react-router');
 var $__0=      Router,Route=$__0.Route,RouteHandler=$__0.RouteHandler,Link=$__0.Link;
@@ -426,7 +492,11 @@ var Firebase = require('firebase');
 var Authentication = require('./Authentication');
 var constants = require('../constants/AppConstants');
 var localStorageKey = constants.localStorageKey;
+var PubSub = require('pubsub-js');
+var EventTypes = require('../constants/EventTypes');
+var FLASH_OPEN = EventTypes.FLASH_OPEN;
 var ref = new Firebase("https://flashcardsapp.firebaseio.com/");
+var $ = window.jQuery;
 
 var Settings = React.createClass({displayName: 'Settings',
 
@@ -435,7 +505,10 @@ var Settings = React.createClass({displayName: 'Settings',
   getInitialState: function() {
     return {
       radioChecked: {yes: false, no: false},
-      settingsRef: null
+      proposedRadioVal: '',
+      settingsRef: null,
+      userRef: null,
+      warningVisible: false
     };
   },
 
@@ -445,23 +518,58 @@ var Settings = React.createClass({displayName: 'Settings',
     }
   },
 
+  cancelReset: function(e) {
+    this.setState({warningVisible: false});
+  },
+
+  resetMethod: function(e) {
+    this.state.userRef.child('stats').remove();
+    if (this.state.proposedRadioVal === 'yes') {
+      this.state.settingsRef.set({srs: true}, this.handleSettingsError);
+      this.setState({radioChecked: {yes: true, no: false}});
+    } else if (this.state.proposedRadioVal === 'no') {
+      this.state.settingsRef.set({srs: false}, this.handleSettingsError);
+      this.setState({radioChecked: {yes: false, no: true}});
+    }
+    this.setState({proposedRadioVal: '', warningVisible: false});
+  },
+
+  renderWarning: function() {
+    var alertStyle = {
+      'margin-top': '20px'
+    };
+    var oldMethod, newMethod;
+    if (this.state.proposedRadioVal === 'yes') {
+      oldMethod = 'SRS';
+      newMethod = 'flashcard';
+    } else {
+      oldMethod = 'flashcard';
+      newMethod = 'SRS';
+    }
+    if (this.state.warningVisible) {
+      return (
+        React.createElement("div", {className: "alert alert-dismissible alert-danger fade in", role: "alert"}, 
+          React.createElement("button", {type: "button", className: "close", 'data-dismiss': "alert"}, 
+          React.createElement("span", {'aria-hidden': "true"}, "×"), 
+          React.createElement("span", {className: "sr-only"}, "Close")), 
+          React.createElement("strong", null, "Warning!"), " Are you sure you want to change to the flash card methods from ", oldMethod, " to ", newMethod, "?  Doing so will reset all your existing statistics. ", React.createElement("button", {className: "btn btn-default", onClick: this.resetMethod}, "OK, I want to change methods and delete all my stats"), 
+          React.createElement("button", {className: "btn btn-default", style: {'marginLeft': '2px'}, onClick: this.cancelReset}, "Cancel")
+        )
+      );
+    }
+  },
+
   handleRadioClick: function(e) {
     var val = e.target.value;
-    if (val === 'yes') {
-      this.state.settingsRef.set({srs: true}, this.handleSettingsError);
-      this.setState({radioChecked: true});
-    } else if (val === 'no') {
-      this.state.settingsRef.set({srs: false}, this.handleSettingsError);
-      this.setState({radioChecked: false});
-    }
-    console.log('checked val: ', val);
+    this.setState({proposedRadioVal: val, warningVisible: true});
   },
 
   componentDidMount: function() {
     if (this.isMounted()) {
       var auth = JSON.parse(localStorage.getItem(localStorageKey));
-      var settingsRef = ref.child('users').child(auth.uid).child('settings');
-      this.setState({settingsRef: settingsRef});
+      var userRef = ref.child('users').child(auth.uid);
+      var settingsRef = userRef.child('settings');
+      this.setState({settingsRef: settingsRef, userRef: userRef});
       var radioCheck = function(snapshot) {
         var settings = snapshot.val();
         if (!settings) {
@@ -502,16 +610,21 @@ var Settings = React.createClass({displayName: 'Settings',
         React.createElement("div", null, 
           React.createElement("div", {className: "row"}, 
             React.createElement("div", {className: "col-sm-10 col-xs-12"}, 
+              this.renderWarning()
+            )
+          ), 
+          React.createElement("div", {className: "row"}, 
+            React.createElement("div", {className: "col-sm-10 col-xs-12"}, 
               React.createElement("form", {role: "form"}, 
                 React.createElement("div", {className: "form-group"}, 
                   React.createElement("label", {htmlFor: "radio"}, "Enable the Spaced Repetition System (SRS)"), 
                   React.createElement("div", null, 
-                  React.createElement("span", {className: "srs-radio"}, 
-                    React.createElement("input", {type: "radio", name: "srs", checked: this.state.radioChecked.yes, onChange: this.handleRadioClick, value: "yes"}), " yes"
-                  ), 
-                  React.createElement("span", {className: "srs-radio"}, 
-                    React.createElement("input", {type: "radio", checked: this.state.radioChecked.no, onChange: this.handleRadioClick, name: "srs", value: "no"}), " no"
-                  )
+                    React.createElement("span", {className: "srs-radio"}, 
+                      React.createElement("input", {type: "radio", name: "srs", checked: this.state.radioChecked.yes, onChange: this.handleRadioClick, value: "yes"}), " yes"
+                    ), 
+                    React.createElement("span", {className: "srs-radio"}, 
+                      React.createElement("input", {type: "radio", checked: this.state.radioChecked.no, onChange: this.handleRadioClick, name: "srs", value: "no"}), " no"
+                    )
                   )
                 )
               )
@@ -525,7 +638,7 @@ var Settings = React.createClass({displayName: 'Settings',
 
 module.exports = Settings;
 
-},{"../constants/AppConstants":17,"./Authentication":3,"firebase":22,"react":216}],12:[function(require,module,exports){
+},{"../constants/AppConstants":17,"../constants/EventTypes":18,"./Authentication":3,"firebase":22,"pubsub-js":28,"react":216}],12:[function(require,module,exports){
 'use strict';
 
 var Firebase = require('firebase');
@@ -646,11 +759,8 @@ module.exports = {
   },
 
   loggedIn: function() {
-    if (ref.getAuth()) {
-      return true;
-    };
-    return false;
-  },
+    return ref.getAuth();
+  }
 
 };
 
@@ -690,9 +800,11 @@ var Container  = React.createClass({displayName: 'Container',
 
   componentDidMount: function() {
 
-    firebaseRef.child('cards').on('value', function(snapshot) {
-      this.setState({cards: snapshot.val()});
-    }.bind(this));
+    if (this.isMounted()) {
+      firebaseRef.child('cards').on('value', function(snapshot) {
+        this.setState({cards: snapshot.val()});
+      }.bind(this));
+    }
 
   },
 
@@ -702,11 +814,11 @@ var Container  = React.createClass({displayName: 'Container',
 
   formatCandidates: function(question, cards) {
     var res = [];
-    cards.map(function(el, idx) {
+    Object.keys(cards).map(function(val, idx) {
       var o = {
-        hash: el.hash,
-        text: el.answer,
-        result: el.question === question ? true : false
+        hash: val,
+        text: cards[val].answer,
+        result: cards[val].question === question ? true : false
       };
       res.push(o);
     }, this)
@@ -717,13 +829,13 @@ var Container  = React.createClass({displayName: 'Container',
 
     var cards = this.state.cards;
 
-    if (this.state.cards.length > 0) {
-      return this.state.cards.map(function(el, idx) {
+    if (cards) {
+      return Object.keys(cards).map(function(val, idx) {
         return (
             React.createElement("div", {className: "item " + (this.state.index === idx ? "active" : ""), key: idx}, 
               React.createElement("div", {className: "carousel-wrapped"}, 
-                React.createElement("h3", null, el.question), 
-                React.createElement(CardItem, {setIndex: this.setIndex, candidates: this.formatCandidates(el.question, cards), question: el})
+                React.createElement("h3", null, cards[val].question), 
+                React.createElement(CardItem, {setIndex: this.setIndex, candidates: this.formatCandidates(cards[val].question, cards), hash: val, question: cards[val]})
               )
             )
           )
@@ -780,7 +892,6 @@ function getRepIntervalAndQuestionDate(attemptedQuestions, grade, val) {
   var lastRepetitionInterval = val ? val.lastRepetitionInterval: 1;
   var easinessFactor = val && val.easinessFactor ? val.easinessFactor: 2.5;
   var i = spacedRepetition.getNextRepetitionInterval(attemptedQuestions, grade, lastRepetitionInterval, easinessFactor);
-  console.log('next rep interval', i);
   var today = new Date();
   var nextQuestionDate = today.getTime() + (24*60*60*1000*i); 
   repIntervalAndQuestionDate = {
@@ -802,10 +913,10 @@ var CardItem = React.createClass({displayName: 'CardItem',
     };
   },
 
-  recordAnswer: function(hash, result, grade) {
+  recordSRSAnswer: function(hash, result, grade) {
     var self = this;
     if (this.state.auth) {
-      var counterRef = ref.child('users').child(this.state.auth.uid).child(hash);
+      var counterRef = ref.child('users').child(this.state.auth.uid).child('stats').child('srs').child(hash);
       counterRef.once('value', function(snapshot) {
         var val = snapshot.val();
         var attemptedQuestions = val ? val.attemptedQuestions += 1: 1;
@@ -817,12 +928,39 @@ var CardItem = React.createClass({displayName: 'CardItem',
         var o = getRepIntervalAndQuestionDate(attemptedQuestions, grade, val);
         var hesitationInterval = (new Date().getTime()) - self.state.startTime;
         var hesitation = val && val.hesitation ? val.hesitation + ';' + hesitationInterval.toString() : hesitationInterval.toString();
-        console.log('hesitation', hesitation);
         var toSave = {
           correctQuestions: correctQuestions,
           attemptedQuestions: attemptedQuestions,
           lastRepetitionInterval: o.lastRepetitionInterval,
           nextQuestionDate: o.nextQuestionDate,
+          hesitation: hesitation
+        };
+        counterRef.set(toSave, function(error) {
+          if (error) {
+            console.log('error saving results');
+          }
+        });
+      });
+    }
+  },
+
+  recordAnswer: function(hash, result) {
+    var self = this;
+    if (this.state.auth) {
+      var counterRef = ref.child('users').child(this.state.auth.uid).child('stats').child('flashcards').child(hash);
+      counterRef.once('value', function(snapshot) {
+        var val = snapshot.val();
+        var attemptedQuestions = val ? val.attemptedQuestions += 1: 1;
+        if (result) {
+          var correctQuestions = val? val.correctQuestions += 1: 1;
+        } else {
+          var correctQuestions = val ? val.correctQuestions: 0;
+        }
+        var hesitationInterval = (new Date().getTime()) - self.state.startTime;
+        var hesitation = val && val.hesitation ? val.hesitation + ';' + hesitationInterval.toString() : hesitationInterval.toString();
+        var toSave = {
+          correctQuestions: correctQuestions,
+          attemptedQuestions: attemptedQuestions,
           hesitation: hesitation
         };
         counterRef.set(toSave, function(error) {
@@ -842,10 +980,10 @@ var CardItem = React.createClass({displayName: 'CardItem',
     var thisAnswerCandidate = this.props.candidates[i];
     if (thisAnswerCandidate.result) {
       this.setState({isCorrect: true});
-      console.log('Answer is: ', true);
+      this.recordAnswer(this.props.hash, true);
     } else {
-      console.log('Answer is: ', false);
       this.setState({isCorrect: false});
+      this.recordAnswer(this.props.hash, false);
     }
     this.setState({done: true});
   },
@@ -858,9 +996,7 @@ var CardItem = React.createClass({displayName: 'CardItem',
     var thisAnswerCandidate = this.props.candidates[i];
     if (thisAnswerCandidate.result) {
       this.setState({isCorrect: true});
-      console.log('Answer is: ', true);
     } else {
-      console.log('Answer is: ', false);
       this.setState({isCorrect: false});
     }
     this.setState({done: true});
@@ -868,7 +1004,6 @@ var CardItem = React.createClass({displayName: 'CardItem',
 
   advanceFrame: function() {
     this.setState({done: false, isCorrect: false});
-    console.log('clicked!');
     $('.carousel').carousel('next');
   },
 
@@ -889,9 +1024,9 @@ var CardItem = React.createClass({displayName: 'CardItem',
   checkGrade: function(e) {
     e.preventDefault;
     var grade = +e.target.value;
-    console.log("Grade: " + grade);
     if (this.state.isCorrect !== null) {
-      this.recordAnswer(this.props.question.hash, this.state.isCorrect, grade);
+      this.recordSRSAnswer(this.props.hash, this.state.isCorrect, grade);
+      this.advanceFrame();
     }
   },
 
@@ -942,19 +1077,22 @@ var CardItem = React.createClass({displayName: 'CardItem',
   },
 
   renderResult: function() {
+    var answer = this.props.question.answer;
+    var explanation = this.props.question.explanation ? this.props.question.explanation : '';
     if (this.state.done && this.state.settings) {
       // First, the render right/wrong paths for those not wanting SRS
       if (!this.state.settings.srs && this.state.isCorrect) {
         return (
             React.createElement("div", null, 
-              React.createElement("div", null, "Right!"), 
+              React.createElement("div", null, "Right! ", explanation), 
               React.createElement("button", {onClick: this.advanceFrame, className: "btn btn-default"}, "Next")
             )
           );
       } else if (!this.state.settings.srs) {
         return (
             React.createElement("div", null, 
-              React.createElement("div", null, "Wrong: "), 
+              React.createElement("div", null, "Incorrect. The correct answer is: ", answer, ".", 
+              React.createElement("span", {className: "explanation"}, explanation), " "), 
               React.createElement("button", {onClick: this.advanceFrame, className: "btn btn-default"}, "Next")
             )
           );
@@ -964,17 +1102,16 @@ var CardItem = React.createClass({displayName: 'CardItem',
         var isCorrect = this.state.isCorrect;
         return (
             React.createElement("div", null, 
-              React.createElement("div", null, "Right!"), 
-              this.renderGrades(isCorrect), 
-              React.createElement("button", {onClick: this.advanceFrame, className: "btn btn-default"}, "Next")
+              React.createElement("div", null, "Right! ", explanation), 
+              this.renderGrades(isCorrect)
             )
           );
       } else if (this.state.settings.srs) {
         return (
             React.createElement("div", null, 
-              React.createElement("div", null, "Wrong! The correct answer is: ", this.props.question.answer, " "), 
-              this.renderGrades(isCorrect), 
-              React.createElement("button", {onClick: this.advanceFrame, className: "btn btn-default"}, "Next")
+              React.createElement("div", null, "Incorrect. The correct answer is: ", answer, ".", 
+              React.createElement("span", {className: "explanation"}, explanation), " "), 
+              this.renderGrades(isCorrect)
             )
           );
       }
@@ -989,7 +1126,7 @@ var CardItem = React.createClass({displayName: 'CardItem',
           return (
             React.createElement("div", {key: idx}, 
               React.createElement("label", null, 
-                React.createElement("input", {onClick: this.checkSRSAnswer, type: "radio", id: "possibleAnswers", name: "candidates", value: idx, style: {"display":"none"}}), 
+                React.createElement("input", {onClick:  this.state.settings && this.state.settings.srs ? this.checkSRSAnswer : this.checkAnswer, type: "radio", id: "possibleAnswers", name: "candidates", value: idx, style: {"display":"none"}}), 
                 el.text
               )
             )
@@ -1076,16 +1213,14 @@ module.exports = {
 
 },{}],18:[function(require,module,exports){
 'use strict';
+
 var keyMirror = require('keymirror');
 
 
 module.exports = keyMirror({
 
-  NAVBAR_TOGGLE: null,
-  MAKE_FLASH: null,
+  FLASH_OPEN: null,
   FLASH_CLOSE: null,
-  TX_UPDATE: null,
-  NAVBAR_UPDATE: null,
   AUTHENTICATED: null,
   USER_STATE_CHANGE: null 
 
@@ -1093,10 +1228,11 @@ module.exports = keyMirror({
 
 },{"keymirror":27}],19:[function(require,module,exports){
 var Firebase = require('firebase');
-var presenceRef = new Firebase('https://flashcardsapp.firebaseio.com/disconnectmessage');
+var ref = new Firebase('https://flashcardsapp.firebaseio.com');
 
 
 module.exports.initPresenceMonitor = function(userId) {
+  var presenceRef = ref.child('users').child(userId).child('disconnectmessage');
   presenceRef.set('true', function(error) {
     if (error) {
       console.log('error connecting to database');
