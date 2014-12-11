@@ -422,16 +422,110 @@ module.exports = Register;
 
 },{"./auth":12,"react":216,"react-router":38}],11:[function(require,module,exports){
 var React = require('react');
+var Firebase = require('firebase');
+var Authentication = require('./Authentication');
+var constants = require('../constants/AppConstants');
+var localStorageKey = constants.localStorageKey;
+var ref = new Firebase("https://flashcardsapp.firebaseio.com/");
 
 var Settings = React.createClass({displayName: 'Settings',
+
+  mixins: [ Authentication ],
+
+  getInitialState: function() {
+    return {
+      radioChecked: {yes: false, no: false},
+      settingsRef: null
+    };
+  },
+
+  handleSettingsError: function(error) {
+    if (error) {
+      console.log('Error: error saving settings, please try again');
+    }
+  },
+
+  handleRadioClick: function(e) {
+    var val = e.target.value;
+    if (val === 'yes') {
+      this.state.settingsRef.set({srs: true}, this.handleSettingsError);
+      this.setState({radioChecked: true});
+    } else if (val === 'no') {
+      this.state.settingsRef.set({srs: false}, this.handleSettingsError);
+      this.setState({radioChecked: false});
+    }
+    console.log('checked val: ', val);
+  },
+
+  componentDidMount: function() {
+    if (this.isMounted()) {
+      var auth = JSON.parse(localStorage.getItem(localStorageKey));
+      var settingsRef = ref.child('users').child(auth.uid).child('settings');
+      this.setState({settingsRef: settingsRef});
+      var radioCheck = function(snapshot) {
+        var settings = snapshot.val();
+        if (!settings) {
+          return;
+        }
+        if (settings.srs) {
+          // Have to use yes/no object instead of simple boolean
+          // in order to pass appropriate state to radio buttons
+          var radioChecked = {
+            yes: true,
+            no: false
+          };
+          this.setState({radioChecked: radioChecked});
+        } else if (settings.srs === false) {
+          var radioChecked = {
+            yes: false,
+            no: true
+          };
+          this.setState({radioChecked: radioChecked});
+        }
+      };
+      settingsRef.on('value', radioCheck, this);
+    }
+  },
+
+  componentWillUnmount: function() {
+    if (this.isMounted()) {
+      this.state.settingsRef.off();
+    }
+  },
+
   render: function () {
-    return React.createElement("h1", null, "Settings");
+    return (
+      React.createElement("div", null, 
+        React.createElement("div", {className: "page-header"}, 
+          React.createElement("h2", null, "Settings")
+        ), 
+        React.createElement("div", null, 
+          React.createElement("div", {className: "row"}, 
+            React.createElement("div", {className: "col-sm-10 col-xs-12"}, 
+              React.createElement("form", {role: "form"}, 
+                React.createElement("div", {className: "form-group"}, 
+                  React.createElement("label", {htmlFor: "radio"}, "Enable the Spaced Repetition System (SRS)"), 
+                  React.createElement("div", null, 
+                  React.createElement("span", {className: "srs-radio"}, 
+                    React.createElement("input", {type: "radio", name: "srs", checked: this.state.radioChecked.yes, onChange: this.handleRadioClick, value: "yes"}), " yes"
+                  ), 
+                  React.createElement("span", {className: "srs-radio"}, 
+                    React.createElement("input", {type: "radio", checked: this.state.radioChecked.no, onChange: this.handleRadioClick, name: "srs", value: "no"}), " no"
+                  )
+                  )
+                )
+              )
+            )
+          )
+        )
+      )
+      );
   }
 });
 
 module.exports = Settings;
 
-},{"react":216}],12:[function(require,module,exports){
+},{"../constants/AppConstants":17,"./Authentication":3,"firebase":22,"react":216}],12:[function(require,module,exports){
 'use strict';
 
 var Firebase = require('firebase');
