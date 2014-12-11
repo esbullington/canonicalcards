@@ -13,7 +13,6 @@ function getRepIntervalAndQuestionDate(attemptedQuestions, grade, val) {
   var lastRepetitionInterval = val ? val.lastRepetitionInterval: 1;
   var easinessFactor = val && val.easinessFactor ? val.easinessFactor: 2.5;
   var i = spacedRepetition.getNextRepetitionInterval(attemptedQuestions, grade, lastRepetitionInterval, easinessFactor);
-  console.log('next rep interval', i);
   var today = new Date();
   var nextQuestionDate = today.getTime() + (24*60*60*1000*i); 
   repIntervalAndQuestionDate = {
@@ -35,10 +34,10 @@ var CardItem = React.createClass({
     };
   },
 
-  recordAnswer: function(hash, result, grade) {
+  recordSRSAnswer: function(hash, result, grade) {
     var self = this;
     if (this.state.auth) {
-      var counterRef = ref.child('users').child(this.state.auth.uid).child(hash);
+      var counterRef = ref.child('users').child(this.state.auth.uid).child('stats').child('srs').child(hash);
       counterRef.once('value', function(snapshot) {
         var val = snapshot.val();
         var attemptedQuestions = val ? val.attemptedQuestions += 1: 1;
@@ -50,12 +49,39 @@ var CardItem = React.createClass({
         var o = getRepIntervalAndQuestionDate(attemptedQuestions, grade, val);
         var hesitationInterval = (new Date().getTime()) - self.state.startTime;
         var hesitation = val && val.hesitation ? val.hesitation + ';' + hesitationInterval.toString() : hesitationInterval.toString();
-        console.log('hesitation', hesitation);
         var toSave = {
           correctQuestions: correctQuestions,
           attemptedQuestions: attemptedQuestions,
           lastRepetitionInterval: o.lastRepetitionInterval,
           nextQuestionDate: o.nextQuestionDate,
+          hesitation: hesitation
+        };
+        counterRef.set(toSave, function(error) {
+          if (error) {
+            console.log('error saving results');
+          }
+        });
+      });
+    }
+  },
+
+  recordAnswer: function(hash, result) {
+    var self = this;
+    if (this.state.auth) {
+      var counterRef = ref.child('users').child(this.state.auth.uid).child('stats').child('flashcards').child(hash);
+      counterRef.once('value', function(snapshot) {
+        var val = snapshot.val();
+        var attemptedQuestions = val ? val.attemptedQuestions += 1: 1;
+        if (result) {
+          var correctQuestions = val? val.correctQuestions += 1: 1;
+        } else {
+          var correctQuestions = val ? val.correctQuestions: 0;
+        }
+        var hesitationInterval = (new Date().getTime()) - self.state.startTime;
+        var hesitation = val && val.hesitation ? val.hesitation + ';' + hesitationInterval.toString() : hesitationInterval.toString();
+        var toSave = {
+          correctQuestions: correctQuestions,
+          attemptedQuestions: attemptedQuestions,
           hesitation: hesitation
         };
         counterRef.set(toSave, function(error) {
@@ -75,10 +101,10 @@ var CardItem = React.createClass({
     var thisAnswerCandidate = this.props.candidates[i];
     if (thisAnswerCandidate.result) {
       this.setState({isCorrect: true});
-      console.log('Answer is: ', true);
+      this.recordAnswer(this.props.hash, true);
     } else {
-      console.log('Answer is: ', false);
       this.setState({isCorrect: false});
+      this.recordAnswer(this.props.hash, false);
     }
     this.setState({done: true});
   },
@@ -91,9 +117,7 @@ var CardItem = React.createClass({
     var thisAnswerCandidate = this.props.candidates[i];
     if (thisAnswerCandidate.result) {
       this.setState({isCorrect: true});
-      console.log('Answer is: ', true);
     } else {
-      console.log('Answer is: ', false);
       this.setState({isCorrect: false});
     }
     this.setState({done: true});
@@ -101,7 +125,6 @@ var CardItem = React.createClass({
 
   advanceFrame: function() {
     this.setState({done: false, isCorrect: false});
-    console.log('clicked!');
     $('.carousel').carousel('next');
   },
 
@@ -122,9 +145,9 @@ var CardItem = React.createClass({
   checkGrade: function(e) {
     e.preventDefault;
     var grade = +e.target.value;
-    console.log("Grade: " + grade);
     if (this.state.isCorrect !== null) {
-      this.recordAnswer(this.props.question.hash, this.state.isCorrect, grade);
+      this.recordSRSAnswer(this.props.hash, this.state.isCorrect, grade);
+      this.advanceFrame();
     }
   },
 
@@ -175,19 +198,22 @@ var CardItem = React.createClass({
   },
 
   renderResult: function() {
+    var answer = this.props.question.answer;
+    var explanation = this.props.question.explanation ? this.props.question.explanation : '';
     if (this.state.done && this.state.settings) {
       // First, the render right/wrong paths for those not wanting SRS
       if (!this.state.settings.srs && this.state.isCorrect) {
         return (
             <div>
-              <div>Right!</div>
+              <div>Right! {explanation}</div>
               <button onClick={this.advanceFrame} className="btn btn-default">Next</button>
             </div>
           );
       } else if (!this.state.settings.srs) {
         return (
             <div>
-              <div>Wrong: </div>
+              <div>Incorrect. The correct answer is: {answer}.
+              <span className="explanation">{explanation}</span> </div>
               <button onClick={this.advanceFrame} className="btn btn-default">Next</button>
             </div>
           );
@@ -197,17 +223,16 @@ var CardItem = React.createClass({
         var isCorrect = this.state.isCorrect;
         return (
             <div>
-              <div>Right!</div>
+              <div>Right! {explanation}</div>
               {this.renderGrades(isCorrect)}
-              <button onClick={this.advanceFrame} className="btn btn-default">Next</button>
             </div>
           );
       } else if (this.state.settings.srs) {
         return (
             <div>
-              <div>Wrong! The correct answer is: {this.props.question.answer} </div>
+              <div>Incorrect. The correct answer is: {answer}.
+              <span className="explanation">{explanation}</span> </div>
               {this.renderGrades(isCorrect)}
-              <button onClick={this.advanceFrame} className="btn btn-default">Next</button>
             </div>
           );
       }
@@ -222,7 +247,7 @@ var CardItem = React.createClass({
           return (
             <div key={idx} >
               <label>
-                <input onClick={this.checkSRSAnswer} type="radio" id="possibleAnswers" name="candidates" value={idx} style={{"display":"none"}} />
+                <input onClick={ this.state.settings && this.state.settings.srs ? this.checkSRSAnswer : this.checkAnswer } type="radio" id="possibleAnswers" name="candidates" value={idx} style={{"display":"none"}} />
                 {el.text}
               </label> 
             </div>

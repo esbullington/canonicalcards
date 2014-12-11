@@ -1,8 +1,9 @@
 var Firebase = require('firebase');
-var presenceRef = new Firebase('https://flashcardsapp.firebaseio.com/disconnectmessage');
+var ref = new Firebase('https://flashcardsapp.firebaseio.com');
 
 
 module.exports.initPresenceMonitor = function(userId) {
+  var presenceRef = ref.child('users').child(userId).child('disconnectmessage');
   presenceRef.set('true', function(error) {
     if (error) {
       console.log('error connecting to database');

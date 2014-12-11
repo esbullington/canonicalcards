@@ -33,9 +33,11 @@ var Container  = React.createClass({
 
   componentDidMount: function() {
 
-    firebaseRef.child('cards').on('value', function(snapshot) {
-      this.setState({cards: snapshot.val()});
-    }.bind(this));
+    if (this.isMounted()) {
+      firebaseRef.child('cards').on('value', function(snapshot) {
+        this.setState({cards: snapshot.val()});
+      }.bind(this));
+    }
 
   },
 
@@ -45,11 +47,11 @@ var Container  = React.createClass({
 
   formatCandidates: function(question, cards) {
     var res = [];
-    cards.map(function(el, idx) {
+    Object.keys(cards).map(function(val, idx) {
       var o = {
-        hash: el.hash,
-        text: el.answer,
-        result: el.question === question ? true : false
+        hash: val,
+        text: cards[val].answer,
+        result: cards[val].question === question ? true : false
       };
       res.push(o);
     }, this)
@@ -60,13 +62,13 @@ var Container  = React.createClass({
 
     var cards = this.state.cards;
 
-    if (this.state.cards.length > 0) {
-      return this.state.cards.map(function(el, idx) {
+    if (cards) {
+      return Object.keys(cards).map(function(val, idx) {
         return (
             <div className={"item " + (this.state.index === idx ? "active" : "")} key={idx} >
               <div className="carousel-wrapped">
-                <h3>{el.question}</h3>
-                <CardItem setIndex={this.setIndex} candidates={this.formatCandidates(el.question, cards)} question={el} />
+                <h3>{cards[val].question}</h3>
+                <CardItem setIndex={this.setIndex} candidates={this.formatCandidates(cards[val].question, cards)} hash={val} question={cards[val]} />
               </div>
             </div>
           )

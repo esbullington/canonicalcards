@@ -12,7 +12,7 @@ var App = React.createClass({
 
   getInitialState: function () {
     return {
-      loggedIn: auth.loggedIn()
+      loggedIn: auth.loggedIn(),
     };
   },
 
@@ -27,8 +27,10 @@ var App = React.createClass({
   },
 
   componentDidMount: function() {
-    var userId = '';
-    initPresenceMonitor(userId);
+    if (this.state.loggedIn) {
+      var userId = this.state.loggedIn.uid;
+      initPresenceMonitor(userId);
+    }
   },
 
   render: function () {

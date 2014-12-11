@@ -118,10 +118,7 @@ module.exports = {
   },
 
   loggedIn: function() {
-    if (ref.getAuth()) {
-      return true;
-    };
-    return false;
-  },
+    return ref.getAuth();
+  }
 
 };
