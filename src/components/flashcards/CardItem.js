@@ -5,6 +5,7 @@ var ref = new Firebase("https://flashcardsapp.firebaseio.com/");
 var constants = require('../../constants/AppConstants');
 var localStorageKey = constants.localStorageKey;
 var spacedRepetition = require('./spacedRepetition');
+var authRef = require('../auth');
 var $ = window.jQuery;
 
 
@@ -26,6 +27,7 @@ var CardItem = React.createClass({
 
   getInitialState: function() {
     return {
+      locked: false,
       done: false,
       isCorrect: null,
       auth: null,
@@ -37,6 +39,7 @@ var CardItem = React.createClass({
   recordSRSAnswer: function(hash, result, grade) {
     var self = this;
     if (this.state.auth) {
+      console.log('Recording SRS answer');
       var counterRef = ref.child('users').child(this.state.auth.uid).child('stats').child('srs').child(hash);
       counterRef.once('value', function(snapshot) {
         var val = snapshot.val();
@@ -68,6 +71,7 @@ var CardItem = React.createClass({
   recordAnswer: function(hash, result) {
     var self = this;
     if (this.state.auth) {
+      console.log('Recording answer');
       var counterRef = ref.child('users').child(this.state.auth.uid).child('stats').child('flashcards').child(hash);
       counterRef.once('value', function(snapshot) {
         var val = snapshot.val();
@@ -93,11 +97,24 @@ var CardItem = React.createClass({
     }
   },
 
+  checkCardIndex: function() {
+    var cardIndex = +this.props.cardIndex;
+    var cardsLength = +this.props.cardsLength - 1;
+    if (cardIndex === cardsLength) {
+      console.log('reached the end of the quiz');
+      this.setState({locked: true});
+    }
+  },
+
   checkAnswer: function(e) {
     e.preventDefault;
-    var i = +e.target.value;
+    this.checkCardIndex();
+    if (this.state.done) {
+      return;
+    };
     // We've pre-checked the array of answer candidates for the correct answer
     // So we only have to check if the pre-checked result is true
+    var i = +e.target.value;
     var thisAnswerCandidate = this.props.candidates[i];
     if (thisAnswerCandidate.result) {
       this.setState({isCorrect: true});
@@ -111,9 +128,13 @@ var CardItem = React.createClass({
 
   checkSRSAnswer: function(e) {
     e.preventDefault;
-    var i = +e.target.value;
+    this.checkCardIndex();
+    if (this.state.done) {
+      return;
+    };
     // We've pre-checked the array of answer candidates for the correct answer
     // So we only have to check if the pre-checked result is true
+    var i = +e.target.value;
     var thisAnswerCandidate = this.props.candidates[i];
     if (thisAnswerCandidate.result) {
       this.setState({isCorrect: true});
@@ -124,6 +145,9 @@ var CardItem = React.createClass({
   },
 
   advanceFrame: function() {
+    if (this.state.locked) {
+      console.log('End of quiz, quiz locked');
+    }
     this.setState({done: false, isCorrect: false});
     $('.carousel').carousel('next');
   },
@@ -139,7 +163,7 @@ var CardItem = React.createClass({
         uid = auth.uid;
 
       } else {
-        auth = auth.getAuth();
+        auth = authRef.getAuth();
         uid = auth.uid;
         this.setState({auth: auth});
       }

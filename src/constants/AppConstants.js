@@ -1,4 +1,5 @@
 
 module.exports = {
-  localStorageKey: 'firebase:session::flashcardsapp'
+  localStorageKey: 'firebase:session::flashcardsapp',
+  nQuestionCandidates: 3
 };

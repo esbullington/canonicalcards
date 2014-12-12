@@ -4,9 +4,10 @@ var Router = require('react-router');
 var Link = Router.Link;
 var Firebase = require("firebase");
 var CardItem = require('./CardItem');
+var constants = require('../../constants/AppConstants');
+var localStorageKey = constants.localStorageKey;
 var firebaseRef = new Firebase("https://flashcardsapp.firebaseio.com/");
 var $ = window.jQuery;
-var _ = require('lodash');
 
 function randomSample(obj, mandatoryQuestionHash, n) {
   var i;
@@ -16,7 +17,6 @@ function randomSample(obj, mandatoryQuestionHash, n) {
   // We only count up to n -1 since we add the mandatory question at the end
   while (count < n - 1) {
     var randomKey = keys[ keys.length * Math.random() << 0];
-    console.log('randomKey', randomKey);
     if (!(randomKey in newObj) && (randomKey !== mandatoryQuestionHash)) {
       newObj[randomKey] = obj[randomKey];
       count++;
@@ -54,11 +54,18 @@ var Container  = React.createClass({
   componentDidMount: function() {
 
     if (this.isMounted()) {
-      firebaseRef.child('cards').on('value', function(snapshot) {
-        var fullCards = snapshot.val();
-        this.setState({fullCards: fullCards});
-      }.bind(this));
-    }
+      var cards = JSON.parse(localStorage.getItem('cards'));
+      if (cards) {
+        this.setState({fullCards: cards});
+      } else {
+        console.log('loading cards...');
+        firebaseRef.child('cards').on('value', function(snapshot) {
+          var fullCards = snapshot.val();
+          this.setState({fullCards: fullCards});
+          localStorage.setItem('cards', JSON.stringify(fullCards));
+        }.bind(this));
+      }
+    } 
 
   },
 
@@ -66,15 +73,27 @@ var Container  = React.createClass({
     this.setState({index: i});
   },
 
-  formatCandidates: function(hash, cards) {
-    var cards = randomSample(cards, hash, 2);
-    var question = cards[hash].question;
+  formatProvidedCandidates: function(card, providedCandidates) {
     var res = [];
-    Object.keys(cards).map(function(val, idx) {
+    providedCandidates.map(function(val, idx) {
+      var o = {
+        text: val,
+        result: card.answer === val ? true : false
+      };
+      res.push(o);
+    }, this);
+    return shuffleArray(res);
+  },
+
+  formatCandidates: function(hash, fullCards) {
+    var sampledCards = randomSample(fullCards, hash, constants.nQuestionCandidates);
+    var question = sampledCards[hash].question;
+    var res = [];
+    Object.keys(sampledCards).map(function(val, idx) {
       var o = {
         hash: val,
-        text: cards[val].answer,
-        result: cards[val].question === question ? true : false
+        text: sampledCards[val].answer,
+        result: sampledCards[val].question === question ? true : false
       };
       res.push(o);
     }, this)
@@ -85,13 +104,16 @@ var Container  = React.createClass({
 
     var cards = this.state.fullCards;
 
+    var cardsArray = Object.keys(cards);
+
     if (cards) {
-      return Object.keys(cards).map(function(hash, idx) {
+      return cardsArray.map(function(hash, idx) {
+        var cardIndex = ""+idx;
         return (
             <div className={"item " + (this.state.index === idx ? "active" : "")} key={idx} >
               <div className="carousel-wrapped">
-                <h3>{cards[hash].question}</h3>
-                <CardItem setIndex={this.setIndex} candidates={this.formatCandidates(hash, cards)} hash={hash} question={cards[hash]} />
+                <h3>{"Question " + idx + ": " + cards[hash].question}</h3>
+                <CardItem cardIndex={cardIndex} setIndex={this.setIndex} cardsLength={cardsArray.length} candidates={cards[hash].candidates ? this.formatProvidedCandidates(cards[hash], cards[hash].candidates) : this.formatCandidates(hash, cards)} hash={hash} question={cards[hash]} />
               </div>
             </div>
           )
