@@ -1092,9 +1092,10 @@ var CardItem = React.createClass({displayName: 'CardItem',
     $('.carousel').carousel('next');
   },
 
-  componentDidMount: function(e) {
+  componentDidMount: function(root) {
     var uid;
     if (this.isMounted()) {
+      MathJax.Hub.Queue(["Typeset",MathJax.Hub,root]);
       var now = new Date();
       this.setState({startTime: now.getTime()});
       var auth = JSON.parse(localStorage.getItem(localStorageKey));
@@ -1114,6 +1115,11 @@ var CardItem = React.createClass({displayName: 'CardItem',
       }, this);
     }
   },
+
+  componentDidUpdate: function (props,state,root) {
+    MathJax.Hub.Queue(["Typeset",MathJax.Hub,root]);
+  },
+
 
   checkGrade: function(e) {
     e.preventDefault;
@@ -1173,12 +1179,16 @@ var CardItem = React.createClass({displayName: 'CardItem',
   renderResult: function() {
     var answer = this.props.question.answer;
     var explanation = this.props.question.explanation ? this.props.question.explanation : '';
+    var formula = this.props.question.formula ? this.props.question.formula : '';
     if (this.state.done && this.state.settings) {
       // First, the render right/wrong paths for those not wanting SRS
       if (!this.state.settings.srs && this.state.isCorrect) {
         return (
             React.createElement("div", null, 
-              React.createElement("div", null, "Right! ", explanation), 
+              React.createElement("div", null, "Right! ", explanation, 
+                  React.createElement("span", {className: "explanation"}, explanation), 
+                  React.createElement("span", {className: "formula"}, formula)
+              ), 
               React.createElement("button", {onClick: this.advanceFrame, className: "btn btn-default"}, "Next")
             )
           );
@@ -1186,7 +1196,9 @@ var CardItem = React.createClass({displayName: 'CardItem',
         return (
             React.createElement("div", null, 
               React.createElement("div", null, "Incorrect. The correct answer is: ", answer, ".", 
-              React.createElement("span", {className: "explanation"}, explanation), " "), 
+                React.createElement("span", {className: "explanation"}, explanation), 
+                React.createElement("span", {className: "formula"}, formula)
+              ), 
               React.createElement("button", {onClick: this.advanceFrame, className: "btn btn-default"}, "Next")
             )
           );
@@ -1196,7 +1208,10 @@ var CardItem = React.createClass({displayName: 'CardItem',
         var isCorrect = this.state.isCorrect;
         return (
             React.createElement("div", null, 
-              React.createElement("div", null, "Right! ", explanation), 
+              React.createElement("div", null, "Right!", 
+                React.createElement("span", {className: "explanation"}, explanation), 
+                React.createElement("span", {className: "formula"}, formula)
+              ), 
               this.renderGrades(isCorrect)
             )
           );
@@ -1204,7 +1219,9 @@ var CardItem = React.createClass({displayName: 'CardItem',
         return (
             React.createElement("div", null, 
               React.createElement("div", null, "Incorrect. The correct answer is: ", answer, ".", 
-              React.createElement("span", {className: "explanation"}, explanation), " "), 
+                React.createElement("span", {className: "explanation"}, explanation), 
+                React.createElement("span", {className: "formula"}, formula)
+              ), 
               this.renderGrades(isCorrect)
             )
           );

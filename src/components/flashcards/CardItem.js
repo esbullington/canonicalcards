@@ -152,9 +152,10 @@ var CardItem = React.createClass({
     $('.carousel').carousel('next');
   },
 
-  componentDidMount: function(e) {
+  componentDidMount: function(root) {
     var uid;
     if (this.isMounted()) {
+      MathJax.Hub.Queue(["Typeset",MathJax.Hub,root]);
       var now = new Date();
       this.setState({startTime: now.getTime()});
       var auth = JSON.parse(localStorage.getItem(localStorageKey));
@@ -174,6 +175,11 @@ var CardItem = React.createClass({
       }, this);
     }
   },
+
+  componentDidUpdate: function (props,state,root) {
+    MathJax.Hub.Queue(["Typeset",MathJax.Hub,root]);
+  },
+
 
   checkGrade: function(e) {
     e.preventDefault;
@@ -233,12 +239,16 @@ var CardItem = React.createClass({
   renderResult: function() {
     var answer = this.props.question.answer;
     var explanation = this.props.question.explanation ? this.props.question.explanation : '';
+    var formula = this.props.question.formula ? this.props.question.formula : '';
     if (this.state.done && this.state.settings) {
       // First, the render right/wrong paths for those not wanting SRS
       if (!this.state.settings.srs && this.state.isCorrect) {
         return (
             <div>
-              <div>Right! {explanation}</div>
+              <div>Right! {explanation}
+                  <span className="explanation">{explanation}</span>
+                  <span className="formula">{formula}</span>
+              </div>
               <button onClick={this.advanceFrame} className="btn btn-default">Next</button>
             </div>
           );
@@ -246,7 +256,9 @@ var CardItem = React.createClass({
         return (
             <div>
               <div>Incorrect. The correct answer is: {answer}.
-              <span className="explanation">{explanation}</span> </div>
+                <span className="explanation">{explanation}</span>
+                <span className="formula">{formula}</span>
+              </div>
               <button onClick={this.advanceFrame} className="btn btn-default">Next</button>
             </div>
           );
@@ -256,7 +268,10 @@ var CardItem = React.createClass({
         var isCorrect = this.state.isCorrect;
         return (
             <div>
-              <div>Right! {explanation}</div>
+              <div>Right!
+                <span className="explanation">{explanation}</span>
+                <span className="formula">{formula}</span>
+              </div>
               {this.renderGrades(isCorrect)}
             </div>
           );
@@ -264,7 +279,9 @@ var CardItem = React.createClass({
         return (
             <div>
               <div>Incorrect. The correct answer is: {answer}.
-              <span className="explanation">{explanation}</span> </div>
+                <span className="explanation">{explanation}</span>
+                <span className="formula">{formula}</span>
+              </div>
               {this.renderGrades(isCorrect)}
             </div>
           );
