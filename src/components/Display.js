@@ -8,6 +8,7 @@ var EventTypes = require('../constants/EventTypes');
 // User Events
 var FLASH_OPEN = EventTypes.FLASH_OPEN;
 var FLASH_CLOSE = EventTypes.FLASH_CLOSE;
+var AUTHENTICATED = EventTypes.AUTHENTICATED;
 var auth = require('./auth');
 
 var Display = React.createClass({
@@ -37,6 +38,11 @@ var Display = React.createClass({
     PubSub.subscribe(FLASH_OPEN, function(msg, data) {
       if (self.isMounted()) {
         self.raiseFlash(data);
+      }
+    });
+    PubSub.subscribe(AUTHENTICATED, function(msg, data) {
+      if (self.isMounted()) {
+        self.setState({loggedIn: data});
       }
     });
   },

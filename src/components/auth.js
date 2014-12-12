@@ -119,6 +119,10 @@ module.exports = {
 
   loggedIn: function() {
     return ref.getAuth();
+  },
+
+  getAuth: function() {
+    return ref.getAuth();
   }
 
 };

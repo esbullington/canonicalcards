@@ -6,6 +6,25 @@ var Firebase = require("firebase");
 var CardItem = require('./CardItem');
 var firebaseRef = new Firebase("https://flashcardsapp.firebaseio.com/");
 var $ = window.jQuery;
+var _ = require('lodash');
+
+function randomSample(obj, mandatoryQuestionHash, n) {
+  var i;
+  var keys = Object.keys(obj)
+  var newObj = {};
+  var count = 0;
+  // We only count up to n -1 since we add the mandatory question at the end
+  while (count < n - 1) {
+    var randomKey = keys[ keys.length * Math.random() << 0];
+    console.log('randomKey', randomKey);
+    if (!(randomKey in newObj) && (randomKey !== mandatoryQuestionHash)) {
+      newObj[randomKey] = obj[randomKey];
+      count++;
+    }
+    newObj[mandatoryQuestionHash] = obj[mandatoryQuestionHash];
+  }
+  return newObj;
+};
 
 /**
  * Randomize array element order in-place.
@@ -27,7 +46,8 @@ var Container  = React.createClass({
     return {
       index: 0,
       direction: null,
-      cards: []
+      fullCards: {},
+      sampledCards: {}
     }
   },
 
@@ -35,7 +55,8 @@ var Container  = React.createClass({
 
     if (this.isMounted()) {
       firebaseRef.child('cards').on('value', function(snapshot) {
-        this.setState({cards: snapshot.val()});
+        var fullCards = snapshot.val();
+        this.setState({fullCards: fullCards});
       }.bind(this));
     }
 
@@ -45,7 +66,9 @@ var Container  = React.createClass({
     this.setState({index: i});
   },
 
-  formatCandidates: function(question, cards) {
+  formatCandidates: function(hash, cards) {
+    var cards = randomSample(cards, hash, 2);
+    var question = cards[hash].question;
     var res = [];
     Object.keys(cards).map(function(val, idx) {
       var o = {
@@ -60,15 +83,15 @@ var Container  = React.createClass({
 
   renderCards: function() {
 
-    var cards = this.state.cards;
+    var cards = this.state.fullCards;
 
     if (cards) {
-      return Object.keys(cards).map(function(val, idx) {
+      return Object.keys(cards).map(function(hash, idx) {
         return (
             <div className={"item " + (this.state.index === idx ? "active" : "")} key={idx} >
               <div className="carousel-wrapped">
-                <h3>{cards[val].question}</h3>
-                <CardItem setIndex={this.setIndex} candidates={this.formatCandidates(cards[val].question, cards)} hash={val} question={cards[val]} />
+                <h3>{cards[hash].question}</h3>
+                <CardItem setIndex={this.setIndex} candidates={this.formatCandidates(hash, cards)} hash={hash} question={cards[hash]} />
               </div>
             </div>
           )

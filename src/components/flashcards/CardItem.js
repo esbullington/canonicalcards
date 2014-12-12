@@ -129,12 +129,21 @@ var CardItem = React.createClass({
   },
 
   componentDidMount: function(e) {
+    var uid;
     if (this.isMounted()) {
       var now = new Date();
       this.setState({startTime: now.getTime()});
       var auth = JSON.parse(localStorage.getItem(localStorageKey));
-      this.setState({auth: auth});
-      var settingsRef = ref.child('users').child(auth.uid).child('settings');
+      if (auth) {
+        this.setState({auth: auth});
+        uid = auth.uid;
+
+      } else {
+        auth = auth.getAuth();
+        uid = auth.uid;
+        this.setState({auth: auth});
+      }
+      var settingsRef = ref.child('users').child(uid).child('settings');
       settingsRef.once('value', function(snapshot) {
         var settings = snapshot.val();
         this.setState({settings: settings});
