@@ -32,3 +32,40 @@ exports.getNextRepetitionInterval = function(iterations, grade, lastRepetitionIn
   }
   return nextRepetitionInterval;
 }
+
+var makeMatch = exports.makeMatch = function(str, queryIndex) {
+      var originalString = str;
+      var re = /\{\{([^{{}}]*)\}\}/,
+      output = [],
+      match, parts, last;
+
+  while (match = re.exec(str)) {
+      parts = match[0].split("\uFFFF");
+      if (parts.length < 2) {
+          last = output.push(match[0]) - 1;
+      } else {
+          output[last] = parts[0] + output[last] + parts[1];
+      }
+      str = str.replace(re, "\uFFFF");
+  }
+  var candidates = [];
+  output.map(function(val, idx) {
+    var capture = val.match(/\{\{([^]*)\}\}/);
+    candidates.push(capture[1]);
+    if (idx === queryIndex) {
+      var newStr = originalString.replace(capture[0], '______');
+      originalString = newStr;
+    } else {
+      var newStr = originalString.replace(capture[0], capture[1]);
+      originalString = newStr;
+    }
+  });
+  return {
+    text: originalString,
+    candidates: candidates,
+    answer: candidates[queryIndex]
+  }
+}
+
+var ret = makeMatch("abc {{d(e())f}} testing {{gh}} {{test}}", 0);
+console.log('ret', ret);
