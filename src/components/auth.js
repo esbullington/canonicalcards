@@ -19,13 +19,6 @@ var REGISTRATION_CODES = {
     'USER_DENIED':'User denied authentication request. This error can be triggered by the user closing the OAuth popup or canceling the authentication request.'
 }
 
-ref.onAuth(function(authData) {
-  if (authData) {
-    PubSub.publish('AUTHENTICATED', true);
-  } else {
-    PubSub.publish('AUTHENTICATED', false);
-  }
-});
 
 module.exports = {
 
@@ -68,6 +61,7 @@ module.exports = {
         // var auth = JSON.stringify(authData);
         // localStorage.setItem('auth', auth);
         PubSub.publish('USER', authData);
+        PubSub.publish('AUTHENTICATED', true);
         cb && cb(null, authData)
       } else if (err) {
         var flash = {

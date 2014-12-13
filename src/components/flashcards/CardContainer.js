@@ -8,6 +8,7 @@ var constants = require('../../constants/AppConstants');
 var localStorageKey = constants.localStorageKey;
 var firebaseRef = new Firebase("https://flashcardsapp.firebaseio.com/");
 var makeCloze = require('./spacedRepetition').makeCloze;
+var _ = require('lodash');
 var $ = window.jQuery;
 
 
@@ -132,29 +133,29 @@ var Container  = React.createClass({
     if (cards) {
       return cardsArray.map(function(hash, idx) {
         var cardIndex = ""+idx;
-        if (cards[hash].type === 'template') {
-          var nOccurences = occurrences(cards[hash].question, '{{', false);
+        var val = _.clone(cards[hash], true);
+        if (val.type === 'template') {
+          var nOccurences = occurrences(val.question, '{{', false);
           var queryIndex = getRandomInt(0, nOccurences);
-          var cloze = makeCloze(cards[hash].question, queryIndex);
-          console.log('cloze', cloze);
-          cards[hash].question = cloze.question;
-          cards[hash].answer = cloze.answer;
+          var cloze = makeCloze(val.question, queryIndex);
+          val.question = cloze.question;
+          val.answer = cloze.answer;
           candidates = cloze.candidates;
-        } else if (cards[hash].type === 'candidates') {
-          candidates = this.formatProvidedCandidates(cards[hash], cards[hash].candidates);
+        } else if (val.type === 'candidates') {
+          candidates = this.formatProvidedCandidates(val, val.candidates);
         } else {
           candidates = this.formatCandidates(hash, cards)
         }
         return (
             <div className={"item " + (this.state.index === idx ? "active" : "")} key={idx} >
               <div className="carousel-wrapped">
-                <h3>{"Question " + idx + ": " + cards[hash].question}</h3>
+                <h3>{"Question " + idx + ": " + val.question}</h3>
                 <CardItem
                   cardIndex={cardIndex}
                   setIndex={this.setIndex}
                   cardsLength={cardsArray.length}
                   candidates={candidates}
-                  hash={hash} question={cards[hash]}
+                  hash={hash} question={val}
                 />
               </div>
             </div>
