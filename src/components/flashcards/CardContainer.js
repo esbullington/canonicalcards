@@ -8,7 +8,6 @@ var constants = require('../../constants/AppConstants');
 var localStorageKey = constants.localStorageKey;
 var firebaseRef = new Firebase("https://flashcardsapp.firebaseio.com/");
 var makeCloze = require('./spacedRepetition').makeCloze;
-var _ = require('lodash');
 var $ = window.jQuery;
 
 
@@ -133,7 +132,7 @@ var Container  = React.createClass({
     if (cards) {
       return cardsArray.map(function(hash, idx) {
         var cardIndex = ""+idx;
-        var val = _.clone(cards[hash], true);
+        var val = $.extend(true, {}, cards[hash]);
         if (val.type === 'template') {
           var nOccurences = occurrences(val.question, '{{', false);
           var queryIndex = getRandomInt(0, nOccurences);

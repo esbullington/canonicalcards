@@ -34,7 +34,7 @@ var Login = React.createClass({
         Login.attemptedTransition = null;
         transition.retry();
       } else {
-        this.replaceWith('/display/dashboard');
+        this.replaceWith('/cards');
       }
     }.bind(this));
   },

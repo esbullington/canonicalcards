@@ -152,10 +152,10 @@ var CardItem = React.createClass({
     $('.carousel').carousel('next');
   },
 
-  componentDidMount: function(root) {
+  componentDidMount: function() {
     var uid;
     if (this.isMounted()) {
-      MathJax.Hub.Queue(["Typeset",MathJax.Hub,root]);
+      // MathJax.Hub.Queue(["Typeset",MathJax.Hub,root]);
       var now = new Date();
       this.setState({startTime: now.getTime()});
       var auth = JSON.parse(localStorage.getItem(localStorageKey));
@@ -176,9 +176,9 @@ var CardItem = React.createClass({
     }
   },
 
-  componentDidUpdate: function (props,state,root) {
-    MathJax.Hub.Queue(["Typeset",MathJax.Hub,root]);
-  },
+  // componentDidUpdate: function (props,state,root) {
+  //   MathJax.Hub.Queue(["Typeset",MathJax.Hub,root]);
+  // },
 
 
   checkGrade: function(e) {
@@ -247,7 +247,7 @@ var CardItem = React.createClass({
             <div>
               <div>Right! {explanation}
                   <span className="explanation">{explanation}</span>
-                  <span className="formula">{formula}</span>
+                  <img src={"data:image/png;base64," + formula} />
               </div>
               <button onClick={this.advanceFrame} className="btn btn-default">Next</button>
             </div>
@@ -257,7 +257,7 @@ var CardItem = React.createClass({
             <div>
               <div>Incorrect. The correct answer is: {answer}.
                 <span className="explanation">{explanation}</span>
-                <span className="formula">{formula}</span>
+                <img src={"data:image/png;base64," + formula} />
               </div>
               <button onClick={this.advanceFrame} className="btn btn-default">Next</button>
             </div>
@@ -270,7 +270,7 @@ var CardItem = React.createClass({
             <div>
               <div>Right!
                 <span className="explanation">{explanation}</span>
-                <span className="formula">{formula}</span>
+                <img src={"data:image/png;base64," + formula} />
               </div>
               {this.renderGrades(isCorrect)}
             </div>
@@ -280,7 +280,7 @@ var CardItem = React.createClass({
             <div>
               <div>Incorrect. The correct answer is: {answer}.
                 <span className="explanation">{explanation}</span>
-                <span className="formula">{formula}</span>
+                <img src={"data:image/png;base64," + formula} />
               </div>
               {this.renderGrades(isCorrect)}
             </div>
