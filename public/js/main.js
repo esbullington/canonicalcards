@@ -149,7 +149,7 @@ var Display = React.createClass({displayName: 'Display',
     });
     PubSub.subscribe(AUTHENTICATED, function(msg, data) {
       if (self.isMounted()) {
-        console.log('AUTHENTICATED');
+        self.setState({loggedIn: data});
       }
     });
   },
@@ -196,6 +196,7 @@ var Display = React.createClass({displayName: 'Display',
   },
 
   render: function() {
+    console.log("Hi there!!!!!!");
     return (
       React.createElement("div", {id: "wrap"}, 
         React.createElement(Nav, {loggedIn: this.state.loggedIn}), 
@@ -256,7 +257,7 @@ var Login = React.createClass({displayName: 'Login',
         Login.attemptedTransition = null;
         transition.retry();
       } else {
-        this.replaceWith('/cards');
+        this.replaceWith('/display/dashboard');
       }
     }.bind(this));
   },
@@ -298,11 +299,12 @@ var PubSub = require('pubsub-js');
 var EventTypes = require('../constants/EventTypes');
 // User Events
 var AUTHENTICATED = EventTypes.AUTHENTICATED;
+var Nav = require('./Nav');
 var auth = require('./auth');
 
 var Logout = React.createClass({displayName: 'Logout',
   componentDidMount: function () {
-    PubSub.publish(AUTHENTICATED, false);
+    // PubSub.publish(AUTHENTICATED, false);
     localStorage.clear();
     auth.logout();
   },
@@ -314,11 +316,15 @@ var Logout = React.createClass({displayName: 'Logout',
 
 module.exports = Logout;
 
-},{"../constants/EventTypes":18,"./auth":12,"pubsub-js":29,"react":217,"react-router":39}],8:[function(require,module,exports){
+},{"../constants/EventTypes":18,"./Nav":8,"./auth":12,"pubsub-js":29,"react":217,"react-router":39}],8:[function(require,module,exports){
 var React = require('react');
 var Router = require('react-router');
 var $__0=      Router,Route=$__0.Route,RouteHandler=$__0.RouteHandler,Link=$__0.Link;
 var auth = require('./auth');
+var PubSub = require('pubsub-js');
+var EventTypes = require('../constants/EventTypes');
+// User Events
+var AUTHENTICATED = EventTypes.AUTHENTICATED;
 
 var NAV_LINKS = [
   {
@@ -366,11 +372,10 @@ var Nav = React.createClass({displayName: 'Nav',
   renderNavItem: function (link) {
     return (
         React.createElement("li", {className: this.state.activePage === link.name ? 'active' : '', key: link.name}, 
-          React.createElement(Link, {'data-link-name': link.name, to: link.name}, link.title)
+          React.createElement(Link, {to: link.name}, link.title)
         )
       );
   },
-
 
   render: function() {
     return (
@@ -387,7 +392,6 @@ var Nav = React.createClass({displayName: 'Nav',
           ), 
           React.createElement("div", {className: "collapse navbar-collapse", id: "bs-example-navbar-collapse-1"}, 
             React.createElement("ul", {className: "nav navbar-nav"}, 
-              /* We only check local auth. state for proper menu, not to display potentially sensitive user data*/
                (this.props.loggedIn) ? 
                 NAV_LINKS.map( function(el) {
                  return this.renderNavItem(el);
@@ -407,7 +411,7 @@ var Nav = React.createClass({displayName: 'Nav',
 
 module.exports = Nav;
 
-},{"./auth":12,"react":217,"react-router":39}],9:[function(require,module,exports){
+},{"../constants/EventTypes":18,"./auth":12,"pubsub-js":29,"react":217,"react-router":39}],9:[function(require,module,exports){
 var React = require('react');
 
 
@@ -673,6 +677,14 @@ var REGISTRATION_CODES = {
     'USER_DENIED':'User denied authentication request. This error can be triggered by the user closing the OAuth popup or canceling the authentication request.'
 }
 
+
+ref.onAuth(function(authData) {
+  if (authData) {
+    PubSub.publish('AUTHENTICATED', true);
+  } else {
+    PubSub.publish('AUTHENTICATED', false);
+  }
+});
 
 module.exports = {
 
@@ -1481,9 +1493,9 @@ var routes = (
       React.createElement(Route, {name: "login", handler: Login}), 
       React.createElement(Route, {name: "logout", handler: Logout}), 
       React.createElement(Route, {name: "register", handler: Register}), 
+      React.createElement(Route, {name: "settings", handler: Settings}), 
       React.createElement(Route, {name: "about", handler: About}), 
-      React.createElement(Route, {name: "dashboard", handler: Dashboard}), 
-      React.createElement(Route, {name: "settings", handler: Settings})
+      React.createElement(Route, {name: "dashboard", handler: Dashboard})
     ), 
     React.createElement(NotFoundRoute, {handler: Login})
   )

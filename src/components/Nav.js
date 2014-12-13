@@ -2,6 +2,10 @@ var React = require('react');
 var Router = require('react-router');
 var { Route, RouteHandler, Link } = Router;
 var auth = require('./auth');
+var PubSub = require('pubsub-js');
+var EventTypes = require('../constants/EventTypes');
+// User Events
+var AUTHENTICATED = EventTypes.AUTHENTICATED;
 
 var NAV_LINKS = [
   {
@@ -49,11 +53,10 @@ var Nav = React.createClass({
   renderNavItem: function (link) {
     return (
         <li className={this.state.activePage === link.name ? 'active' : ''} key={link.name}>
-          <Link data-link-name={link.name} to={link.name} >{link.title}</Link>
+          <Link to={link.name} >{link.title}</Link>
         </li>
       );
   },
-
 
   render: function() {
     return (
@@ -70,7 +73,6 @@ var Nav = React.createClass({
           </div>
           <div className="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul className="nav navbar-nav">
-              {/* We only check local auth. state for proper menu, not to display potentially sensitive user data*/}
               { (this.props.loggedIn) ? 
                 NAV_LINKS.map( function(el) {
                  return this.renderNavItem(el);

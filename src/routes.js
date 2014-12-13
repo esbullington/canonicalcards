@@ -20,9 +20,9 @@ var routes = (
       <Route name="login" handler={Login}/>
       <Route name="logout" handler={Logout}/>
       <Route name="register" handler={Register}/>
+      <Route name="settings" handler={Settings}/>
       <Route name="about" handler={About}/>
       <Route name="dashboard" handler={Dashboard}/>
-      <Route name="settings" handler={Settings}/>
     </Route>
     <NotFoundRoute handler={Login}/>
   </Route>

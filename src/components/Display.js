@@ -43,7 +43,7 @@ var Display = React.createClass({
     });
     PubSub.subscribe(AUTHENTICATED, function(msg, data) {
       if (self.isMounted()) {
-        console.log('AUTHENTICATED');
+        self.setState({loggedIn: data});
       }
     });
   },
@@ -90,6 +90,7 @@ var Display = React.createClass({
   },
 
   render: function() {
+    console.log("Hi there!!!!!!");
     return (
       <div id="wrap">
         <Nav loggedIn={this.state.loggedIn} />

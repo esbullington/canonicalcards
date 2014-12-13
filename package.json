@@ -23,7 +23,7 @@
   },
   "homepage": "https://github.com/esbullington/dashstock",
   "devDependencies": {
-    "browserify": "^6.3.3",
+    "browserify": "^7.0.0",
     "chai": "^1.10.0",
     "connect-livereload": "^0.5.2",
     "event-stream": "^3.1.7",
@@ -38,11 +38,11 @@
     "gulp-react": "^2.0.0",
     "gulp-sourcemaps": "^1.2.8",
     "gulp-util": "^3.0.1",
-    "jsdom": "^1.4.0",
+    "jsdom": "^1.4.1",
     "keymirror": "^0.1.0",
     "lodash": "^2.4.1",
     "mocha": "^2.0.1",
-    "mocha-phantomjs": "^3.5.1",
+    "mocha-phantomjs": "^3.5.2",
     "moment": "^2.8.4",
     "object-assign": "^2.0.0",
     "pubsub-js": "^1.5.0",
@@ -50,11 +50,11 @@
     "react-router": "^0.11.4",
     "react-tools": "^0.12.1",
     "tiny-lr": "^0.1.4",
-    "watchify": "^2.1.1"
+    "watchify": "^2.2.1"
   },
   "dependencies": {
     "csv-parse": "0.0.6",
-    "express": "^4.10.4",
+    "express": "^4.10.6",
     "lodash": "^2.4.1",
     "node-csv": "^0.1.2"
   }

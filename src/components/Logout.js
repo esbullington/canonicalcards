@@ -5,11 +5,12 @@ var PubSub = require('pubsub-js');
 var EventTypes = require('../constants/EventTypes');
 // User Events
 var AUTHENTICATED = EventTypes.AUTHENTICATED;
+var Nav = require('./Nav');
 var auth = require('./auth');
 
 var Logout = React.createClass({
   componentDidMount: function () {
-    PubSub.publish(AUTHENTICATED, false);
+    // PubSub.publish(AUTHENTICATED, false);
     localStorage.clear();
     auth.logout();
   },

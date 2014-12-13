@@ -20,6 +20,14 @@ var REGISTRATION_CODES = {
 }
 
 
+ref.onAuth(function(authData) {
+  if (authData) {
+    PubSub.publish('AUTHENTICATED', true);
+  } else {
+    PubSub.publish('AUTHENTICATED', false);
+  }
+});
+
 module.exports = {
 
   passwordReset: function(email, cb) {
