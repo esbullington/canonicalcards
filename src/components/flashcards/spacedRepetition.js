@@ -33,11 +33,11 @@ exports.getNextRepetitionInterval = function(iterations, grade, lastRepetitionIn
   return nextRepetitionInterval;
 }
 
-var makeMatch = exports.makeMatch = function(str, queryIndex) {
-      var originalString = str;
-      var re = /\{\{([^{{}}]*)\}\}/,
-      output = [],
-      match, parts, last;
+var makeCloze = exports.makeCloze = function(str, queryIndex, cb) {
+  var originalString = str;
+  var re = /\{\{([^{{}}]*)\}\}/,
+    output = [],
+    i, match, parts, last;
 
   while (match = re.exec(str)) {
       parts = match[0].split("\uFFFF");
@@ -49,23 +49,30 @@ var makeMatch = exports.makeMatch = function(str, queryIndex) {
       str = str.replace(re, "\uFFFF");
   }
   var candidates = [];
-  output.map(function(val, idx) {
+  for (i=0; i < output.length; i++) {
+    console.log('test');
+    var val = output[i];
     var capture = val.match(/\{\{([^]*)\}\}/);
-    candidates.push(capture[1]);
-    if (idx === queryIndex) {
+    resultObject = {text: capture[1]};
+    if (i === queryIndex) {
       var newStr = originalString.replace(capture[0], '______');
       originalString = newStr;
+      resultObject['result'] = true;
     } else {
       var newStr = originalString.replace(capture[0], capture[1]);
       originalString = newStr;
+      resultObject['result'] = false;
     }
-  });
+    candidates.push(resultObject);
+  }
   return {
-    text: originalString,
+    question: originalString,
     candidates: candidates,
     answer: candidates[queryIndex]
   }
 }
 
-var ret = makeMatch("abc {{d(e())f}} testing {{gh}} {{test}}", 0);
-console.log('ret', ret);
+if (module === require.main) {
+  var ret = makeCloze("abc {{d(e())f}} testing {{gh}} {{test}}", 0);
+  console.log(ret);
+}
