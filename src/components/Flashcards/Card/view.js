@@ -2,15 +2,15 @@ var React = require('react');
 var ReactPropTypes = React.PropTypes;
 var Firebase = require('firebase');
 var ref = new Firebase("https://flashcardsapp.firebaseio.com/");
-var constants = require('../../../constants/AppConstants');
-var Formula = require('../Formula');
-var Grades = require('../Grades');
+var constants = require('constants/AppConstants');
+var Formulas = require('./Formulas');
+var Grades = require('./Grades');
 var localStorageKey = constants.localStorageKey;
 var authRef = require('../../auth');
 var $ = window.jQuery;
 
 
-var CardItem = React.createClass({
+var CardComponent = React.createClass({
 
   getInitialState: function() {
     return {
@@ -27,7 +27,6 @@ var CardItem = React.createClass({
   recordAnswer: function(hash, result) {
     var self = this;
     if (this.state.auth) {
-      console.log('Recording answer');
       var counterRef = ref.child('users').child(this.state.auth.uid).child('stats').child('flashcards').child(hash);
       counterRef.once('value', function(snapshot) {
         var val = snapshot.val();
@@ -102,18 +101,18 @@ var CardItem = React.createClass({
 
   advanceFrame: function() {
     if (this.state.locked) {
+      this.setState({done: false, isCorrect: false});
       console.log('End of quiz, quiz locked');
+      return;
     }
-    this.setState({done: false, isCorrect: false});
     $('.carousel').carousel('next');
   },
 
   handleAdvanceFrame: function(e) {
-    console.log('advance event', e);
     var code = e.keyCode ? e.keyCode : e.which;
     if (this.state.done) {
       if(code === 32) {
-        console.log("You pressed the Space key.");
+        console.log("Pressed the Space key.");
         this.advanceFrame();
       }
       this.advanceFrame();
@@ -159,7 +158,7 @@ var CardItem = React.createClass({
             <div>
               <div>Right! {explanation}
                 <span className="explanation">{explanation}</span>
-                <Formula formula={this.props.question.formula} />
+                <Formulas formula={this.props.question.formula} />
               </div>
               <button onClick={this.handleAdvanceFrame} className="btn btn-default">Next</button>
             </div>
@@ -169,7 +168,7 @@ var CardItem = React.createClass({
             <div>
               <div>Incorrect. The correct answer is: {answer}.
                 <span className="explanation">{explanation}</span>
-                <Formula formula={this.props.question.formula} />
+                <Formulas formula={this.props.question.formula} />
               </div>
               <button onClick={this.handleAdvanceFrame} className="btn btn-default">Next</button>
             </div>
@@ -182,7 +181,7 @@ var CardItem = React.createClass({
             <div>
               <div>Right!
                 <span className="explanation">{explanation}</span>
-                <Formula formula={this.props.question.formula} />
+                <Formulas formula={this.props.question.formula} />
               </div>
               <Grades
                 startTime={this.state.startTime}
@@ -198,7 +197,7 @@ var CardItem = React.createClass({
             <div>
               <div>Incorrect. The correct answer is: {answer}.
                 <span className="explanation">{explanation}</span>
-                <Formula formula={this.props.question.formula} />
+                <Formulas formula={this.props.question.formula} />
               </div>
               <Grades
                 startTime={this.state.startTime}
@@ -210,14 +209,6 @@ var CardItem = React.createClass({
             </div>
           );
       }
-    }
-  },
-
-  handleCheckKey: function (e) {
-    console.log('keypress', e);
-    var code = e.keyCode ? e.keyCode : e.which;
-    if(code === 32) {
-      console.log("You pressed the Space key.");
     }
   },
 
@@ -245,4 +236,4 @@ var CardItem = React.createClass({
 
 });
 
-module.exports = CardItem;
+module.exports = CardComponent;

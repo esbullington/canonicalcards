@@ -1,6 +1,9 @@
 # Ignore generated js files
 build/*
 
+# Vim swap files
+*.swp
+
 # No sourcemaps
 *.map
 

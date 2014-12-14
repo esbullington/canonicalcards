@@ -3,74 +3,21 @@ var ReactPropTypes = React.PropTypes;
 var Router = require('react-router');
 var Link = Router.Link;
 var Firebase = require("firebase");
-var CardItem = require('./CardItem');
-var constants = require('../../constants/AppConstants');
+var CardComponent = require('../Card');
+var constants = require('constants/AppConstants');
 var localStorageKey = constants.localStorageKey;
 var firebaseRef = new Firebase("https://flashcardsapp.firebaseio.com/");
-var makeCloze = require('./spacedRepetition').makeCloze;
+var controller = require('./controller');
 var $ = window.jQuery;
 
-
-//http://stackoverflow.com/questions/4009756/how-to-count-string-occurrence-in-string
-function occurrences(string, subString, allowOverlapping){
-
-    string+=""; subString+="";
-    if(subString.length<=0) return string.length+1;
-
-    var n=0, pos=0;
-    var step=(allowOverlapping)?(1):(subString.length);
-
-    while(true){
-        pos=string.indexOf(subString,pos);
-        if(pos>=0){ n++; pos+=step; } else break;
-    }
-    return(n);
-}
-
-function getRandomInt(min, max) {
-  return Math.floor(Math.random() * (max - min)) + min;
-}
-
-function randomSample(obj, mandatoryQuestionHash, n) {
-  var i;
-  var keys = Object.keys(obj)
-  var newObj = {};
-  var count = 0;
-  // We only count up to n -1 since we add the mandatory question at the end
-  while (count < n - 1) {
-    var randomKey = keys[ keys.length * Math.random() << 0];
-    if (!(randomKey in newObj) && (randomKey !== mandatoryQuestionHash)) {
-      newObj[randomKey] = obj[randomKey];
-      count++;
-    }
-    newObj[mandatoryQuestionHash] = obj[mandatoryQuestionHash];
-  }
-  return newObj;
-};
-
-/**
- * Randomize array element order in-place.
- * Using Fisher-Yates shuffle algorithm.
- */
-function shuffleArray(array) {
-    for (var i = array.length - 1; i > 0; i--) {
-        var j = Math.floor(Math.random() * (i + 1));
-        var temp = array[i];
-        array[i] = array[j];
-        array[j] = temp;
-    }
-    return array;
-}
 
 var Container  = React.createClass({
 
   getInitialState: function() {
     return {
       cloze: null,
-      index: 0,
-      direction: null,
-      fullCards: {},
-      sampledCards: {}
+      cardIndex: 0,
+      fullCards: {}
     }
   },
 
@@ -81,7 +28,7 @@ var Container  = React.createClass({
       if (cards) {
         this.setState({fullCards: cards});
       } else {
-        console.log('loading cards...');
+        console.log('Loading cards...');
         firebaseRef.child('cards').on('value', function(snapshot) {
           var fullCards = snapshot.val();
           this.setState({fullCards: fullCards});
@@ -93,7 +40,7 @@ var Container  = React.createClass({
   },
 
   setIndex: function(i) {
-    this.setState({index: i});
+    this.setState({cardIndex: i});
   },
 
   formatProvidedCandidates: function(card, providedCandidates) {
@@ -105,11 +52,11 @@ var Container  = React.createClass({
       };
       res.push(o);
     }, this);
-    return shuffleArray(res);
+    return controller.shuffleArray(res);
   },
 
   formatCandidates: function(hash, fullCards) {
-    var sampledCards = randomSample(fullCards, hash, constants.nQuestionCandidates);
+    var sampledCards = controller.randomSample(fullCards, hash, constants.nQuestionCandidates);
     var question = sampledCards[hash].question;
     var res = [];
     Object.keys(sampledCards).map(function(val, idx) {
@@ -120,7 +67,7 @@ var Container  = React.createClass({
       };
       res.push(o);
     }, this)
-    return shuffleArray(res);
+    return controller.shuffleArray(res);
   },
 
   renderCards: function() {
@@ -134,9 +81,9 @@ var Container  = React.createClass({
         var cardIndex = ""+idx;
         var val = $.extend(true, {}, cards[hash]);
         if (val.type === 'template') {
-          var nOccurences = occurrences(val.question, '{{', false);
-          var queryIndex = getRandomInt(0, nOccurences);
-          var cloze = makeCloze(val.question, queryIndex);
+          var nOccurences = controller.occurrences(val.question, '{{', false);
+          var queryIndex = controller.getRandomInt(0, nOccurences);
+          var cloze = controller.makeCloze(val.question, queryIndex);
           val.question = cloze.question;
           val.answer = cloze.answer;
           candidates = cloze.candidates;
@@ -146,10 +93,10 @@ var Container  = React.createClass({
           candidates = this.formatCandidates(hash, cards)
         }
         return (
-            <div className={"item " + (this.state.index === idx ? "active" : "")} key={idx} >
+            <div className={"item " + (this.state.cardIndex === idx ? "active" : "")} key={idx} >
               <div className="carousel-wrapped">
                 <h3>{"Question " + idx + ": " + val.question}</h3>
-                <CardItem
+                <CardComponent
                   cardIndex={cardIndex}
                   setIndex={this.setIndex}
                   cardsLength={cardsArray.length}

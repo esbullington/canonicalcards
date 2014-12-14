@@ -8,7 +8,7 @@ var About = require('./components/About');
 var Dashboard = require('./components/Dashboard');
 var Settings = require('./components/Settings');
 var App = require('./components/App');
-var Cards = require('./components/flashcards/Container');
+var Cards = require('./components/Flashcards');
 var Display = require('./components/Display');
 var NotFound = require('./components/NotFound');
 
