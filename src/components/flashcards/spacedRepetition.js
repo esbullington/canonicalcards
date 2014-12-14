@@ -50,7 +50,6 @@ var makeCloze = exports.makeCloze = function(str, queryIndex, cb) {
   }
   var candidates = [];
   for (i=0; i < output.length; i++) {
-    console.log('test');
     var val = output[i];
     var capture = val.match(/\{\{([^]*)\}\}/);
     resultObject = {text: capture[1]};

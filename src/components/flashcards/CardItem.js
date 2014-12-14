@@ -3,25 +3,13 @@ var ReactPropTypes = React.PropTypes;
 var Firebase = require('firebase');
 var ref = new Firebase("https://flashcardsapp.firebaseio.com/");
 var constants = require('../../constants/AppConstants');
+var Formula = require('./Formula');
+var Grades = require('./Grades');
 var localStorageKey = constants.localStorageKey;
 var spacedRepetition = require('./spacedRepetition');
 var authRef = require('../auth');
 var $ = window.jQuery;
 
-
-function getRepIntervalAndQuestionDate(attemptedQuestions, grade, val) {
-  var repIntervalAndQuestionDate;
-  var lastRepetitionInterval = val ? val.lastRepetitionInterval: 1;
-  var easinessFactor = val && val.easinessFactor ? val.easinessFactor: 2.5;
-  var i = spacedRepetition.getNextRepetitionInterval(attemptedQuestions, grade, lastRepetitionInterval, easinessFactor);
-  var today = new Date();
-  var nextQuestionDate = today.getTime() + (24*60*60*1000*i); 
-  repIntervalAndQuestionDate = {
-    lastRepetitionInterval: i,
-    nextQuestionDate: nextQuestionDate
-  };
-  return repIntervalAndQuestionDate;
-}
 
 var CardItem = React.createClass({
 
@@ -36,37 +24,6 @@ var CardItem = React.createClass({
     };
   },
 
-  recordSRSAnswer: function(hash, result, grade) {
-    var self = this;
-    if (this.state.auth) {
-      console.log('Recording SRS answer');
-      var counterRef = ref.child('users').child(this.state.auth.uid).child('stats').child('srs').child(hash);
-      counterRef.once('value', function(snapshot) {
-        var val = snapshot.val();
-        var attemptedQuestions = val ? val.attemptedQuestions += 1: 1;
-        if (result) {
-          var correctQuestions = val? val.correctQuestions += 1: 1;
-        } else {
-          var correctQuestions = val ? val.correctQuestions: 0;
-        }
-        var o = getRepIntervalAndQuestionDate(attemptedQuestions, grade, val);
-        var hesitationInterval = (new Date().getTime()) - self.state.startTime;
-        var hesitation = val && val.hesitation ? val.hesitation + ';' + hesitationInterval.toString() : hesitationInterval.toString();
-        var toSave = {
-          correctQuestions: correctQuestions,
-          attemptedQuestions: attemptedQuestions,
-          lastRepetitionInterval: o.lastRepetitionInterval,
-          nextQuestionDate: o.nextQuestionDate,
-          hesitation: hesitation
-        };
-        counterRef.set(toSave, function(error) {
-          if (error) {
-            console.log('error saving results');
-          }
-        });
-      });
-    }
-  },
 
   recordAnswer: function(hash, result) {
     var self = this;
@@ -152,10 +109,26 @@ var CardItem = React.createClass({
     $('.carousel').carousel('next');
   },
 
+  handleAdvanceFrame: function(e) {
+    console.log('advance event', e);
+    var code = e.keyCode ? e.keyCode : e.which;
+    if (this.state.done) {
+      if(code === 32) {
+        console.log("You pressed the Space key.");
+        this.advanceFrame();
+      }
+      this.advanceFrame();
+    }
+  },
+
+  componentWillUnmount: function() {
+    window.removeEventListener('keypress', this.handleAdvanceFrame);
+  },
+
   componentDidMount: function() {
     var uid;
     if (this.isMounted()) {
-      // MathJax.Hub.Queue(["Typeset",MathJax.Hub,root]);
+      window.addEventListener('keypress', this.handleAdvanceFrame);
       var now = new Date();
       this.setState({startTime: now.getTime()});
       var auth = JSON.parse(localStorage.getItem(localStorageKey));
@@ -176,80 +149,20 @@ var CardItem = React.createClass({
     }
   },
 
-  // componentDidUpdate: function (props,state,root) {
-  //   MathJax.Hub.Queue(["Typeset",MathJax.Hub,root]);
-  // },
-
-
-  checkGrade: function(e) {
-    e.preventDefault;
-    var grade = +e.target.value;
-    if (this.state.isCorrect !== null) {
-      this.recordSRSAnswer(this.props.hash, this.state.isCorrect, grade);
-      this.advanceFrame();
-    }
-  },
-
-  renderGrades: function(isCorrect) {
-    var correctGrades = {
-      3: 'correct response recalled with serious difficulty',
-      4: 'correct response after a hesitation',
-      5: 'perfect response'
-    };
-    var incorrectGrades = {
-      0: 'complete blackout',
-      1: 'incorrect response; the correct one remembered',
-      2: 'incorrect response; where the correct one seemed easy to recall',
-    };
-    if (isCorrect) {
-      return (
-          <div>
-          {Object.keys(correctGrades).map(function(val, idx) {
-            return (
-              <div key={idx} >
-                <label>
-                  <input onClick={this.checkGrade} type="radio" id="possibleGrades" name="grades" value={val} style={{"display":"none"}} />
-                  {correctGrades[val]}
-                </label> 
-              </div>
-                )
-            }, this)
-          }
-          </div>
-        );
-    } else {
-      return (
-          <div>
-          {Object.keys(incorrectGrades).map(function(val, idx) {
-            return (
-              <div key={idx} >
-                <label>
-                  <input onClick={this.checkGrade} type="radio" id="possibleGrades" name="grades" value={val} style={{"display":"none"}} />
-                  {incorrectGrades[val]}
-                </label> 
-              </div>
-                )
-            }, this)
-          }
-          </div>
-        );
-    }
-  },
 
   renderResult: function() {
     var answer = this.props.question.answer;
     var explanation = this.props.question.explanation ? this.props.question.explanation : '';
-    var formula = this.props.question.formula ? this.props.question.formula : '';
     if (this.state.done && this.state.settings) {
       // First, the render right/wrong paths for those not wanting SRS
       if (!this.state.settings.srs && this.state.isCorrect) {
         return (
             <div>
               <div>Right! {explanation}
-                  <span className="explanation">{explanation}</span>
-                  <img src={"data:image/png;base64," + formula} />
+                <span className="explanation">{explanation}</span>
+                <Formula formula={this.props.question.formula} />
               </div>
-              <button onClick={this.advanceFrame} className="btn btn-default">Next</button>
+              <button onClick={this.handleAdvanceFrame} className="btn btn-default">Next</button>
             </div>
           );
       } else if (!this.state.settings.srs) {
@@ -257,9 +170,9 @@ var CardItem = React.createClass({
             <div>
               <div>Incorrect. The correct answer is: {answer}.
                 <span className="explanation">{explanation}</span>
-                <img src={"data:image/png;base64," + formula} />
+                <Formula formula={this.props.question.formula} />
               </div>
-              <button onClick={this.advanceFrame} className="btn btn-default">Next</button>
+              <button onClick={this.handleAdvanceFrame} className="btn btn-default">Next</button>
             </div>
           );
       }
@@ -270,9 +183,15 @@ var CardItem = React.createClass({
             <div>
               <div>Right!
                 <span className="explanation">{explanation}</span>
-                <img src={"data:image/png;base64," + formula} />
+                <Formula formula={this.props.question.formula} />
               </div>
-              {this.renderGrades(isCorrect)}
+              <Grades
+                startTime={this.state.startTime}
+                auth={this.state.auth}
+                hash={this.props.hash}
+                handleAdvanceFrame={this.handleAdvanceFrame}
+                isCorrect={isCorrect}
+              />
             </div>
           );
       } else if (this.state.settings.srs) {
@@ -280,12 +199,26 @@ var CardItem = React.createClass({
             <div>
               <div>Incorrect. The correct answer is: {answer}.
                 <span className="explanation">{explanation}</span>
-                <img src={"data:image/png;base64," + formula} />
+                <Formula formula={this.props.question.formula} />
               </div>
-              {this.renderGrades(isCorrect)}
+              <Grades
+                startTime={this.state.startTime}
+                auth={this.state.auth}
+                hash={this.props.hash}
+                handleAdvanceFrame={this.handleAdvanceFrame}
+                isCorrect={isCorrect}
+              />
             </div>
           );
       }
+    }
+  },
+
+  handleCheckKey: function (e) {
+    console.log('keypress', e);
+    var code = e.keyCode ? e.keyCode : e.which;
+    if(code === 32) {
+      console.log("You pressed the Space key.");
     }
   },
 
