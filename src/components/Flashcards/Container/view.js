@@ -4,6 +4,8 @@ var Router = require('react-router');
 var Link = Router.Link;
 var Firebase = require("firebase");
 var CardComponent = require('../Card');
+var LayeredComponentMixin = require('mixins/LayeredComponentMixin');
+var EndModal = require('./EndModal');
 var constants = require('constants/AppConstants');
 var localStorageKey = constants.localStorageKey;
 var firebaseRef = new Firebase("https://flashcardsapp.firebaseio.com/");
@@ -13,12 +15,19 @@ var $ = window.jQuery;
 
 var Container  = React.createClass({
 
+  mixins: [LayeredComponentMixin],
+
   getInitialState: function() {
     return {
+      showModal: false,
       cloze: null,
       cardIndex: 0,
       fullCards: {}
     }
+  },
+
+  handleEndModal: function() {
+    this.setState({showModal: !this.state.showModal});
   },
 
   componentDidMount: function() {
@@ -97,6 +106,7 @@ var Container  = React.createClass({
               <div className="carousel-wrapped">
                 <h3>{"Question " + idx + ": " + val.question}</h3>
                 <CardComponent
+                  handleEndModal={this.handleEndModal}
                   cardIndex={cardIndex}
                   setIndex={this.setIndex}
                   cardsLength={cardsArray.length}
@@ -111,6 +121,15 @@ var Container  = React.createClass({
       return <span></span>;
     }
 
+  },
+
+  renderLayer: function() {
+      if (!this.state.showModal) {
+          return <span />;
+      }
+      return (
+          <EndModal onRequestClose={this.handleEndModal} />
+      );
   },
 
   render: function () {

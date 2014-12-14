@@ -101,11 +101,12 @@ var CardComponent = React.createClass({
 
   advanceFrame: function() {
     if (this.state.locked) {
+      this.props.handleEndModal();
+      console.log('End of quiz');
+    } else {
       this.setState({done: false, isCorrect: false});
-      console.log('End of quiz, quiz locked');
-      return;
+      $('.carousel').carousel('next');
     }
-    $('.carousel').carousel('next');
   },
 
   handleAdvanceFrame: function(e) {

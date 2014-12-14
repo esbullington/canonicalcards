@@ -12,6 +12,7 @@ var lrserver = require('tiny-lr')();
 var express = require('express');
 var parse = require('csv-parse');
 var livereload = require('connect-livereload');
+var karma = require('karma').server;
 
 var livereloadport = 35729;
 var serverport = 4000;
@@ -26,24 +27,15 @@ server.use(livereload({
 //We only configure the server here and start it only when running the watch task
 server.use(express.static(__dirname + '/public'));
 
-
-var testFiles = [
-  '**/*test.js'
-];
-
-gulp.task('test', function() {
-  // Be sure to return the stream
-  return gulp.src(testFiles)
-    .pipe(karma({
-      configFile: 'karma.conf.js',
-      action: 'run'
-    }))
-    .on('error', function(err) {
-      // Make sure failed tests cause gulp to exit non-zero
-      throw err;
-    });
+/**
+ * Run test once and exit
+ */
+gulp.task('test', function (done) {
+  karma.start({
+    configFile: __dirname + '/karma.conf.js',
+    singleRun: true
+  }, done);
 });
-
 
 gulp.task('serve', function() {
   //Set up your static fileserver, which serves files in the build dir

@@ -44,15 +44,22 @@ var LOGIN_LINKS = [
 
 var Nav = React.createClass({
 
+  mixins: [ Router.State ],
+
   getInitialState: function() {
     return {
       activePage: ''
     }
   },
 
+  getName: function(name) {
+    var names = name.split('/');
+    return names.pop();
+  },
+
   renderNavItem: function (link) {
     return (
-        <li className={this.state.activePage === link.name ? 'active' : ''} key={link.name}>
+        <li className={this.getName(this.getPathname()) === link.name ? 'active' : ''} key={link.name}>
           <Link to={link.name} >{link.title}</Link>
         </li>
       );
@@ -69,7 +76,7 @@ var Nav = React.createClass({
                 <span className="icon-bar"></span>
                 <span className="icon-bar"></span>
             </button>
-            <a className="navbar-brand" href="/">Start Bootstrap</a>
+            <a className="navbar-brand" href="/">Conquest Interviews</a>
           </div>
           <div className="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul className="nav navbar-nav">

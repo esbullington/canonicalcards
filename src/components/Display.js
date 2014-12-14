@@ -90,7 +90,6 @@ var Display = React.createClass({
   },
 
   render: function() {
-    console.log("Hi there!!!!!!");
     return (
       <div id="wrap">
         <Nav loggedIn={this.state.loggedIn} />

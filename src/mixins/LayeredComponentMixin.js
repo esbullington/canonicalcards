@@ -1,3 +1,7 @@
+'use strict';
+
+var React = require('react');
+
 module.exports = {
     componentWillUnmount: function() {
         this._unrenderLayer();
@@ -18,7 +22,7 @@ module.exports = {
         // By calling this method in componentDidMount() and componentDidUpdate(), you're effectively
         // creating a "wormhole" that funnels React's hierarchical updates through to a DOM node on an
         // entirely different part of the page.
-        React.renderComponent(this.renderLayer(), this._target);
+        React.render(this.renderLayer(), this._target);
     },
     _unrenderLayer: function() {
         React.unmountComponentAtNode(this._target);
