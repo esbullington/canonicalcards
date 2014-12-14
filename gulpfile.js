@@ -15,7 +15,6 @@ var livereload = require('connect-livereload');
 
 var livereloadport = 35729;
 var serverport = 4000;
-var CSV_ARRAY;
 
 var server = express();
 
@@ -25,25 +24,26 @@ server.use(livereload({
 }));
  
 //We only configure the server here and start it only when running the watch task
-
-
 server.use(express.static(__dirname + '/public'));
 
-fs.createReadStream('data/cards.csv').pipe(
-  parse({delimiter: ','}, function(err, output) {
-    CSV_ARRAY = output;
-  })
-);
 
-server.get('/query', function(req, res) {
+var testFiles = [
+  '**/*test.js'
+];
 
-  console.log(req.query);
-
-  var i = parseInt(req.query.index);
-
-  res.json({'result': 'success', 'data': CSV_ARRAY[i]});
-
+gulp.task('test', function() {
+  // Be sure to return the stream
+  return gulp.src(testFiles)
+    .pipe(karma({
+      configFile: 'karma.conf.js',
+      action: 'run'
+    }))
+    .on('error', function(err) {
+      // Make sure failed tests cause gulp to exit non-zero
+      throw err;
+    });
 });
+
 
 gulp.task('serve', function() {
   //Set up your static fileserver, which serves files in the build dir
