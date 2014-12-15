@@ -1,9 +1,16 @@
 @import "bootstrap/bootstrap.less";
 @import "font-awesome/font-awesome.less";
 @import "ribbon.less";
+
+
+// COMPONENT STYLING
 @import "EndModal.less";
-@import "welcome.less";
+@import "Container.less";
 @import "Cards.less";
+@import "Settings.less";
+
+
+//FULL SITE
 
 // Sticky footer
 html {
@@ -23,28 +30,4 @@ html {
   height: 60px;
   background-color: #f5f5f5;
 }
-
 // End sticky footer
-
-@site-carousel-color: black;
-@carousel-control-color: black;
-@carousel-control-opacity: 100%;
-@carousel-control-width: 10%;
-
-.card-container {
-  height: 100%;
-  border-style: solid;
-  border-color: @site-carousel-color;
-  border-width: 5px;
-}
-
-// Not needed if carousel arrows are removed
-.carousel-inner * .carousel-wrapped {
-  margin-left: 10%;
-}
-
-
-//Settings
-.srs-radio {
-  padding: 0px 10px 0px;
-}
