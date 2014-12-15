@@ -1,6 +1,9 @@
 'use strict';
 
 var React = require('react');
+var PubSub = require('pubsub-js');
+var EventTypes = require('constants/EventTypes');
+var DEAL_CARDS = EventTypes.DEAL_CARDS;
 
 var EndModal = React.createClass({
 
@@ -11,6 +14,11 @@ var EndModal = React.createClass({
 
     style: {
       'margin': '10px 10px 0px'
+    },
+
+    handleCardClick: function(e) {
+      PubSub.publish(DEAL_CARDS, "deal'em");
+
     },
 
     render: function() {
@@ -29,9 +37,9 @@ var EndModal = React.createClass({
                   <div className="panel-body">
 
                     <div className="list-group">
-                      <a href="#/display/cards" className="list-group-item">Review the next group</a>
+                      <a href="javascript:" onClick={this.handleCardClick} className="list-group-item">Review your next selection</a>
                       <a href="#/display/dashboard" className="list-group-item">View your current statistics</a>
-                      <a href="#/display/settings" className="list-group-item">Review app settings</a>
+                      <a href="#/display/settings" className="list-group-item">Check app settings</a>
                       <a href="#/display/logout" className="list-group-item">Logout</a>
                     </div>
 

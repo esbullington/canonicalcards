@@ -14,8 +14,8 @@ var CardComponent = React.createClass({
 
   getInitialState: function() {
     return {
-      locked: false,
-      done: false,
+      locked: null,
+      done: null,
       isCorrect: null,
       auth: null,
       settings: null,
@@ -120,6 +120,14 @@ var CardComponent = React.createClass({
     }
   },
 
+  componentWillReceiveProps: function(props) {
+
+    var done = props.done ? props.done: this.state.done;
+    var locked = props.locked ? props.locked: this.state.locked;
+    this.setState({done: done, locked: locked});
+
+  },
+
   componentWillUnmount: function() {
     window.removeEventListener('keypress', this.handleAdvanceFrame);
   },
@@ -216,10 +224,12 @@ var CardComponent = React.createClass({
   render: function() {
 
   	return (
-      <div>
+      <div className="card-candidates container">
+        <div id="questionCount">{"Question " + (+this.props.cardIndex + 1) + " out of " + this.props.cardsLength}</div>
+        <h3>{this.props.question.question}</h3>
         {this.props.candidates.map(function(el, idx) {
           return (
-            <div key={idx} >
+            <div className="card-candidates-item" key={idx} >
               <label>
                 <input onClick={ this.state.settings && this.state.settings.srs ? this.checkSRSAnswer : this.checkAnswer } type="radio" id="possibleAnswers" name="candidates" value={idx} style={{"display":"none"}} />
                 {el.text}

@@ -471,8 +471,8 @@ var CardComponent = React.createClass({displayName: 'CardComponent',
 
   getInitialState: function() {
     return {
-      locked: false,
-      done: false,
+      locked: null,
+      done: null,
       isCorrect: null,
       auth: null,
       settings: null,
@@ -577,6 +577,14 @@ var CardComponent = React.createClass({displayName: 'CardComponent',
     }
   },
 
+  componentWillReceiveProps: function(props) {
+
+    var done = props.done ? props.done: this.state.done;
+    var locked = props.locked ? props.locked: this.state.locked;
+    this.setState({done: done, locked: locked});
+
+  },
+
   componentWillUnmount: function() {
     window.removeEventListener('keypress', this.handleAdvanceFrame);
   },
@@ -673,10 +681,12 @@ var CardComponent = React.createClass({displayName: 'CardComponent',
   render: function() {
 
   	return (
-      React.createElement("div", null, 
+      React.createElement("div", {className: "card-candidates container"}, 
+        React.createElement("div", {id: "questionCount"}, "Question " + (+this.props.cardIndex + 1) + " out of " + this.props.cardsLength), 
+        React.createElement("h3", null, this.props.question.question), 
         this.props.candidates.map(function(el, idx) {
           return (
-            React.createElement("div", {key: idx}, 
+            React.createElement("div", {className: "card-candidates-item", key: idx}, 
               React.createElement("label", null, 
                 React.createElement("input", {onClick:  this.state.settings && this.state.settings.srs ? this.checkSRSAnswer : this.checkAnswer, type: "radio", id: "possibleAnswers", name: "candidates", value: idx, style: {"display":"none"}}), 
                 el.text
@@ -702,6 +712,9 @@ arguments[4][4][0].apply(exports,arguments)
 'use strict';
 
 var React = require('react');
+var PubSub = require('pubsub-js');
+var EventTypes = require('constants/EventTypes');
+var DEAL_CARDS = EventTypes.DEAL_CARDS;
 
 var EndModal = React.createClass({displayName: 'EndModal',
 
@@ -712,6 +725,11 @@ var EndModal = React.createClass({displayName: 'EndModal',
 
     style: {
       'margin': '10px 10px 0px'
+    },
+
+    handleCardClick: function(e) {
+      PubSub.publish(DEAL_CARDS, "deal'em");
+
     },
 
     render: function() {
@@ -730,9 +748,9 @@ var EndModal = React.createClass({displayName: 'EndModal',
                   React.createElement("div", {className: "panel-body"}, 
 
                     React.createElement("div", {className: "list-group"}, 
-                      React.createElement("a", {href: "#/display/cards", className: "list-group-item"}, "Review the next group"), 
+                      React.createElement("a", {href: "javascript:", onClick: this.handleCardClick, className: "list-group-item"}, "Review your next selection"), 
                       React.createElement("a", {href: "#/display/dashboard", className: "list-group-item"}, "View your current statistics"), 
-                      React.createElement("a", {href: "#/display/settings", className: "list-group-item"}, "Review app settings"), 
+                      React.createElement("a", {href: "#/display/settings", className: "list-group-item"}, "Check app settings"), 
                       React.createElement("a", {href: "#/display/logout", className: "list-group-item"}, "Logout")
                     )
 
@@ -750,7 +768,7 @@ var EndModal = React.createClass({displayName: 'EndModal',
 
 module.exports = EndModal;
 
-},{"react":230}],18:[function(require,module,exports){
+},{"constants/EventTypes":232,"pubsub-js":42,"react":230}],18:[function(require,module,exports){
 
 exports.makeCloze = function(str, queryIndex, cb) {
   var originalString = str;
@@ -857,6 +875,9 @@ var constants = require('constants/AppConstants');
 var localStorageKey = constants.localStorageKey;
 var firebaseRef = new Firebase("https://flashcardsapp.firebaseio.com/");
 var controller = require('./controller');
+var PubSub = require('pubsub-js');
+var EventTypes = require('constants/EventTypes');
+var DEAL_CARDS = EventTypes.DEAL_CARDS;
 var $ = window.jQuery;
 
 
@@ -869,7 +890,9 @@ var Container  = React.createClass({displayName: 'Container',
       showModal: false,
       cloze: null,
       cardIndex: 0,
-      fullCards: {}
+      fullCards: {},
+      done: false,
+      locked: false
     }
   },
 
@@ -892,6 +915,11 @@ var Container  = React.createClass({displayName: 'Container',
         }.bind(this));
       }
     } 
+    PubSub.subscribe(DEAL_CARDS, function(msg, data) {
+      console.log('Dealing cards');
+      this.setState({done: false, locked: false, showModal: false});
+      $('.carousel').carousel('next');
+    }.bind(this));
 
   },
 
@@ -951,14 +979,16 @@ var Container  = React.createClass({displayName: 'Container',
         return (
             React.createElement("div", {className: "item " + (this.state.cardIndex === idx ? "active" : ""), key: idx}, 
               React.createElement("div", {className: "carousel-wrapped"}, 
-                React.createElement("h3", null, "Question " + idx + ": " + val.question), 
                 React.createElement(CardComponent, {
                   handleEndModal: this.handleEndModal, 
                   cardIndex: cardIndex, 
                   setIndex: this.setIndex, 
                   cardsLength: cardsArray.length, 
                   candidates: candidates, 
-                  hash: hash, question: val}
+                  hash: hash, 
+                  question: val, 
+                  done: this.state.done, 
+                  locked: this.state.locked}
                 )
               )
             )
@@ -1009,7 +1039,7 @@ var CardContainer = React.createClass({displayName: 'CardContainer',
 
 module.exports = CardContainer;
 
-},{"../Cards":14,"./EndModal":16,"./controller":18,"constants/AppConstants":231,"firebase":36,"mixins/LayeredComponentMixin":233,"react":230,"react-router":52}],21:[function(require,module,exports){
+},{"../Cards":14,"./EndModal":16,"./controller":18,"constants/AppConstants":231,"constants/EventTypes":232,"firebase":36,"mixins/LayeredComponentMixin":233,"pubsub-js":42,"react":230,"react-router":52}],21:[function(require,module,exports){
 module.exports = require('./Container');
 
 },{"./Container":19}],22:[function(require,module,exports){
@@ -1674,7 +1704,8 @@ module.exports = keyMirror({
   FLASH_OPEN: null,
   FLASH_CLOSE: null,
   AUTHENTICATED: null,
-  USER_STATE_CHANGE: null 
+  USER_STATE_CHANGE: null,
+  DEAL_CARDS: null 
 
 });
 

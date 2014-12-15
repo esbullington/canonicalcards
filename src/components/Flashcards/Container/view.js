@@ -10,6 +10,9 @@ var constants = require('constants/AppConstants');
 var localStorageKey = constants.localStorageKey;
 var firebaseRef = new Firebase("https://flashcardsapp.firebaseio.com/");
 var controller = require('./controller');
+var PubSub = require('pubsub-js');
+var EventTypes = require('constants/EventTypes');
+var DEAL_CARDS = EventTypes.DEAL_CARDS;
 var $ = window.jQuery;
 
 
@@ -22,7 +25,9 @@ var Container  = React.createClass({
       showModal: false,
       cloze: null,
       cardIndex: 0,
-      fullCards: {}
+      fullCards: {},
+      done: false,
+      locked: false
     }
   },
 
@@ -45,6 +50,11 @@ var Container  = React.createClass({
         }.bind(this));
       }
     } 
+    PubSub.subscribe(DEAL_CARDS, function(msg, data) {
+      console.log('Dealing cards');
+      this.setState({done: false, locked: false, showModal: false});
+      $('.carousel').carousel('next');
+    }.bind(this));
 
   },
 
@@ -104,14 +114,16 @@ var Container  = React.createClass({
         return (
             <div className={"item " + (this.state.cardIndex === idx ? "active" : "")} key={idx} >
               <div className="carousel-wrapped">
-                <h3>{"Question " + idx + ": " + val.question}</h3>
                 <CardComponent
                   handleEndModal={this.handleEndModal}
                   cardIndex={cardIndex}
                   setIndex={this.setIndex}
                   cardsLength={cardsArray.length}
                   candidates={candidates}
-                  hash={hash} question={val}
+                  hash={hash}
+                  question={val}
+                  done={this.state.done}
+                  locked={this.state.locked}
                 />
               </div>
             </div>

@@ -74,7 +74,7 @@ gulp.task('less:build', function() {
 });
 
 gulp.task('less:watch', ['less'], function(){
-    gulp.watch(['./public/less/*.less', './public/less/**/*.less'], ['less'])
+    gulp.watch('./public/less/**/*.less', ['less'])
 });
 
 gulp.task('jsx', function() {
