@@ -1,12 +1,15 @@
 var React = require('react');
 var Router = require('react-router');
 var { Route, RouteHandler, Link } = Router;
-var Nav = require('./Nav');
-var Footer = require('./partials/Footer');
+var Nav = require('../Nav');
+var Footer = require('./Footer');
 var Firebase = require('firebase');
 var presenceRef = new Firebase('https://flashcardsapp.firebaseio.com/disconnectmessage');
-var initPresenceMonitor = require('../controllers/appController').initPresenceMonitor;
-var auth = require('./auth');
+var initPresenceMonitor = require('./controller').initPresenceMonitor;
+var PubSub = require('pubsub-js');
+var EventTypes = require('constants/EventTypes');
+var AUTHENTICATED = EventTypes.AUTHENTICATED;
+var auth = require('../auth');
 
 var App = React.createClass({
 
@@ -31,6 +34,12 @@ var App = React.createClass({
       var userId = this.state.loggedIn.uid;
       initPresenceMonitor(userId);
     }
+    var isMounted = function(msg, data) {
+      if (this.isMounted()) {
+        this.setState({loggedIn: data});
+      }
+    };
+    PubSub.subscribe(AUTHENTICATED, isMounted.bind(this));
   },
 
   render: function () {

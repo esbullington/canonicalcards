@@ -24,7 +24,9 @@ ref.onAuth(function(authData) {
   if (authData) {
     PubSub.publish('AUTHENTICATED', true);
   } else {
+    console.log('User logged out');
     PubSub.publish('AUTHENTICATED', false);
+    localStorage.clear();
   }
 });
 

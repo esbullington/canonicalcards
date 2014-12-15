@@ -10,12 +10,14 @@ var Settings = require('./components/Settings');
 var App = require('./components/App');
 var Cards = require('./components/Flashcards');
 var Display = require('./components/Display');
+var Welcome = require('./components/Welcome');
 var NotFound = require('./components/NotFound');
 
 var routes = (
   <Route handler={App}  >
     <DefaultRoute handler={Login}/>
     <Route name="cards" handler={Cards}/>
+    <Route name="welcome" handler={Welcome}/>
     <Route name="display"  handler={Display} >
       <Route name="login" handler={Login}/>
       <Route name="logout" handler={Logout}/>
