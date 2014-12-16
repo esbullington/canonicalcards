@@ -489,7 +489,6 @@ var CardGroup = React.createClass({displayName: 'CardGroup',
       isCorrect: null,
       auth: null,
       settings: null,
-      currentSelection: null,
       startTime: 0
     };
   },
@@ -534,6 +533,15 @@ var CardGroup = React.createClass({displayName: 'CardGroup',
       this.setState({locked: true});
     }
   },
+
+  checkAnswerCallback: function(key) {
+    if (this.state.settings && this.state.settings.srs) {
+      this.checkSRSAnswer(key)
+    } else {
+      this.checkAnswer(key)
+    }
+  },
+
 
   checkAnswer: function(i) {
     this.checkCardIndex();
@@ -624,41 +632,19 @@ var CardGroup = React.createClass({displayName: 'CardGroup',
     }
   },
 
-
   renderResult: function() {
     var answer = this.props.question.answer;
     var explanation = this.props.question.explanation ? this.props.question.explanation : '';
+    var isCorrect = this.state.isCorrect;
+    var response =  isCorrect ? "Right" : "Incorrect.  The correct answer is " + answer;
     if (this.state.done && this.state.settings) {
       // First, the render right/wrong paths for those not wanting SRS
-      if (!this.state.settings.srs && this.state.isCorrect) {
+      if (this.state.settings.srs) {
         return (
-            React.createElement("div", null, 
-              React.createElement("div", null, "Right! ", explanation, 
-                React.createElement("span", {className: "explanation"}, explanation), 
-                React.createElement(Formulas, {formula: this.props.question.formula})
-              ), 
-              React.createElement("button", {onClick: this.handleAdvanceFrame, className: "btn btn-default"}, "Next")
-            )
-          );
-      } else if (!this.state.settings.srs) {
-        return (
-            React.createElement("div", null, 
-              React.createElement("div", null, "Incorrect. The correct answer is: ", answer, ".", 
-                React.createElement("span", {className: "explanation"}, explanation), 
-                React.createElement(Formulas, {formula: this.props.question.formula})
-              ), 
-              React.createElement("button", {onClick: this.handleAdvanceFrame, className: "btn btn-default"}, "Next")
-            )
-          );
-      }
-      // For SRS results
-      if (this.state.settings.srs && this.state.isCorrect) {
-        var isCorrect = this.state.isCorrect;
-        return (
-            React.createElement("div", null, 
-              React.createElement("div", null, "Right!", 
-                React.createElement("span", {className: "explanation"}, explanation), 
-                React.createElement(Formulas, {formula: this.props.question.formula})
+          React.createElement("div", {className: "row"}, 
+            React.createElement("div", {className: "col-md-6"}, 
+              React.createElement("div", null, response, 
+                React.createElement("div", {className: "explanation"}, explanation)
               ), 
               React.createElement(Grades, {
                 startTime: this.state.startTime, 
@@ -667,33 +653,27 @@ var CardGroup = React.createClass({displayName: 'CardGroup',
                 handleAdvanceFrame: this.handleAdvanceFrame, 
                 isCorrect: isCorrect}
               )
+            ), 
+            React.createElement("div", {className: "col-md-6"}, 
+              React.createElement(Formulas, {formula: this.props.question.formula})
             )
-          );
-      } else if (this.state.settings.srs) {
+          )
+        );
+      } else {
         return (
-            React.createElement("div", null, 
-              React.createElement("div", null, "Incorrect. The correct answer is: ", answer, ".", 
-                React.createElement("span", {className: "explanation"}, explanation), 
-                React.createElement(Formulas, {formula: this.props.question.formula})
+          React.createElement("div", {className: "row"}, 
+            React.createElement("div", {className: "col-md-6"}, 
+              React.createElement("div", null, response, 
+                React.createElement("div", {className: "explanation"}, explanation)
               ), 
-              React.createElement(Grades, {
-                startTime: this.state.startTime, 
-                auth: this.state.auth, 
-                hash: this.props.hash, 
-                handleAdvanceFrame: this.handleAdvanceFrame, 
-                isCorrect: isCorrect}
-              )
+              React.createElement("button", {onClick: this.handleAdvanceFrame, className: "btn btn-default"}, "Next")
+            ), 
+            React.createElement("div", {className: "col-md-6"}, 
+              React.createElement(Formulas, {formula: this.props.question.formula})
             )
-          );
+          )
+        );
       }
-    }
-  },
-
-  callbackFn: function(key) {
-    if (this.state.settings && this.state.settings.srs) {
-      this.checkSRSAnswer(key)
-    } else {
-      this.checkAnswer(key)
     }
   },
 
@@ -706,47 +686,55 @@ var CardGroup = React.createClass({displayName: 'CardGroup',
         React.createElement("div", {className: "row"}, 
 
         React.createElement("div", {className: "col-md-10 col-sm-8 col-xs-6"}, 
-        React.createElement("div", {className: "progress"}, 
-          React.createElement("div", {className: "progress-bar", role: "progressbar", 'aria-valuenow': this.props.cardIndex + 1, 'aria-valuemin': "0", 'aria-valuemax': this.props.cardsLength, style: {"width": percentValue + "%"}}, 
-            "Question " + (+this.props.cardIndex + 1) + " out of " + this.props.cardsLength
+          React.createElement("div", {className: "progress"}, 
+            React.createElement("div", {className: "progress-bar", role: "progressbar", 'aria-valuenow': this.props.cardIndex + 1, 'aria-valuemin': "0", 'aria-valuemax': this.props.cardsLength, style: {"width": percentValue + "%"}}, 
+              "Question " + (+this.props.cardIndex + 1) + " out of " + this.props.cardsLength
+            )
           )
-        )
         )
 
         ), 
         
         React.createElement("div", {className: "row"}, 
 
-          React.createElement("h3", null, this.props.question.question), 
-          this.props.candidates.map(function(el, idx) {
-            return (
-              React.createElement("div", {
-                className: "card-candidates-item", 
-                key: idx, 
-                onClick: this.callbackFn.bind(this, idx)
-              }, 
-                React.createElement("div", {className: "card-candidates-item-inner"}, 
-                  React.createElement("label", null, 
-                    React.createElement("input", {
-                      ref: "answerCandidate" + idx, 
-                      type: "radio", 
-                      id: "answerCandidate", 
-                      name: "candidates", 
-                      value: idx, 
-                      style: {"display":"none"}}
-                    ), 
-                    el.text
+          React.createElement("div", {className: "col-md-12"}, 
+            React.createElement("h3", null, this.props.question.question), 
+            this.props.candidates.map(function(el, idx) {
+              return (
+                React.createElement("div", {
+                  className: "card-candidates-item", 
+                  key: idx, 
+                  onClick: this.checkAnswerCallback.bind(this, idx)
+                }, 
+                  React.createElement("div", {className: "card-candidates-item-inner"}, 
+                    React.createElement("label", null, 
+                      React.createElement("input", {
+                        ref: "answerCandidate" + idx, 
+                        type: "radio", 
+                        id: "answerCandidate", 
+                        name: "candidates", 
+                        value: idx, 
+                        style: {"display":"none"}}
+                      ), 
+                      el.text
+                    )
                   )
                 )
-              )
-                )
-            }, this), 
-          
+                  )
+              }, this)
+            
 
-          this.renderResult()
+          ), 
+
+          React.createElement("div", {className: "col-md-12"}, 
+
+            this.renderResult()
+
+          )
 
         /* end row */
         )
+
       /* end container */
       )
     );
