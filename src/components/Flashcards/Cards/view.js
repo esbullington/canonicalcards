@@ -32,7 +32,6 @@ var CardGroup = React.createClass({
       isCorrect: null,
       auth: null,
       settings: null,
-      currentSelection: null,
       startTime: 0
     };
   },
@@ -77,6 +76,15 @@ var CardGroup = React.createClass({
       this.setState({locked: true});
     }
   },
+
+  checkAnswerCallback: function(key) {
+    if (this.state.settings && this.state.settings.srs) {
+      this.checkSRSAnswer(key)
+    } else {
+      this.checkAnswer(key)
+    }
+  },
+
 
   checkAnswer: function(i) {
     this.checkCardIndex();
@@ -167,41 +175,19 @@ var CardGroup = React.createClass({
     }
   },
 
-
   renderResult: function() {
     var answer = this.props.question.answer;
     var explanation = this.props.question.explanation ? this.props.question.explanation : '';
+    var isCorrect = this.state.isCorrect;
+    var response =  isCorrect ? "Right" : "Incorrect.  The correct answer is " + answer;
     if (this.state.done && this.state.settings) {
       // First, the render right/wrong paths for those not wanting SRS
-      if (!this.state.settings.srs && this.state.isCorrect) {
+      if (this.state.settings.srs) {
         return (
-            <div>
-              <div>Right! {explanation}
-                <span className="explanation">{explanation}</span>
-                <Formulas formula={this.props.question.formula} />
-              </div>
-              <button onClick={this.handleAdvanceFrame} className="btn btn-default">Next</button>
-            </div>
-          );
-      } else if (!this.state.settings.srs) {
-        return (
-            <div>
-              <div>Incorrect. The correct answer is: {answer}.
-                <span className="explanation">{explanation}</span>
-                <Formulas formula={this.props.question.formula} />
-              </div>
-              <button onClick={this.handleAdvanceFrame} className="btn btn-default">Next</button>
-            </div>
-          );
-      }
-      // For SRS results
-      if (this.state.settings.srs && this.state.isCorrect) {
-        var isCorrect = this.state.isCorrect;
-        return (
-            <div>
-              <div>Right!
-                <span className="explanation">{explanation}</span>
-                <Formulas formula={this.props.question.formula} />
+          <div className="row">
+            <div className="col-md-6">
+              <div>{response}
+                <div className="explanation">{explanation}</div>
               </div>
               <Grades
                 startTime={this.state.startTime}
@@ -211,32 +197,26 @@ var CardGroup = React.createClass({
                 isCorrect={isCorrect}
               />
             </div>
-          );
-      } else if (this.state.settings.srs) {
-        return (
-            <div>
-              <div>Incorrect. The correct answer is: {answer}.
-                <span className="explanation">{explanation}</span>
-                <Formulas formula={this.props.question.formula} />
-              </div>
-              <Grades
-                startTime={this.state.startTime}
-                auth={this.state.auth}
-                hash={this.props.hash}
-                handleAdvanceFrame={this.handleAdvanceFrame}
-                isCorrect={isCorrect}
-              />
+            <div className="col-md-6">
+              <Formulas formula={this.props.question.formula} />
             </div>
-          );
+          </div>
+        );
+      } else {
+        return (
+          <div className="row">
+            <div className="col-md-6">
+              <div>{response}
+                <div className="explanation">{explanation}</div>
+              </div>
+              <button onClick={this.handleAdvanceFrame} className="btn btn-default">Next</button>
+            </div>
+            <div className="col-md-6">
+              <Formulas formula={this.props.question.formula} />
+            </div>
+          </div>
+        );
       }
-    }
-  },
-
-  callbackFn: function(key) {
-    if (this.state.settings && this.state.settings.srs) {
-      this.checkSRSAnswer(key)
-    } else {
-      this.checkAnswer(key)
     }
   },
 
@@ -249,47 +229,55 @@ var CardGroup = React.createClass({
         <div className="row">
 
         <div className="col-md-10 col-sm-8 col-xs-6">
-        <div className="progress">
-          <div className="progress-bar" role="progressbar" aria-valuenow={this.props.cardIndex + 1} aria-valuemin="0" aria-valuemax={this.props.cardsLength} style={{"width": percentValue + "%"}} >
-            {"Question " + (+this.props.cardIndex + 1) + " out of " + this.props.cardsLength}
+          <div className="progress">
+            <div className="progress-bar" role="progressbar" aria-valuenow={this.props.cardIndex + 1} aria-valuemin="0" aria-valuemax={this.props.cardsLength} style={{"width": percentValue + "%"}} >
+              {"Question " + (+this.props.cardIndex + 1) + " out of " + this.props.cardsLength}
+            </div>
           </div>
-        </div>
         </div>
 
         </div>
         
         <div className="row">
 
-          <h3>{this.props.question.question}</h3>
-          {this.props.candidates.map(function(el, idx) {
-            return (
-              <div
-                className="card-candidates-item"
-                key={idx}
-                onClick={this.callbackFn.bind(this, idx)}
-              >
-                <div className="card-candidates-item-inner">
-                  <label>
-                    <input
-                      ref={"answerCandidate" + idx}
-                      type="radio"
-                      id="answerCandidate"
-                      name="candidates"
-                      value={idx}
-                      style={{"display":"none"}}
-                    />
-                    {el.text}
-                  </label> 
+          <div className="col-md-12">
+            <h3>{this.props.question.question}</h3>
+            {this.props.candidates.map(function(el, idx) {
+              return (
+                <div
+                  className="card-candidates-item"
+                  key={idx}
+                  onClick={this.checkAnswerCallback.bind(this, idx)}
+                >
+                  <div className="card-candidates-item-inner">
+                    <label>
+                      <input
+                        ref={"answerCandidate" + idx}
+                        type="radio"
+                        id="answerCandidate"
+                        name="candidates"
+                        value={idx}
+                        style={{"display":"none"}}
+                      />
+                      {el.text}
+                    </label> 
+                  </div>
                 </div>
-              </div>
-                )
-            }, this)
-          }
+                  )
+              }, this)
+            }
 
-          {this.renderResult()}
+          </div>
+
+          <div className="col-md-12">
+
+            {this.renderResult()}
+
+          </div>
 
         {/* end row */}
         </div>
+
       {/* end container */}
       </div>
     );
