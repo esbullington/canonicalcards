@@ -10,24 +10,41 @@ var authRef = require('../../auth');
 var $ = window.jQuery;
 
 
-var CardComponent = React.createClass({
+var CardItem = React.createClass({
 
   getInitialState: function() {
     return {
-      locked: null,
-      done: null,
+      inputState: ''
+    };
+  },
+
+  render: function() {
+  }
+
+});
+
+var CardGroup = React.createClass({
+
+  getInitialState: function() {
+    return {
+      locked: false,
+      done: false,
       isCorrect: null,
       auth: null,
       settings: null,
+      currentSelection: null,
       startTime: 0
     };
   },
 
-
   recordAnswer: function(hash, result) {
     var self = this;
     if (this.state.auth) {
-      var counterRef = ref.child('users').child(this.state.auth.uid).child('stats').child('flashcards').child(hash);
+      var counterRef = ref.child('users')
+        .child(this.state.auth.uid)
+        .child('stats')
+        .child('flashcards')
+        .child(hash);
       counterRef.once('value', function(snapshot) {
         var val = snapshot.val();
         var attemptedQuestions = val ? val.attemptedQuestions += 1: 1;
@@ -56,20 +73,18 @@ var CardComponent = React.createClass({
     var cardIndex = +this.props.cardIndex;
     var cardsLength = +this.props.cardsLength - 1;
     if (cardIndex === cardsLength) {
-      console.log('reached the end of the quiz');
+      console.log("You've reached the end of the quiz");
       this.setState({locked: true});
     }
   },
 
-  checkAnswer: function(e) {
-    e.preventDefault;
+  checkAnswer: function(i) {
     this.checkCardIndex();
     if (this.state.done) {
       return;
     };
     // We've pre-checked the array of answer candidates for the correct answer
     // So we only have to check if the pre-checked result is true
-    var i = +e.target.value;
     var thisAnswerCandidate = this.props.candidates[i];
     if (thisAnswerCandidate.result) {
       this.setState({isCorrect: true});
@@ -81,15 +96,13 @@ var CardComponent = React.createClass({
     this.setState({done: true});
   },
 
-  checkSRSAnswer: function(e) {
-    e.preventDefault;
+  checkSRSAnswer: function(i) {
     this.checkCardIndex();
     if (this.state.done) {
       return;
     };
     // We've pre-checked the array of answer candidates for the correct answer
     // So we only have to check if the pre-checked result is true
-    var i = +e.target.value;
     var thisAnswerCandidate = this.props.candidates[i];
     if (thisAnswerCandidate.result) {
       this.setState({isCorrect: true});
@@ -113,11 +126,13 @@ var CardComponent = React.createClass({
     var code = e.keyCode ? e.keyCode : e.which;
     if (this.state.done) {
       if(code === 32) {
-        console.log("Pressed the Space key.");
         this.advanceFrame();
       }
       this.advanceFrame();
     }
+  },
+
+  handleClick: function(e) {
   },
 
   componentWillReceiveProps: function(props) {
@@ -130,29 +145,25 @@ var CardComponent = React.createClass({
 
   componentWillUnmount: function() {
     window.removeEventListener('keypress', this.handleAdvanceFrame);
+    document.removeEventListener("click", this.handleClick, false);
   },
 
   componentDidMount: function() {
     var uid;
     if (this.isMounted()) {
       window.addEventListener('keypress', this.handleAdvanceFrame);
+      document.addEventListener("click", this.handleClick, false);
       var now = new Date();
       this.setState({startTime: now.getTime()});
-      var auth = JSON.parse(localStorage.getItem(localStorageKey));
-      if (auth) {
+      var auth = JSON.parse(localStorage.getItem(localStorageKey)) || authRef.getAuth();
+      if (auth && auth.uid) {
         this.setState({auth: auth});
-        uid = auth.uid;
-
-      } else {
-        auth = authRef.getAuth();
-        uid = auth.uid;
-        this.setState({auth: auth});
+        var settingsRef = ref.child('users').child(auth.uid).child('settings');
+        settingsRef.once('value', function(snapshot) {
+          var settings = snapshot.val();
+          this.setState({settings: settings});
+        }, this);
       }
-      var settingsRef = ref.child('users').child(uid).child('settings');
-      settingsRef.once('value', function(snapshot) {
-        var settings = snapshot.val();
-        this.setState({settings: settings});
-      }, this);
     }
   },
 
@@ -221,30 +232,69 @@ var CardComponent = React.createClass({
     }
   },
 
+  callbackFn: function(key) {
+    if (this.state.settings && this.state.settings.srs) {
+      this.checkSRSAnswer(key)
+    } else {
+      this.checkAnswer(key)
+    }
+  },
+
   render: function() {
+
+    var percentValue = (+this.props.cardIndex + 1) / +this.props.cardsLength * 100;
 
   	return (
       <div className="card-candidates container">
-        <div id="questionCount">{"Question " + (+this.props.cardIndex + 1) + " out of " + this.props.cardsLength}</div>
-        <h3>{this.props.question.question}</h3>
-        {this.props.candidates.map(function(el, idx) {
-          return (
-            <div className="card-candidates-item" key={idx} >
-              <label>
-                <input onClick={ this.state.settings && this.state.settings.srs ? this.checkSRSAnswer : this.checkAnswer } type="radio" id="possibleAnswers" name="candidates" value={idx} style={{"display":"none"}} />
-                {el.text}
-              </label> 
-            </div>
-              )
-          }, this)
-        }
+        <div className="row">
 
-        {this.renderResult()}
+        <div className="col-md-10 col-sm-8 col-xs-6">
+        <div className="progress">
+          <div className="progress-bar" role="progressbar" aria-valuenow={this.props.cardIndex + 1} aria-valuemin="0" aria-valuemax={this.props.cardsLength} style={{"width": percentValue + "%"}} >
+            {"Question " + (+this.props.cardIndex + 1) + " out of " + this.props.cardsLength}
+          </div>
+        </div>
+        </div>
 
+        </div>
+        
+        <div className="row">
+
+          <h3>{this.props.question.question}</h3>
+          {this.props.candidates.map(function(el, idx) {
+            return (
+              <div
+                className="card-candidates-item"
+                key={idx}
+                onClick={this.callbackFn.bind(this, idx)}
+              >
+                <div className="card-candidates-item-inner">
+                  <label>
+                    <input
+                      ref={"answerCandidate" + idx}
+                      type="radio"
+                      id="answerCandidate"
+                      name="candidates"
+                      value={idx}
+                      style={{"display":"none"}}
+                    />
+                    {el.text}
+                  </label> 
+                </div>
+              </div>
+                )
+            }, this)
+          }
+
+          {this.renderResult()}
+
+        {/* end row */}
+        </div>
+      {/* end container */}
       </div>
     );
   },
 
 });
 
-module.exports = CardComponent;
+module.exports = CardGroup;
