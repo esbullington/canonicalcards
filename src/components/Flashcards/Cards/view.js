@@ -3,8 +3,7 @@ var ReactPropTypes = React.PropTypes;
 var Firebase = require('firebase');
 var ref = new Firebase("https://flashcardsapp.firebaseio.com/");
 var constants = require('constants/AppConstants');
-var Formulas = require('./Formulas');
-var Grades = require('./Grades');
+var Result = require('./Result');
 var localStorageKey = constants.localStorageKey;
 var authRef = require('../../auth');
 var $ = window.jQuery;
@@ -175,51 +174,6 @@ var CardGroup = React.createClass({
     }
   },
 
-  renderResult: function() {
-    var answer = this.props.question.answer;
-    var explanation = this.props.question.explanation ? this.props.question.explanation : '';
-    var isCorrect = this.state.isCorrect;
-    var response =  isCorrect ? "Right" : "Incorrect.  The correct answer is " + answer;
-    if (this.state.done && this.state.settings) {
-      // First, the render right/wrong paths for those not wanting SRS
-      if (this.state.settings.srs) {
-        return (
-          <div className="row">
-            <div className="col-md-6">
-              <div>{response}
-                <div className="explanation">{explanation}</div>
-              </div>
-              <Grades
-                startTime={this.state.startTime}
-                auth={this.state.auth}
-                hash={this.props.hash}
-                handleAdvanceFrame={this.handleAdvanceFrame}
-                isCorrect={isCorrect}
-              />
-            </div>
-            <div className="col-md-6">
-              <Formulas formula={this.props.question.formula} />
-            </div>
-          </div>
-        );
-      } else {
-        return (
-          <div className="row">
-            <div className="col-md-6">
-              <div>{response}
-                <div className="explanation">{explanation}</div>
-              </div>
-              <button onClick={this.handleAdvanceFrame} className="btn btn-default">Next</button>
-            </div>
-            <div className="col-md-6">
-              <Formulas formula={this.props.question.formula} />
-            </div>
-          </div>
-        );
-      }
-    }
-  },
-
   render: function() {
 
     var percentValue = (+this.props.cardIndex + 1) / +this.props.cardsLength * 100;
@@ -271,7 +225,16 @@ var CardGroup = React.createClass({
 
           <div className="col-md-12">
 
-            {this.renderResult()}
+            <Result
+              question={this.props.question}
+              hash={this.props.hash}
+              handleAdvanceFrame={this.handleAdvanceFrame}
+              startTime={this.state.startTime}
+              auth={this.state.auth}
+              isCorrect={this.state.isCorrect}
+              settings={this.state.settings}
+              done={this.state.done}
+            />
 
           </div>
 
