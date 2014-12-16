@@ -34,7 +34,7 @@
   top:auto;
 }
 
-@media screen and (min-width: 420px) {
+@media screen and (min-width: @mobile-size) {
 
   #ribbon {
     position:fixed;
@@ -57,6 +57,28 @@
     -ms-transform:rotate(45deg);
     -moz-transform:rotate(45deg);
     -o-transform:rotate(45deg);
+    box-shadow:4px 4px 10px rgba(0,0,0,0.8);
+  }
+
+}
+
+@media screen and (max-width: (@mobile-size - 1)) {
+
+  #ribbon {
+    position:fixed;
+    display:block;
+    top:0;
+    right:0;
+    width:100%;
+    overflow:hidden;
+    height:240px;
+    z-index:9999;
+  }
+
+  #ribbon a {
+    width:100%;
+    position:absolute;
+    top:5px;
     box-shadow:4px 4px 10px rgba(0,0,0,0.8);
   }
 
