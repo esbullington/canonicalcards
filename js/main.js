@@ -407,8 +407,6 @@ var ref = new Firebase("https://flashcardsapp.firebaseio.com/");
 var controller = require('./controller');
 
 
-
-
 var Grades = module.exports = React.createClass({displayName: 'exports',
 
   recordSRSAnswer: function(hash, result, grade) {
@@ -470,11 +468,11 @@ var Grades = module.exports = React.createClass({displayName: 'exports',
     if (isCorrect) {
       return (
           React.createElement("div", {className: "well grades"}, 
-            React.createElement("div", null, "Please select one to advance:"), 
+            React.createElement("div", {className: "grades select-one"}, "Please select one to advance:"), 
             Object.keys(correctGrades).map(function(val, idx) {
               return (
-                React.createElement("div", {key: idx}, 
-                  React.createElement("label", null, 
+                React.createElement("div", {className: "grades grades-item", key: idx}, 
+                  React.createElement("label", {className: "grades grades-item-label"}, 
                     React.createElement("input", {onClick: this.checkGrade, type: "radio", id: "possibleGrades", name: "grades", value: val, style: {"display":"none"}}), 
                     correctGrades[val]
                   )
@@ -491,7 +489,7 @@ var Grades = module.exports = React.createClass({displayName: 'exports',
             Object.keys(incorrectGrades).map(function(val, idx) {
               return (
                 React.createElement("div", {className: "grades grades-item", key: idx}, 
-                  React.createElement("label", null, 
+                  React.createElement("label", {className: "grades grades-item-label"}, 
                     React.createElement("input", {onClick: this.checkGrade, type: "radio", id: "possibleGrades", name: "grades", value: val, style: {"display":"none"}}), 
                     incorrectGrades[val]
                   )
@@ -520,8 +518,13 @@ var Result = React.createClass({displayName: 'Result',
 
   getInitialState: function() {
     return {
+      showText: 'Show',
       showExplanation: false
     };
+  },
+
+  handleClick: function(e) {
+    this.setState({showText: this.state.showExplanation ? 'Show' : 'Hide', showExplanation: !this.state.showExplanation});
   },
 
   renderExplanation: function() {
@@ -532,7 +535,7 @@ var Result = React.createClass({displayName: 'Result',
             React.createElement("div", {className: "result col-md-6"}, 
               React.createElement("div", {className: "result explanation"}, 
                 React.createElement("blockquote", null, 
-                  explanation
+                  this.props.question.explanation
                 )
               )
             ), 
@@ -548,11 +551,17 @@ var Result = React.createClass({displayName: 'Result',
   renderResponse: function() {
     if (this.props.isCorrect) {
       return (
-        React.createElement("h3", {className: "result response"}, React.createElement("i", {className: "result glyphicon glyphicon-ok"}), " Right")
+        React.createElement("div", null, 
+          React.createElement("h3", {className: "result response"}, React.createElement("i", {className: "result glyphicon glyphicon-ok"}), " Right",  
+          React.createElement("button", {onClick: this.handleClick, className: "result explanation-btn btn btn-default"}, this.state.showText, " explanation"))
+        )
       );
     } else {
       return (
-        React.createElement("h3", {className: "result response"}, React.createElement("i", {className: "result glyphicon glyphicon-remove"}), " Incorrect.  The correct answer is: ", this.props.question.answer)
+        React.createElement("div", null, 
+          React.createElement("h3", {className: "result response"}, React.createElement("i", {className: "result glyphicon glyphicon-remove"}), " Incorrect.  The correct answer is: ", React.createElement("em", null, this.props.question.answer), 
+          React.createElement("button", {onClick: this.handleClick, className: "result explanation-btn btn btn-default"}, "Show explanation"))
+        )
       );
     }
   },
@@ -638,7 +647,6 @@ var CardItem = React.createClass({displayName: 'CardItem',
           React.createElement("div", {className: "card-candidates-item-inner"}, 
             React.createElement("label", null, 
               React.createElement("input", {
-                ref: "answerCandidate" + this.props.idx, 
                 type: "radio", 
                 id: "answerCandidate", 
                 name: "candidates", 
@@ -771,9 +779,6 @@ var CardGroup = React.createClass({displayName: 'CardGroup',
     }
   },
 
-  handleClick: function(e) {
-  },
-
   componentWillReceiveProps: function(props) {
 
     var done = props.done ? props.done: this.state.done;
@@ -784,14 +789,12 @@ var CardGroup = React.createClass({displayName: 'CardGroup',
 
   componentWillUnmount: function() {
     window.removeEventListener('keypress', this.handleAdvanceFrame);
-    document.removeEventListener("click", this.handleClick, false);
   },
 
   componentDidMount: function() {
     var uid;
     if (this.isMounted()) {
       window.addEventListener('keypress', this.handleAdvanceFrame);
-      document.addEventListener("click", this.handleClick, false);
       var now = new Date();
       this.setState({startTime: now.getTime()});
       var auth = JSON.parse(localStorage.getItem(localStorageKey)) || authRef.getAuth();
@@ -1181,7 +1184,7 @@ var Container  = React.createClass({displayName: 'Container',
     return  (
       React.createElement("div", {id: "carousel-example-generic", className: "carousel slide", 'data-ride': "carousel", 'data-interval': false, 'data-wrap': false}, 
         React.createElement("div", {className: "carousel-inner", role: "listbox"}, 
-        this.renderCards()
+          this.renderCards()
         )
       )
     );
