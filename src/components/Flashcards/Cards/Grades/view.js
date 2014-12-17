@@ -7,8 +7,6 @@ var ref = new Firebase("https://flashcardsapp.firebaseio.com/");
 var controller = require('./controller');
 
 
-
-
 var Grades = module.exports = React.createClass({
 
   recordSRSAnswer: function(hash, result, grade) {
@@ -70,11 +68,11 @@ var Grades = module.exports = React.createClass({
     if (isCorrect) {
       return (
           <div className="well grades">
-            <div>Please select one to advance:</div>
+            <div className="grades select-one">Please select one to advance:</div>
             {Object.keys(correctGrades).map(function(val, idx) {
               return (
-                <div key={idx} >
-                  <label>
+                <div className="grades grades-item" key={idx} >
+                  <label className="grades grades-item-label">
                     <input onClick={this.checkGrade} type="radio" id="possibleGrades" name="grades" value={val} style={{"display":"none"}} />
                     {correctGrades[val]}
                   </label> 
@@ -91,7 +89,7 @@ var Grades = module.exports = React.createClass({
             {Object.keys(incorrectGrades).map(function(val, idx) {
               return (
                 <div className="grades grades-item" key={idx} >
-                  <label>
+                  <label className="grades grades-item-label">
                     <input onClick={this.checkGrade} type="radio" id="possibleGrades" name="grades" value={val} style={{"display":"none"}} />
                     {incorrectGrades[val]}
                   </label> 

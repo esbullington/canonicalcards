@@ -23,7 +23,6 @@ var CardItem = React.createClass({
           <div className="card-candidates-item-inner">
             <label>
               <input
-                ref={"answerCandidate" + this.props.idx}
                 type="radio"
                 id="answerCandidate"
                 name="candidates"
@@ -156,9 +155,6 @@ var CardGroup = React.createClass({
     }
   },
 
-  handleClick: function(e) {
-  },
-
   componentWillReceiveProps: function(props) {
 
     var done = props.done ? props.done: this.state.done;
@@ -169,14 +165,12 @@ var CardGroup = React.createClass({
 
   componentWillUnmount: function() {
     window.removeEventListener('keypress', this.handleAdvanceFrame);
-    document.removeEventListener("click", this.handleClick, false);
   },
 
   componentDidMount: function() {
     var uid;
     if (this.isMounted()) {
       window.addEventListener('keypress', this.handleAdvanceFrame);
-      document.addEventListener("click", this.handleClick, false);
       var now = new Date();
       this.setState({startTime: now.getTime()});
       var auth = JSON.parse(localStorage.getItem(localStorageKey)) || authRef.getAuth();

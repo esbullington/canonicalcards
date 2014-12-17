@@ -150,7 +150,7 @@ var Container  = React.createClass({
     return  (
       <div id="carousel-example-generic" className="carousel slide" data-ride="carousel" data-interval={false} data-wrap={false} >
         <div className="carousel-inner" role="listbox"  >
-        {this.renderCards()}
+          {this.renderCards()}
         </div>
       </div>
     );

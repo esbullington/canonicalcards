@@ -9,8 +9,13 @@ var Result = React.createClass({
 
   getInitialState: function() {
     return {
+      showText: 'Show',
       showExplanation: false
     };
+  },
+
+  handleClick: function(e) {
+    this.setState({showText: this.state.showExplanation ? 'Show' : 'Hide', showExplanation: !this.state.showExplanation});
   },
 
   renderExplanation: function() {
@@ -21,7 +26,7 @@ var Result = React.createClass({
             <div className="result col-md-6">
               <div className="result explanation">
                 <blockquote>
-                  {explanation}
+                  {this.props.question.explanation}
                 </blockquote>
               </div>
             </div>
@@ -37,11 +42,17 @@ var Result = React.createClass({
   renderResponse: function() {
     if (this.props.isCorrect) {
       return (
-        <h3 className="result response"><i className="result glyphicon glyphicon-ok"></i> Right</h3>
+        <div>
+          <h3 className="result response"><i className="result glyphicon glyphicon-ok"></i> Right 
+          <button onClick={this.handleClick} className="result explanation-btn btn btn-default">{this.state.showText} explanation</button></h3>
+        </div>
       );
     } else {
       return (
-        <h3 className="result response"><i className="result glyphicon glyphicon-remove"></i> Incorrect.  The correct answer is: {this.props.question.answer}</h3>
+        <div>
+          <h3 className="result response"><i className="result glyphicon glyphicon-remove"></i> Incorrect.  The correct answer is: <em>{this.props.question.answer}</em>
+          <button onClick={this.handleClick} className="result explanation-btn btn btn-default">Show explanation</button></h3>
+        </div>
       );
     }
   },
