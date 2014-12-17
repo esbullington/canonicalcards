@@ -21,6 +21,7 @@ var CardItem = React.createClass({
           onClick={this.props.checkAnswerCallback}
         >
           <div className="card-candidates-item-inner">
+            <span>{this.props.cardLetter}. </span>
             <label>
               <input
                 type="radio"
@@ -29,7 +30,7 @@ var CardItem = React.createClass({
                 value={this.props.idx}
                 style={{"display":"none"}}
               />
-              {this.props.el.text}
+               {this.props.el.text}
             </label> 
           </div>
         </div>
@@ -42,6 +43,8 @@ var CardGroup = React.createClass({
 
   getInitialState: function() {
     return {
+      correctLetter: '',
+      correctIndex: null,
       locked: false,
       done: false,
       isCorrect: null,
@@ -87,19 +90,28 @@ var CardGroup = React.createClass({
     var cardIndex = +this.props.cardIndex;
     var cardsLength = +this.props.cardsLength - 1;
     if (cardIndex === cardsLength) {
-      console.log("You've reached the end of the quiz");
       this.setState({locked: true});
     }
   },
 
-  checkAnswerCallback: function(key) {
+  checkAnswerCallback: function(i) {
     if (this.state.settings && this.state.settings.srs) {
-      this.checkSRSAnswer(key)
+      this.checkSRSAnswer(i)
     } else {
-      this.checkAnswer(key)
+      this.checkAnswer(i)
     }
   },
 
+  getAlpha: function(i) {
+    var alpha = {
+      0 : 'A',
+      1 : 'B',
+      2 : 'C',
+      3 : 'D',
+      4 : 'E'
+    };
+    return alpha[i];
+  },
 
   checkAnswer: function(i) {
     this.checkCardIndex();
@@ -182,6 +194,11 @@ var CardGroup = React.createClass({
           this.setState({settings: settings});
         }, this);
       }
+      this.props.candidates.forEach(function(val, idx) {
+        if (val.result) {
+          this.setState({correctIndex: idx, correctLetter: this.getAlpha(idx)});
+        }
+      }, this);
     }
   },
 
@@ -217,6 +234,7 @@ var CardGroup = React.createClass({
                     checkAnswerCallback={this.checkAnswerCallback.bind(this, idx)}
                     el={el}
                     key={idx}
+                    cardLetter={this.getAlpha(idx)}
                   />
                   )
               }, this)
@@ -235,6 +253,7 @@ var CardGroup = React.createClass({
               isCorrect={this.state.isCorrect}
               settings={this.state.settings}
               done={this.state.done}
+              correctLetter={this.state.correctLetter}
             />
 
           </div>

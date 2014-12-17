@@ -50,7 +50,7 @@ var Result = React.createClass({
     } else {
       return (
         <div>
-          <h3 className="result response"><i className="result glyphicon glyphicon-remove"></i> Incorrect.  The correct answer is: <em>{this.props.question.answer}</em>
+          <h3 className="result response"><i className="result glyphicon glyphicon-remove"></i> Incorrect.  The correct answer is {this.props.correctLetter}: <em>{this.props.question.answer}</em>
           <button onClick={this.handleClick} className="result explanation-btn btn btn-default">Show explanation</button></h3>
         </div>
       );

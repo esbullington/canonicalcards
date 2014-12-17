@@ -349,25 +349,18 @@ var Formula = module.exports = React.createClass({displayName: 'exports',
 },{"react":234}],13:[function(require,module,exports){
 
 var getEasinessFactor = function(iterations, grade, oldEasinessFactor) {
-  console.log('sp iterations: ', iterations);
-  console.log('sp grade: ', grade);
-
   var easinessFactor;
-
   if (iterations > 1) {
     easinessFactor = oldEasinessFactor + (0.1 - (5 - grade) * (0.08) + (5 - grade) * 0.02);
   } else {
     easinessFactor = 2.5;
   }
-
   if (easinessFactor < 1.3) {
     easinessFactor = 1.3;
   }
-
-  console.log('easiness factor: ', easinessFactor);
   return easinessFactor;
-
 }
+
 var getNextRepetitionInterval = function(iterations, grade, lastRepetitionInterval, easinessFactor) {
   var nextRepetitionInterval;
   if (iterations === 1) {
@@ -559,7 +552,7 @@ var Result = React.createClass({displayName: 'Result',
     } else {
       return (
         React.createElement("div", null, 
-          React.createElement("h3", {className: "result response"}, React.createElement("i", {className: "result glyphicon glyphicon-remove"}), " Incorrect.  The correct answer is: ", React.createElement("em", null, this.props.question.answer), 
+          React.createElement("h3", {className: "result response"}, React.createElement("i", {className: "result glyphicon glyphicon-remove"}), " Incorrect.  The correct answer is ", this.props.correctLetter, ": ", React.createElement("em", null, this.props.question.answer), 
           React.createElement("button", {onClick: this.handleClick, className: "result explanation-btn btn btn-default"}, "Show explanation"))
         )
       );
@@ -645,6 +638,7 @@ var CardItem = React.createClass({displayName: 'CardItem',
           onClick: this.props.checkAnswerCallback
         }, 
           React.createElement("div", {className: "card-candidates-item-inner"}, 
+            React.createElement("span", null, this.props.cardLetter, ". "), 
             React.createElement("label", null, 
               React.createElement("input", {
                 type: "radio", 
@@ -653,7 +647,7 @@ var CardItem = React.createClass({displayName: 'CardItem',
                 value: this.props.idx, 
                 style: {"display":"none"}}
               ), 
-              this.props.el.text
+               this.props.el.text
             )
           )
         )
@@ -666,6 +660,8 @@ var CardGroup = React.createClass({displayName: 'CardGroup',
 
   getInitialState: function() {
     return {
+      correctLetter: '',
+      correctIndex: null,
       locked: false,
       done: false,
       isCorrect: null,
@@ -711,19 +707,28 @@ var CardGroup = React.createClass({displayName: 'CardGroup',
     var cardIndex = +this.props.cardIndex;
     var cardsLength = +this.props.cardsLength - 1;
     if (cardIndex === cardsLength) {
-      console.log("You've reached the end of the quiz");
       this.setState({locked: true});
     }
   },
 
-  checkAnswerCallback: function(key) {
+  checkAnswerCallback: function(i) {
     if (this.state.settings && this.state.settings.srs) {
-      this.checkSRSAnswer(key)
+      this.checkSRSAnswer(i)
     } else {
-      this.checkAnswer(key)
+      this.checkAnswer(i)
     }
   },
 
+  getAlpha: function(i) {
+    var alpha = {
+      0 : 'A',
+      1 : 'B',
+      2 : 'C',
+      3 : 'D',
+      4 : 'E'
+    };
+    return alpha[i];
+  },
 
   checkAnswer: function(i) {
     this.checkCardIndex();
@@ -806,6 +811,11 @@ var CardGroup = React.createClass({displayName: 'CardGroup',
           this.setState({settings: settings});
         }, this);
       }
+      this.props.candidates.forEach(function(val, idx) {
+        if (val.result) {
+          this.setState({correctIndex: idx, correctLetter: this.getAlpha(idx)});
+        }
+      }, this);
     }
   },
 
@@ -840,7 +850,8 @@ var CardGroup = React.createClass({displayName: 'CardGroup',
                     idx: idx, 
                     checkAnswerCallback: this.checkAnswerCallback.bind(this, idx), 
                     el: el, 
-                    key: idx}
+                    key: idx, 
+                    cardLetter: this.getAlpha(idx)}
                   )
                   )
               }, this)
@@ -858,7 +869,8 @@ var CardGroup = React.createClass({displayName: 'CardGroup',
               auth: this.state.auth, 
               isCorrect: this.state.isCorrect, 
               settings: this.state.settings, 
-              done: this.state.done}
+              done: this.state.done, 
+              correctLetter: this.state.correctLetter}
             )
 
           )
