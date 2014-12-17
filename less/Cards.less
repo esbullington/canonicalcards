@@ -1,20 +1,10 @@
 // Variables
-@link-color:        #428bca; // sea blue
-@link-color-hover:  darken(@link-color, 10%);
-@background:        darken(white, 4%); 
 @card-height:       50px;
-
 
 .top {
   margin-top: 10px;
 }
 
-.translateY(@degrees) {
-  -webkit-transform: translateY(@degrees);
-      -ms-transform: translateY(@degrees); // IE9 only
-       -o-transform: translateY(@degrees);
-          transform: translateY(@degrees);
-}
 
 .card-candidates-item {
   font-size: 120%;
@@ -24,17 +14,11 @@
   position: relative;
 }
 
-.vertical-align {
-  position: relative;
-  top: 50%;
-  .translateY(-50%);
-}
 
 .card-candidates-item-inner {
-  .vertical-align;
+  .vertical-align-mixin;
 }
 
 .card-candidates-item:hover {
-  color: @link-color-hover;
-  background-color: @background;
+  .hover-mixin(@link-background-hover);
 }
