@@ -125,7 +125,7 @@ var Authentication = {
     willTransitionTo: function (transition) {
       if (!auth.loggedIn()) {
         Login.attemptedTransition = transition;
-        transition.redirect('/login');
+        transition.redirect('/display/login');
       }
     }
   }
@@ -473,35 +473,39 @@ var Result = React.createClass({displayName: 'Result',
       // First, the render right/wrong paths for those not wanting SRS
       if (this.props.settings.srs) {
         return (
-          React.createElement("div", {className: "result row"}, 
-            React.createElement("div", {className: "result col-md-6"}, 
-              React.createElement("div", null, response, 
-                React.createElement("div", {className: "result explanation"}, explanation)
+          React.createElement("div", {className: "result row panel panel-default"}, 
+            React.createElement("div", {className: "panel-body"}, 
+              React.createElement("div", {className: "result col-md-6"}, 
+                React.createElement("div", null, response, 
+                  React.createElement("div", {className: "result explanation"}, explanation)
+                ), 
+                React.createElement(Grades, {
+                  startTime: this.props.startTime, 
+                  auth: this.props.auth, 
+                  hash: this.props.hash, 
+                  handleAdvanceFrame: this.props.handleAdvanceFrame, 
+                  isCorrect: this.props.isCorrect}
+                )
               ), 
-              React.createElement(Grades, {
-                startTime: this.props.startTime, 
-                auth: this.props.auth, 
-                hash: this.props.hash, 
-                handleAdvanceFrame: this.props.handleAdvanceFrame, 
-                isCorrect: this.props.isCorrect}
+              React.createElement("div", {className: "result col-md-6"}, 
+                React.createElement(Formulas, {formula: this.props.question.formula})
               )
-            ), 
-            React.createElement("div", {className: "result col-md-6"}, 
-              React.createElement(Formulas, {formula: this.props.question.formula})
             )
           )
         );
       } else {
         return (
-          React.createElement("div", {className: "result row"}, 
-            React.createElement("div", {className: "result col-md-6"}, 
-              React.createElement("div", null, response, 
-                React.createElement("div", {className: "result explanation"}, explanation)
+          React.createElement("div", {className: "result row panel panel-default"}, 
+            React.createElement("div", {className: "panel-body"}, 
+              React.createElement("div", {className: "result col-md-6"}, 
+                React.createElement("div", null, response, 
+                  React.createElement("div", {className: "result explanation"}, explanation)
+                ), 
+                React.createElement("button", {onClick: this.props.handleAdvanceFrame, className: "result btn btn-default btn-lg"}, "Next")
               ), 
-              React.createElement("button", {onClick: this.props.handleAdvanceFrame, className: "result btn btn-default btn-lg"}, "Next")
-            ), 
-            React.createElement("div", {className: "col-md-6"}, 
-              React.createElement(Formulas, {formula: this.props.question.formula})
+              React.createElement("div", {className: "col-md-6"}, 
+                React.createElement(Formulas, {formula: this.props.question.formula})
+              )
             )
           )
         );
@@ -530,13 +534,29 @@ var $ = window.jQuery;
 
 var CardItem = React.createClass({displayName: 'CardItem',
 
-  getInitialState: function() {
-    return {
-      inputState: ''
-    };
-  },
-
   render: function() {
+    return (
+        React.createElement("div", {
+          className: "card-candidates-item", 
+          key: this.props.idx, 
+          // checkAnswerCallback is bound to the index in the calling component
+          onClick: this.props.checkAnswerCallback
+        }, 
+          React.createElement("div", {className: "card-candidates-item-inner"}, 
+            React.createElement("label", null, 
+              React.createElement("input", {
+                ref: "answerCandidate" + this.props.idx, 
+                type: "radio", 
+                id: "answerCandidate", 
+                name: "candidates", 
+                value: this.props.idx, 
+                style: {"display":"none"}}
+              ), 
+              this.props.el.text
+            )
+          )
+        )
+      );
   }
 
 });
@@ -699,14 +719,17 @@ var CardGroup = React.createClass({displayName: 'CardGroup',
 
   	return (
       React.createElement("div", {className: "card-candidates container"}, 
-        React.createElement("div", {className: "row"}, 
+
+        React.createElement("div", {className: "top row"}, 
 
         React.createElement("div", {className: "col-md-10 col-sm-8 col-xs-6"}, 
+
           React.createElement("div", {className: "progress"}, 
             React.createElement("div", {className: "progress-bar", role: "progressbar", 'aria-valuenow': this.props.cardIndex + 1, 'aria-valuemin': "0", 'aria-valuemax': this.props.cardsLength, style: {"width": percentValue + "%"}}, 
               "Question " + (+this.props.cardIndex + 1) + " out of " + this.props.cardsLength
             )
           )
+
         )
 
         ), 
@@ -717,24 +740,11 @@ var CardGroup = React.createClass({displayName: 'CardGroup',
             React.createElement("h3", null, this.props.question.question), 
             this.props.candidates.map(function(el, idx) {
               return (
-                React.createElement("div", {
-                  className: "card-candidates-item", 
-                  key: idx, 
-                  onClick: this.checkAnswerCallback.bind(this, idx)
-                }, 
-                  React.createElement("div", {className: "card-candidates-item-inner"}, 
-                    React.createElement("label", null, 
-                      React.createElement("input", {
-                        ref: "answerCandidate" + idx, 
-                        type: "radio", 
-                        id: "answerCandidate", 
-                        name: "candidates", 
-                        value: idx, 
-                        style: {"display":"none"}}
-                      ), 
-                      el.text
-                    )
-                  )
+                React.createElement(CardItem, {
+                  idx: idx, 
+                  checkAnswerCallback: this.checkAnswerCallback.bind(this, idx), 
+                  el: el, 
+                  key: idx}
                 )
                   )
               }, this)
@@ -932,6 +942,7 @@ var Router = require('react-router');
 var Link = Router.Link;
 var Firebase = require("firebase");
 var CardComponent = require('../Cards');
+var Authentication = require('../../Authentication');
 var LayeredComponentMixin = require('mixins/LayeredComponentMixin');
 var EndModal = require('./EndModal');
 var constants = require('constants/AppConstants');
@@ -946,7 +957,7 @@ var $ = window.jQuery;
 
 var Container  = React.createClass({displayName: 'Container',
 
-  mixins: [LayeredComponentMixin],
+  mixins: [ LayeredComponentMixin, Authentication ],
 
   getInitialState: function() {
     return {
@@ -1102,7 +1113,7 @@ var CardContainer = React.createClass({displayName: 'CardContainer',
 
 module.exports = CardContainer;
 
-},{"../Cards":16,"./EndModal":18,"./controller":20,"constants/AppConstants":233,"constants/EventTypes":234,"firebase":38,"mixins/LayeredComponentMixin":235,"pubsub-js":44,"react":232,"react-router":54}],23:[function(require,module,exports){
+},{"../../Authentication":6,"../Cards":16,"./EndModal":18,"./controller":20,"constants/AppConstants":233,"constants/EventTypes":234,"firebase":38,"mixins/LayeredComponentMixin":235,"pubsub-js":44,"react":232,"react-router":54}],23:[function(require,module,exports){
 module.exports = require('./Container');
 
 },{"./Container":21}],24:[function(require,module,exports){

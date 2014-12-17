@@ -16,35 +16,39 @@ var Result = React.createClass({
       // First, the render right/wrong paths for those not wanting SRS
       if (this.props.settings.srs) {
         return (
-          <div className="result row">
-            <div className="result col-md-6">
-              <div>{response}
-                <div className="result explanation">{explanation}</div>
+          <div className="result row panel panel-default">
+            <div className="panel-body">
+              <div className="result col-md-6">
+                <div>{response}
+                  <div className="result explanation">{explanation}</div>
+                </div>
+                <Grades
+                  startTime={this.props.startTime}
+                  auth={this.props.auth}
+                  hash={this.props.hash}
+                  handleAdvanceFrame={this.props.handleAdvanceFrame}
+                  isCorrect={this.props.isCorrect}
+                />
               </div>
-              <Grades
-                startTime={this.props.startTime}
-                auth={this.props.auth}
-                hash={this.props.hash}
-                handleAdvanceFrame={this.props.handleAdvanceFrame}
-                isCorrect={this.props.isCorrect}
-              />
-            </div>
-            <div className="result col-md-6">
-              <Formulas formula={this.props.question.formula} />
+              <div className="result col-md-6">
+                <Formulas formula={this.props.question.formula} />
+              </div>
             </div>
           </div>
         );
       } else {
         return (
-          <div className="result row">
-            <div className="result col-md-6">
-              <div>{response}
-                <div className="result explanation">{explanation}</div>
+          <div className="result row panel panel-default">
+            <div className="panel-body">
+              <div className="result col-md-6">
+                <div>{response}
+                  <div className="result explanation">{explanation}</div>
+                </div>
+                <button onClick={this.props.handleAdvanceFrame} className="result btn btn-default btn-lg">Next</button>
               </div>
-              <button onClick={this.props.handleAdvanceFrame} className="result btn btn-default btn-lg">Next</button>
-            </div>
-            <div className="col-md-6">
-              <Formulas formula={this.props.question.formula} />
+              <div className="col-md-6">
+                <Formulas formula={this.props.question.formula} />
+              </div>
             </div>
           </div>
         );

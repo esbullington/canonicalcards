@@ -4,6 +4,7 @@ var Router = require('react-router');
 var Link = Router.Link;
 var Firebase = require("firebase");
 var CardComponent = require('../Cards');
+var Authentication = require('../../Authentication');
 var LayeredComponentMixin = require('mixins/LayeredComponentMixin');
 var EndModal = require('./EndModal');
 var constants = require('constants/AppConstants');
@@ -18,7 +19,7 @@ var $ = window.jQuery;
 
 var Container  = React.createClass({
 
-  mixins: [LayeredComponentMixin],
+  mixins: [ LayeredComponentMixin, Authentication ],
 
   getInitialState: function() {
     return {

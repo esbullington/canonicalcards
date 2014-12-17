@@ -10,7 +10,7 @@ var Authentication = {
     willTransitionTo: function (transition) {
       if (!auth.loggedIn()) {
         Login.attemptedTransition = transition;
-        transition.redirect('/login');
+        transition.redirect('/display/login');
       }
     }
   }

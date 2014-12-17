@@ -11,13 +11,29 @@ var $ = window.jQuery;
 
 var CardItem = React.createClass({
 
-  getInitialState: function() {
-    return {
-      inputState: ''
-    };
-  },
-
   render: function() {
+    return (
+        <div
+          className="card-candidates-item"
+          key={this.props.idx}
+          // checkAnswerCallback is bound to the index in the calling component
+          onClick={this.props.checkAnswerCallback}
+        >
+          <div className="card-candidates-item-inner">
+            <label>
+              <input
+                ref={"answerCandidate" + this.props.idx}
+                type="radio"
+                id="answerCandidate"
+                name="candidates"
+                value={this.props.idx}
+                style={{"display":"none"}}
+              />
+              {this.props.el.text}
+            </label> 
+          </div>
+        </div>
+      );
   }
 
 });
@@ -180,14 +196,17 @@ var CardGroup = React.createClass({
 
   	return (
       <div className="card-candidates container">
-        <div className="row">
+
+        <div className="top row">
 
         <div className="col-md-10 col-sm-8 col-xs-6">
+
           <div className="progress">
             <div className="progress-bar" role="progressbar" aria-valuenow={this.props.cardIndex + 1} aria-valuemin="0" aria-valuemax={this.props.cardsLength} style={{"width": percentValue + "%"}} >
               {"Question " + (+this.props.cardIndex + 1) + " out of " + this.props.cardsLength}
             </div>
           </div>
+
         </div>
 
         </div>
@@ -198,25 +217,12 @@ var CardGroup = React.createClass({
             <h3>{this.props.question.question}</h3>
             {this.props.candidates.map(function(el, idx) {
               return (
-                <div
-                  className="card-candidates-item"
+                <CardItem
+                  idx={idx}
+                  checkAnswerCallback={this.checkAnswerCallback.bind(this, idx)}
+                  el={el}
                   key={idx}
-                  onClick={this.checkAnswerCallback.bind(this, idx)}
-                >
-                  <div className="card-candidates-item-inner">
-                    <label>
-                      <input
-                        ref={"answerCandidate" + idx}
-                        type="radio"
-                        id="answerCandidate"
-                        name="candidates"
-                        value={idx}
-                        style={{"display":"none"}}
-                      />
-                      {el.text}
-                    </label> 
-                  </div>
-                </div>
+                />
                   )
               }, this)
             }
