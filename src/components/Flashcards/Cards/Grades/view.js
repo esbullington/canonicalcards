@@ -69,34 +69,36 @@ var Grades = module.exports = React.createClass({
 
     if (isCorrect) {
       return (
-          <div>
-          {Object.keys(correctGrades).map(function(val, idx) {
-            return (
-              <div key={idx} >
-                <label>
-                  <input onClick={this.checkGrade} type="radio" id="possibleGrades" name="grades" value={val} style={{"display":"none"}} />
-                  {correctGrades[val]}
-                </label> 
-              </div>
-                )
-            }, this)
-          }
+          <div className="well grades">
+            <div>Please select one to advance:</div>
+            {Object.keys(correctGrades).map(function(val, idx) {
+              return (
+                <div key={idx} >
+                  <label>
+                    <input onClick={this.checkGrade} type="radio" id="possibleGrades" name="grades" value={val} style={{"display":"none"}} />
+                    {correctGrades[val]}
+                  </label> 
+                </div>
+                  )
+              }, this)
+            }
           </div>
         );
     } else {
       return (
-          <div>
-          {Object.keys(incorrectGrades).map(function(val, idx) {
-            return (
-              <div key={idx} >
-                <label>
-                  <input onClick={this.checkGrade} type="radio" id="possibleGrades" name="grades" value={val} style={{"display":"none"}} />
-                  {incorrectGrades[val]}
-                </label> 
-              </div>
-                )
-            }, this)
-          }
+          <div className="well grades">
+            <div className="grades select-one">Please select one to advance:</div>
+            {Object.keys(incorrectGrades).map(function(val, idx) {
+              return (
+                <div className="grades grades-item" key={idx} >
+                  <label>
+                    <input onClick={this.checkGrade} type="radio" id="possibleGrades" name="grades" value={val} style={{"display":"none"}} />
+                    {incorrectGrades[val]}
+                  </label> 
+                </div>
+                  )
+              }, this)
+            }
           </div>
         );
     }

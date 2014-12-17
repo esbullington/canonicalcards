@@ -7,6 +7,24 @@
    .button-size(20px; 20px; 24px; 1; 10px);
 }
 
+//App mixins
+.hover-mixin(@background) {
+  color: @link-color-hover;
+  background-color: @background;
+}
+
+.translateY(@degrees) {
+  -webkit-transform: translateY(@degrees);
+      -ms-transform: translateY(@degrees); // IE9 only
+       -o-transform: translateY(@degrees);
+          transform: translateY(@degrees);
+}
+
+.vertical-align-mixin() {
+  position: relative;
+  top: 50%;
+  .translateY(-50%);
+}
 
 // COMPONENT STYLING
 @import "EndModal.less";
@@ -14,6 +32,8 @@
 @import "Cards.less";
 @import "Settings.less";
 @import "Result.less";
+@import "Explanation.less";
+@import "Grades.less";
 
 
 //FULL SITE

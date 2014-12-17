@@ -4,6 +4,7 @@ var Firebase = require('firebase');
 var ref = new Firebase("https://flashcardsapp.firebaseio.com/");
 var constants = require('constants/AppConstants');
 var Result = require('./Result');
+var Explanation = require('./Explanation');
 var localStorageKey = constants.localStorageKey;
 var authRef = require('../../auth');
 var $ = window.jQuery;
@@ -217,12 +218,12 @@ var CardGroup = React.createClass({
             <h3>{this.props.question.question}</h3>
             {this.props.candidates.map(function(el, idx) {
               return (
-                <CardItem
-                  idx={idx}
-                  checkAnswerCallback={this.checkAnswerCallback.bind(this, idx)}
-                  el={el}
-                  key={idx}
-                />
+                  <CardItem
+                    idx={idx}
+                    checkAnswerCallback={this.checkAnswerCallback.bind(this, idx)}
+                    el={el}
+                    key={idx}
+                  />
                   )
               }, this)
             }
