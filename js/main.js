@@ -337,8 +337,14 @@ var Formula = module.exports = React.createClass({displayName: 'exports',
 
   render: function() {
     var formula = this.props.formula;
+    var caption = this.props.caption ? React.createElement("figcaption", null, this.props.caption) : React.createElement("span", null);
     if (formula) {
-      return React.createElement("img", {src: "data:image/png;base64," + formula});
+      return (
+        React.createElement("figure", null, 
+          React.createElement("img", {src: "data:image/png;base64," + formula}), 
+          caption
+        )
+        );
     } else {
       return React.createElement("span", null);
     }
@@ -523,18 +529,29 @@ var Result = React.createClass({displayName: 'Result',
   renderExplanation: function() {
     if (this.state.showExplanation) {
       return (
-        React.createElement("div", {className: "result col-md-12"}, 
-          React.createElement("div", {className: "row"}, 
-            React.createElement("div", {className: "result col-md-6"}, 
-              React.createElement("div", {className: "result explanation"}, 
-                React.createElement("blockquote", null, 
-                  this.props.question.explanation
-                )
+        React.createElement("div", {className: "col-md-12 result"}, 
+        React.createElement("div", {className: "explanation-row"}, 
+          React.createElement("div", {className: "col-md-6 explanation"}, 
+            React.createElement("div", {className: "explanation explanation-quote"}, 
+              React.createElement("blockquote", null, 
+                this.props.question.explanation
               )
-            ), 
-            React.createElement("div", {className: "result col-md-6"}, 
-              React.createElement(Formulas, {formula: this.props.question.formula})
             )
+          ), 
+          React.createElement("div", {className: "col-md-6 formula explanation text-center"}, 
+            this.props.question.formulas ? 
+              this.props.question.formulas.map(function(el, idx) {
+                return (
+                  React.createElement(Formulas, {
+                    key: idx, 
+                    formula: el.formula, 
+                    caption: el.caption}
+                  )
+                  )
+                }) :
+                React.createElement("span", null)
+            
+          )
           )
         )
       );
@@ -547,15 +564,23 @@ var Result = React.createClass({displayName: 'Result',
     if (this.props.isCorrect) {
       return (
         React.createElement("div", null, 
-          React.createElement("h3", {className: "result response"}, React.createElement("i", {className: "result glyphicon glyphicon-ok"}), " Right. The correct answer is ", this.props.correctLetter, ": ", React.createElement("em", null, this.props.question.answer), 
-          React.createElement("a", {onClick: this.handleClick, className: "result explanation-btn btn btn-default"}, React.createElement("i", {className: "fa fa-lightbulb-o"}), " ", this.state.showText, " explanation"))
+          React.createElement("h3", {className: "result response"}, 
+            React.createElement("span", {className: "result response-text"}, 
+              React.createElement("i", {className: "result glyphicon glyphicon-ok"}), " Right. The correct answer is ", this.props.correctLetter, ": ", React.createElement("em", null, this.props.question.answer)
+            ), 
+            React.createElement("a", {onClick: this.handleClick, className: "result explanation-btn btn btn-default"}, React.createElement("i", {className: "fa fa-lightbulb-o"}), " ", this.state.showText, " explanation")
+          )
         )
       );
     } else {
       return (
         React.createElement("div", null, 
-          React.createElement("h3", {className: "result response"}, React.createElement("i", {className: "result glyphicon glyphicon-remove"}), " Incorrect.  The correct answer is ", this.props.correctLetter, ": ", React.createElement("em", null, this.props.question.answer), 
-          React.createElement("a", {onClick: this.handleClick, className: "result explanation-btn btn btn-default"}, React.createElement("i", {className: "fa fa-lightbulb-o"}), " ", this.state.showText, " explanation"))
+          React.createElement("h3", {className: "result response"}, 
+            React.createElement("span", {className: "result response-text"}, 
+                React.createElement("i", {className: "result glyphicon glyphicon-remove"}), " Incorrect.  The correct answer is ", this.props.correctLetter, ": ", React.createElement("em", null, this.props.question.answer)
+            ), 
+            React.createElement("a", {onClick: this.handleClick, className: "result explanation-btn btn btn-default"}, React.createElement("i", {className: "fa fa-lightbulb-o"}), " ", this.state.showText, " explanation")
+          )
         )
       );
     }
@@ -600,7 +625,7 @@ var Result = React.createClass({displayName: 'Result',
               ), 
               this.renderExplanation(), 
               React.createElement("div", {className: "result col-md-12"}, 
-                React.createElement("button", {onClick: this.props.handleAdvanceFrame, className: "result btn btn-default btn-lg"}, "Next")
+                React.createElement("a", {onClick: this.props.handleAdvanceFrame, className: "result btn btn-default btn-lg"}, "Next ", React.createElement("i", {className: "fa fa-angle-right"}))
               )
             )
           )
@@ -844,7 +869,7 @@ var CardGroup = React.createClass({displayName: 'CardGroup',
         
         React.createElement("div", {className: "row"}, 
 
-          React.createElement("div", {className: "col-md-12"}, 
+          React.createElement("div", {className: "col-md-11 col-sm-10 col-xs-10"}, 
             React.createElement("h3", null, this.props.question.question), 
             this.props.candidates.map(function(el, idx) {
               return (
@@ -861,7 +886,7 @@ var CardGroup = React.createClass({displayName: 'CardGroup',
 
           ), 
 
-          React.createElement("div", {className: "col-md-12"}, 
+          React.createElement("div", {className: "col-md-11 col-xs-10"}, 
 
             React.createElement(Result, {
               question: this.props.question, 
@@ -1213,6 +1238,10 @@ var CardContainer = React.createClass({displayName: 'CardContainer',
   render: function() {
     return (
       React.createElement("div", {className: "card-container"}, 
+        React.createElement("div", {id: "left"}), 
+        React.createElement("div", {id: "right"}), 
+        React.createElement("div", {id: "top"}), 
+        React.createElement("div", {id: "bottom"}), 
         React.createElement(Container, null), 
         React.createElement("span", {id: "ribbon"}, React.createElement(Link, {to: "dashboard"}, "Dashboard"))
       )
