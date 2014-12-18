@@ -529,8 +529,7 @@ var Result = React.createClass({displayName: 'Result',
   renderExplanation: function() {
     if (this.state.showExplanation) {
       return (
-        React.createElement("div", {className: "col-md-12 result"}, 
-        React.createElement("div", {className: "explanation-row"}, 
+        React.createElement("div", {className: "col-md-12 result explanation-row"}, 
           React.createElement("div", {className: "col-md-6 explanation"}, 
             React.createElement("div", {className: "explanation explanation-quote"}, 
               React.createElement("blockquote", null, 
@@ -551,7 +550,6 @@ var Result = React.createClass({displayName: 'Result',
                 }) :
                 React.createElement("span", null)
             
-          )
           )
         )
       );
