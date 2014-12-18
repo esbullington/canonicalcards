@@ -1,7 +1,7 @@
 'use strict';
 
 var React = require('react');
-var Formulas = require('../Formulas');
+var Image = require('../Image');
 var Grades = require('../Grades');
 
 
@@ -22,21 +22,20 @@ var Result = React.createClass({
     if (this.state.showExplanation) {
       return (
         <div className="col-md-12 result explanation-row">
-          <div className="col-md-6 explanation">
+          <div className="col-md-8 explanation">
             <div className="explanation explanation-quote">
               <blockquote>
                 {this.props.question.explanation}
               </blockquote>
             </div>
           </div>
-          <div className="col-md-6 formula explanation text-center">
-            {this.props.question.formulas ? 
-              this.props.question.formulas.map(function(el, idx) {
+          <div className="col-md-4 image explanation text-center">
+            {this.props.question.images ? 
+              this.props.question.images.map(function(image, idx) {
                 return (
-                  <Formulas 
+                  <Image 
                     key={idx}
-                    formula={el.formula} 
-                    caption={el.caption} 
+                    image={image} 
                   />
                   )
                 }) :
