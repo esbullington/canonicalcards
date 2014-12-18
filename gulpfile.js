@@ -70,7 +70,7 @@ gulp.task('less:build', function() {
     .pipe(less())
     .pipe(prefixer('last 4 versions', 'ie 8'))
     .pipe(sourcemaps.write())
-    .pipe(gulp.dest('./public/css');
+    .pipe(gulp.dest('./public/css'));
 });
 
 gulp.task('less:watch', ['less'], function(){
