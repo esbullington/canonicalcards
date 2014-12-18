@@ -15,25 +15,22 @@ exports.makeCloze = function(str, queryIndex, cb) {
       str = str.replace(re, "\uFFFF");
   }
   var candidates = [];
+  var answer;
   for (i=0; i < output.length; i++) {
     var val = output[i];
     var capture = val.match(/\{\{([^]*)\}\}/);
-    resultObject = {text: capture[1]};
     if (i === queryIndex) {
       var newStr = originalString.replace(capture[0], '______');
       originalString = newStr;
-      resultObject['result'] = true;
+      answer = capture[1];
     } else {
       var newStr = originalString.replace(capture[0], capture[1]);
       originalString = newStr;
-      resultObject['result'] = false;
     }
-    candidates.push(resultObject);
   }
   return {
     question: originalString,
-    candidates: candidates,
-    answer: candidates[queryIndex]
+    answer: answer
   }
 }
 

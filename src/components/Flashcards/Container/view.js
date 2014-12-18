@@ -63,7 +63,7 @@ var Container  = React.createClass({
     this.setState({cardIndex: i});
   },
 
-  formatProvidedCandidates: function(card, providedCandidates) {
+  formatCandidates: function(card, providedCandidates) {
     var res = [];
     providedCandidates.map(function(val, idx) {
       var o = {
@@ -75,7 +75,7 @@ var Container  = React.createClass({
     return controller.shuffleArray(res);
   },
 
-  formatCandidates: function(hash, fullCards) {
+  formatStandard: function(hash, fullCards) {
     var sampledCards = controller.randomSample(fullCards, hash, constants.nQuestionCandidates);
     var question = sampledCards[hash].question;
     var res = [];
@@ -90,6 +90,23 @@ var Container  = React.createClass({
     return controller.shuffleArray(res);
   },
 
+  getCloze: function(val) {
+    var nOccurences = controller.occurrences(val.question, '{{', false);
+    var queryIndex = controller.getRandomInt(0, nOccurences);
+    var cloze = controller.makeCloze(val.question, queryIndex);
+    var candidates = val.candidates[queryIndex];
+    var res = [];
+    candidates.map(function(el, idx) {
+      var o = {
+        text: el,
+        result: el == cloze.answer ? true : false
+      };
+      res.push(o);
+    }, this)
+    cloze.candidates = controller.shuffleArray(res);
+    return cloze;
+  },
+
   renderCards: function() {
 
     var cards = this.state.fullCards;
@@ -101,16 +118,14 @@ var Container  = React.createClass({
         var cardIndex = ""+idx;
         var val = $.extend(true, {}, cards[hash]);
         if (val.type === 'template') {
-          var nOccurences = controller.occurrences(val.question, '{{', false);
-          var queryIndex = controller.getRandomInt(0, nOccurences);
-          var cloze = controller.makeCloze(val.question, queryIndex);
+          var cloze = this.getCloze(val);
           val.question = cloze.question;
           val.answer = cloze.answer;
           candidates = cloze.candidates;
         } else if (val.type === 'candidates') {
-          candidates = this.formatProvidedCandidates(val, val.candidates);
+          candidates = this.formatCandidates(val, val.candidates);
         } else {
-          candidates = this.formatCandidates(hash, cards)
+          candidates = this.formatStandard(hash, cards)
         }
         return (
             <div className={"item " + (this.state.cardIndex === idx ? "active" : "")} key={idx} >
