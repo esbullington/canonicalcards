@@ -40,18 +40,20 @@ var Result = React.createClass({
   },
 
   renderResponse: function() {
+    // I may eventually simplify this section to one return with a couple of ternary expressions
+    // if the two alternatives continue to have minimal branching
     if (this.props.isCorrect) {
       return (
         <div>
-          <h3 className="result response"><i className="result glyphicon glyphicon-ok"></i> Right 
-          <button onClick={this.handleClick} className="result explanation-btn btn btn-default">{this.state.showText} explanation</button></h3>
+          <h3 className="result response"><i className="result glyphicon glyphicon-ok"></i> Right. The correct answer is {this.props.correctLetter}: <em>{this.props.question.answer}</em> 
+          <button onClick={this.handleClick} className="result explanation-btn btn btn-default"><i className="fa fa-lightbulb-o"></i> {this.state.showText} explanation</button></h3>
         </div>
       );
     } else {
       return (
         <div>
           <h3 className="result response"><i className="result glyphicon glyphicon-remove"></i> Incorrect.  The correct answer is {this.props.correctLetter}: <em>{this.props.question.answer}</em>
-          <button onClick={this.handleClick} className="result explanation-btn btn btn-default">Show explanation</button></h3>
+          <button onClick={this.handleClick} className="result explanation-btn btn btn-default"><i className="fa fa-lightbulb-o"></i> {this.state.showText} explanation</button></h3>
         </div>
       );
     }
