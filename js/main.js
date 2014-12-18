@@ -548,14 +548,14 @@ var Result = React.createClass({displayName: 'Result',
       return (
         React.createElement("div", null, 
           React.createElement("h3", {className: "result response"}, React.createElement("i", {className: "result glyphicon glyphicon-ok"}), " Right. The correct answer is ", this.props.correctLetter, ": ", React.createElement("em", null, this.props.question.answer), 
-          React.createElement("button", {onClick: this.handleClick, className: "result explanation-btn btn btn-default"}, React.createElement("i", {className: "fa fa-lightbulb-o"}), " ", this.state.showText, " explanation"))
+          React.createElement("a", {onClick: this.handleClick, className: "result explanation-btn btn btn-default"}, React.createElement("i", {className: "fa fa-lightbulb-o"}), " ", this.state.showText, " explanation"))
         )
       );
     } else {
       return (
         React.createElement("div", null, 
           React.createElement("h3", {className: "result response"}, React.createElement("i", {className: "result glyphicon glyphicon-remove"}), " Incorrect.  The correct answer is ", this.props.correctLetter, ": ", React.createElement("em", null, this.props.question.answer), 
-          React.createElement("button", {onClick: this.handleClick, className: "result explanation-btn btn btn-default"}, React.createElement("i", {className: "fa fa-lightbulb-o"}), " ", this.state.showText, " explanation"))
+          React.createElement("a", {onClick: this.handleClick, className: "result explanation-btn btn btn-default"}, React.createElement("i", {className: "fa fa-lightbulb-o"}), " ", this.state.showText, " explanation"))
         )
       );
     }
