@@ -542,18 +542,20 @@ var Result = React.createClass({displayName: 'Result',
   },
 
   renderResponse: function() {
+    // I may eventually simplify this section to one return with a couple of ternary expressions
+    // if the two alternatives continue to have minimal branching
     if (this.props.isCorrect) {
       return (
         React.createElement("div", null, 
-          React.createElement("h3", {className: "result response"}, React.createElement("i", {className: "result glyphicon glyphicon-ok"}), " Right",  
-          React.createElement("button", {onClick: this.handleClick, className: "result explanation-btn btn btn-default"}, this.state.showText, " explanation"))
+          React.createElement("h3", {className: "result response"}, React.createElement("i", {className: "result glyphicon glyphicon-ok"}), " Right. The correct answer is ", this.props.correctLetter, ": ", React.createElement("em", null, this.props.question.answer), 
+          React.createElement("button", {onClick: this.handleClick, className: "result explanation-btn btn btn-default"}, React.createElement("i", {className: "fa fa-lightbulb-o"}), " ", this.state.showText, " explanation"))
         )
       );
     } else {
       return (
         React.createElement("div", null, 
           React.createElement("h3", {className: "result response"}, React.createElement("i", {className: "result glyphicon glyphicon-remove"}), " Incorrect.  The correct answer is ", this.props.correctLetter, ": ", React.createElement("em", null, this.props.question.answer), 
-          React.createElement("button", {onClick: this.handleClick, className: "result explanation-btn btn btn-default"}, "Show explanation"))
+          React.createElement("button", {onClick: this.handleClick, className: "result explanation-btn btn btn-default"}, React.createElement("i", {className: "fa fa-lightbulb-o"}), " ", this.state.showText, " explanation"))
         )
       );
     }
