@@ -46,14 +46,14 @@ var Result = React.createClass({
       return (
         <div>
           <h3 className="result response"><i className="result glyphicon glyphicon-ok"></i> Right. The correct answer is {this.props.correctLetter}: <em>{this.props.question.answer}</em> 
-          <button onClick={this.handleClick} className="result explanation-btn btn btn-default"><i className="fa fa-lightbulb-o"></i> {this.state.showText} explanation</button></h3>
+          <a onClick={this.handleClick} className="result explanation-btn btn btn-default"><i className="fa fa-lightbulb-o"></i> {this.state.showText} explanation</a></h3>
         </div>
       );
     } else {
       return (
         <div>
           <h3 className="result response"><i className="result glyphicon glyphicon-remove"></i> Incorrect.  The correct answer is {this.props.correctLetter}: <em>{this.props.question.answer}</em>
-          <button onClick={this.handleClick} className="result explanation-btn btn btn-default"><i className="fa fa-lightbulb-o"></i> {this.state.showText} explanation</button></h3>
+          <a onClick={this.handleClick} className="result explanation-btn btn btn-default"><i className="fa fa-lightbulb-o"></i> {this.state.showText} explanation</a></h3>
         </div>
       );
     }

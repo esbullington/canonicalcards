@@ -44,7 +44,7 @@ gulp.task('serve', function() {
  
 gulp.task('less', function() {
   gulp
-    .src('./public/less/base.less')
+    .src('./src/less/base.less')
     .pipe(plumber(function(error) {
         gutil.log(gutil.colors.red(error.message));
         gutil.beep();
@@ -60,7 +60,7 @@ gulp.task('less', function() {
 
 gulp.task('less:build', function() {
   gulp
-    .src('./public/less/base.less')
+    .src('./src/less/base.less')
     .pipe(plumber(function(error) {
         gutil.log(gutil.colors.red(error.message));
         gutil.beep();
@@ -70,11 +70,11 @@ gulp.task('less:build', function() {
     .pipe(less())
     .pipe(prefixer('last 4 versions', 'ie 8'))
     .pipe(sourcemaps.write())
-    .pipe(gulp.dest('./public/css'));
+    .pipe(gulp.dest('./public/css');
 });
 
 gulp.task('less:watch', ['less'], function(){
-    gulp.watch('./public/less/**/*.less', ['less'])
+    gulp.watch('./src/less/**/*.less', ['less'])
 });
 
 gulp.task('jsx', function() {
