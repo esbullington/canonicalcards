@@ -225,7 +225,7 @@ var CardGroup = React.createClass({
         
         <div className="row">
 
-          <div className="col-md-12">
+          <div className="col-md-11 col-sm-10 col-xs-10">
             <h3>{this.props.question.question}</h3>
             {this.props.candidates.map(function(el, idx) {
               return (
@@ -242,7 +242,7 @@ var CardGroup = React.createClass({
 
           </div>
 
-          <div className="col-md-12">
+          <div className="col-md-11 col-xs-10">
 
             <Result
               question={this.props.question}

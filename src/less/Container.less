@@ -4,16 +4,48 @@
 @carousel-control-opacity: 100%;
 @carousel-control-width: 10%;
 
-.card-container {
-  height: 100%;
-  border-style: solid;
-  border-color: @site-carousel-color;
-  border-width: 5px;
-}
-
 .carousel-wrapped {
   margin-left: 10px;
   @media screen and (min-width: @tablet-size) {
     margin-left: 100px;
   }
 }
+
+
+// Fixed border, from http://css-tricks.com/body-border/
+#top, #bottom, #left, #right {
+  background: @site-carousel-color;
+  position: fixed;
+  z-index: 9999;
+}
+
+#left, #right {
+  top: 0; bottom: 0;
+  width: 5px;
+}
+
+#left { left: 0; }
+#right { right: 0; }
+  
+#top, #bottom {
+  left: 0; right: 0;
+  height: 5px;
+}
+
+#top { top: 0; }
+#bottom { bottom: 0; }
+
+
+// Don't display border on mobile and tablets
+@media only screen and (max-width: 1024px) {
+  #top, #bottom, #left, #right { display: none; }
+}
+
+// Previous technique for border
+// .card-container {
+//   height: 100%;
+//   border-style: solid;
+//   border-color: @site-carousel-color;
+//   border-width: 5px;
+// }
+

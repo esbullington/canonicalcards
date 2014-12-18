@@ -21,18 +21,29 @@ var Result = React.createClass({
   renderExplanation: function() {
     if (this.state.showExplanation) {
       return (
-        <div className="result col-md-12">
-          <div className="row">
-            <div className="result col-md-6">
-              <div className="result explanation">
-                <blockquote>
-                  {this.props.question.explanation}
-                </blockquote>
-              </div>
+        <div className="col-md-12 result">
+        <div className="explanation-row">
+          <div className="col-md-6 explanation">
+            <div className="explanation explanation-quote">
+              <blockquote>
+                {this.props.question.explanation}
+              </blockquote>
             </div>
-            <div className="result col-md-6">
-              <Formulas formula={this.props.question.formula} />
-            </div>
+          </div>
+          <div className="col-md-6 formula explanation text-center">
+            {this.props.question.formulas ? 
+              this.props.question.formulas.map(function(el, idx) {
+                return (
+                  <Formulas 
+                    key={idx}
+                    formula={el.formula} 
+                    caption={el.caption} 
+                  />
+                  )
+                }) :
+                <span/>
+            }
+          </div>
           </div>
         </div>
       );
@@ -45,15 +56,23 @@ var Result = React.createClass({
     if (this.props.isCorrect) {
       return (
         <div>
-          <h3 className="result response"><i className="result glyphicon glyphicon-ok"></i> Right. The correct answer is {this.props.correctLetter}: <em>{this.props.question.answer}</em> 
-          <a onClick={this.handleClick} className="result explanation-btn btn btn-default"><i className="fa fa-lightbulb-o"></i> {this.state.showText} explanation</a></h3>
+          <h3 className="result response">
+            <span className="result response-text">
+              <i className="result glyphicon glyphicon-ok"></i> Right. The correct answer is {this.props.correctLetter}: <em>{this.props.question.answer}</em>
+            </span>
+            <a onClick={this.handleClick} className="result explanation-btn btn btn-default"><i className="fa fa-lightbulb-o"></i> {this.state.showText} explanation</a>
+          </h3>
         </div>
       );
     } else {
       return (
         <div>
-          <h3 className="result response"><i className="result glyphicon glyphicon-remove"></i> Incorrect.  The correct answer is {this.props.correctLetter}: <em>{this.props.question.answer}</em>
-          <a onClick={this.handleClick} className="result explanation-btn btn btn-default"><i className="fa fa-lightbulb-o"></i> {this.state.showText} explanation</a></h3>
+          <h3 className="result response">
+            <span className="result response-text">
+                <i className="result glyphicon glyphicon-remove"></i> Incorrect.  The correct answer is {this.props.correctLetter}: <em>{this.props.question.answer}</em>
+            </span>
+            <a onClick={this.handleClick} className="result explanation-btn btn btn-default"><i className="fa fa-lightbulb-o"></i> {this.state.showText} explanation</a>
+          </h3>
         </div>
       );
     }
@@ -98,7 +117,7 @@ var Result = React.createClass({
               </div>
               {this.renderExplanation()}
               <div className="result col-md-12">
-                <button onClick={this.props.handleAdvanceFrame} className="result btn btn-default btn-lg">Next</button>
+                <a onClick={this.props.handleAdvanceFrame} className="result btn btn-default btn-lg">Next <i className="fa fa-angle-right"></i></a>
               </div>
             </div>
           </div>

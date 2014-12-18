@@ -165,6 +165,10 @@ var CardContainer = React.createClass({
   render: function() {
     return (
       <div className="card-container">
+        <div id="left"></div>
+        <div id="right"></div>
+        <div id="top"></div>
+        <div id="bottom"></div>
         <Container />
         <span id="ribbon"><Link to="dashboard">Dashboard</Link></span>
       </div>
