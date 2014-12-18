@@ -21,8 +21,7 @@ var Result = React.createClass({
   renderExplanation: function() {
     if (this.state.showExplanation) {
       return (
-        <div className="col-md-12 result">
-        <div className="explanation-row">
+        <div className="col-md-12 result explanation-row">
           <div className="col-md-6 explanation">
             <div className="explanation explanation-quote">
               <blockquote>
@@ -43,7 +42,6 @@ var Result = React.createClass({
                 }) :
                 <span/>
             }
-          </div>
           </div>
         </div>
       );
