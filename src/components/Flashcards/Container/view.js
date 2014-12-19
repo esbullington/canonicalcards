@@ -39,17 +39,17 @@ var Container  = React.createClass({
   componentDidMount: function() {
 
     if (this.isMounted()) {
-      var cards = JSON.parse(localStorage.getItem('cards'));
-      if (cards) {
-        this.setState({fullCards: cards});
-      } else {
+      // var cards = JSON.parse(localStorage.getItem('cards'));
+      // if (cards) {
+      //   this.setState({fullCards: cards});
+      // } else {
         console.log('Loading cards...');
         firebaseRef.child('cards').on('value', function(snapshot) {
           var fullCards = snapshot.val();
           this.setState({fullCards: fullCards});
           localStorage.setItem('cards', JSON.stringify(fullCards));
         }.bind(this));
-      }
+      // }
     } 
     PubSub.subscribe(DEAL_CARDS, function(msg, data) {
       console.log('Dealing cards');
@@ -68,7 +68,7 @@ var Container  = React.createClass({
     providedCandidates.map(function(val, idx) {
       var o = {
         text: val,
-        result: card.answer === val ? true : false
+        result: +card.answer === idx ? true : false
       };
       res.push(o);
     }, this);
@@ -115,17 +115,18 @@ var Container  = React.createClass({
 
     if (cards) {
       return cardsArray.map(function(hash, idx) {
+        var originalVal = cards[hash];
         var cardIndex = ""+idx;
-        var val = $.extend(true, {}, cards[hash]);
-        if (val.type === 'template') {
-          var cloze = this.getCloze(val);
-          val.question = cloze.question;
-          val.answer = cloze.answer;
+        var mutatedVal = $.extend(true, {}, cards[hash]);
+        if (mutatedVal.type === 'template') {
+          var a = true;
+          var cloze = this.getCloze(mutatedVal);
+          mutatedVal.question = cloze.question;
           candidates = cloze.candidates;
-        } else if (val.type === 'candidates') {
-          candidates = this.formatCandidates(val, val.candidates);
+        } else if (originalVal.type === 'candidate') {
+          candidates = this.formatCandidates(originalVal, originalVal.candidates);
         } else {
-          candidates = this.formatStandard(hash, cards)
+          console.log('Error formatting cards');
         }
         return (
             <div className={"item " + (this.state.cardIndex === idx ? "active" : "")} key={idx} >
@@ -137,7 +138,7 @@ var Container  = React.createClass({
                   cardsLength={cardsArray.length}
                   candidates={candidates}
                   hash={hash}
-                  question={val}
+                  question={originalVal.type === 'template' ? mutatedVal : originalVal}
                   done={this.state.done}
                   locked={this.state.locked}
                 />

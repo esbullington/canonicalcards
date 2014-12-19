@@ -562,13 +562,15 @@ var Result = React.createClass({displayName: 'Result',
   },
 
   renderExplanation: function() {
+    var props = this.props;
+    var explanation = props.question.explanation.text;
     if (this.state.showExplanation) {
       return (
         React.createElement("div", {className: "col-md-12 result explanation-row"}, 
           React.createElement("div", {className: "col-md-8 explanation"}, 
             React.createElement("div", {className: "explanation explanation-quote"}, 
               React.createElement("blockquote", null, 
-                this.props.question.explanation
+                React.createElement("span", {id: "explanationQuote"}, explanation, " ")
               )
             )
           ), 
@@ -598,7 +600,7 @@ var Result = React.createClass({displayName: 'Result',
         React.createElement("div", null, 
           React.createElement("h3", {className: "result response"}, 
             React.createElement("span", {className: "result response-text"}, 
-              React.createElement("i", {className: "result glyphicon glyphicon-ok"}), " Right. The correct answer is ", this.props.correctLetter, ": ", React.createElement("em", null, this.props.question.answer)
+              React.createElement("i", {className: "result glyphicon glyphicon-ok"}), " Right. The correct answer is ", this.props.correctLetter, ": ", React.createElement("em", null, this.props.candidates[this.props.correctIndex])
             ), 
             React.createElement("a", {onClick: this.handleClick, className: "result explanation-btn btn btn-default"}, React.createElement("i", {className: "fa fa-lightbulb-o"}), " ", this.state.showText, " explanation")
           )
@@ -609,7 +611,7 @@ var Result = React.createClass({displayName: 'Result',
         React.createElement("div", null, 
           React.createElement("h3", {className: "result response"}, 
             React.createElement("span", {className: "result response-text"}, 
-                React.createElement("i", {className: "result glyphicon glyphicon-remove"}), " Incorrect.  The correct answer is ", this.props.correctLetter, ": ", React.createElement("em", null, this.props.question.answer)
+                React.createElement("i", {className: "result glyphicon glyphicon-remove"}), " Incorrect.  The correct answer is ", this.props.correctLetter, ": ", React.createElement("em", null, this.props.candidates[this.props.correctIndex])
             ), 
             React.createElement("a", {onClick: this.handleClick, className: "result explanation-btn btn btn-default"}, React.createElement("i", {className: "fa fa-lightbulb-o"}), " ", this.state.showText, " explanation")
           )
@@ -921,6 +923,7 @@ var CardGroup = React.createClass({displayName: 'CardGroup',
           React.createElement("div", {className: "col-md-11 col-xs-10"}, 
 
             React.createElement(Result, {
+              candidates: this.props.candidates, 
               question: this.props.question, 
               hash: this.props.hash, 
               handleAdvanceFrame: this.handleAdvanceFrame, 
@@ -929,7 +932,8 @@ var CardGroup = React.createClass({displayName: 'CardGroup',
               isCorrect: this.state.isCorrect, 
               settings: this.state.settings, 
               done: this.state.done, 
-              correctLetter: this.state.correctLetter}
+              correctLetter: this.state.correctLetter, 
+              correctIndex: this.state.correctIndex}
             )
 
           )
@@ -1141,17 +1145,17 @@ var Container  = React.createClass({displayName: 'Container',
   componentDidMount: function() {
 
     if (this.isMounted()) {
-      var cards = JSON.parse(localStorage.getItem('cards'));
-      if (cards) {
-        this.setState({fullCards: cards});
-      } else {
+      // var cards = JSON.parse(localStorage.getItem('cards'));
+      // if (cards) {
+      //   this.setState({fullCards: cards});
+      // } else {
         console.log('Loading cards...');
         firebaseRef.child('cards').on('value', function(snapshot) {
           var fullCards = snapshot.val();
           this.setState({fullCards: fullCards});
           localStorage.setItem('cards', JSON.stringify(fullCards));
         }.bind(this));
-      }
+      // }
     } 
     PubSub.subscribe(DEAL_CARDS, function(msg, data) {
       console.log('Dealing cards');
@@ -1170,7 +1174,7 @@ var Container  = React.createClass({displayName: 'Container',
     providedCandidates.map(function(val, idx) {
       var o = {
         text: val,
-        result: card.answer === val ? true : false
+        result: +card.answer === idx ? true : false
       };
       res.push(o);
     }, this);
@@ -1217,17 +1221,18 @@ var Container  = React.createClass({displayName: 'Container',
 
     if (cards) {
       return cardsArray.map(function(hash, idx) {
+        var originalVal = cards[hash];
         var cardIndex = ""+idx;
-        var val = $.extend(true, {}, cards[hash]);
-        if (val.type === 'template') {
-          var cloze = this.getCloze(val);
-          val.question = cloze.question;
-          val.answer = cloze.answer;
+        var mutatedVal = $.extend(true, {}, cards[hash]);
+        if (mutatedVal.type === 'template') {
+          var a = true;
+          var cloze = this.getCloze(mutatedVal);
+          mutatedVal.question = cloze.question;
           candidates = cloze.candidates;
-        } else if (val.type === 'candidates') {
-          candidates = this.formatCandidates(val, val.candidates);
+        } else if (originalVal.type === 'candidate') {
+          candidates = this.formatCandidates(originalVal, originalVal.candidates);
         } else {
-          candidates = this.formatStandard(hash, cards)
+          console.log('Error formatting cards');
         }
         return (
             React.createElement("div", {className: "item " + (this.state.cardIndex === idx ? "active" : ""), key: idx}, 
@@ -1239,7 +1244,7 @@ var Container  = React.createClass({displayName: 'Container',
                   cardsLength: cardsArray.length, 
                   candidates: candidates, 
                   hash: hash, 
-                  question: val, 
+                  question: originalVal.type === 'template' ? mutatedVal : originalVal, 
                   done: this.state.done, 
                   locked: this.state.locked}
                 )

@@ -19,13 +19,15 @@ var Result = React.createClass({
   },
 
   renderExplanation: function() {
+    var props = this.props;
+    var explanation = props.question.explanation.text;
     if (this.state.showExplanation) {
       return (
         <div className="col-md-12 result explanation-row">
           <div className="col-md-8 explanation">
             <div className="explanation explanation-quote">
               <blockquote>
-                {this.props.question.explanation}
+                <span id="explanationQuote">{explanation} </span>
               </blockquote>
             </div>
           </div>
@@ -55,7 +57,7 @@ var Result = React.createClass({
         <div>
           <h3 className="result response">
             <span className="result response-text">
-              <i className="result glyphicon glyphicon-ok"></i> Right. The correct answer is {this.props.correctLetter}: <em>{this.props.question.answer}</em>
+              <i className="result glyphicon glyphicon-ok"></i> Right. The correct answer is {this.props.correctLetter}: <em>{this.props.candidates[this.props.correctIndex]}</em>
             </span>
             <a onClick={this.handleClick} className="result explanation-btn btn btn-default"><i className="fa fa-lightbulb-o"></i> {this.state.showText} explanation</a>
           </h3>
@@ -66,7 +68,7 @@ var Result = React.createClass({
         <div>
           <h3 className="result response">
             <span className="result response-text">
-                <i className="result glyphicon glyphicon-remove"></i> Incorrect.  The correct answer is {this.props.correctLetter}: <em>{this.props.question.answer}</em>
+                <i className="result glyphicon glyphicon-remove"></i> Incorrect.  The correct answer is {this.props.correctLetter}: <em>{this.props.candidates[this.props.correctIndex]}</em>
             </span>
             <a onClick={this.handleClick} className="result explanation-btn btn btn-default"><i className="fa fa-lightbulb-o"></i> {this.state.showText} explanation</a>
           </h3>

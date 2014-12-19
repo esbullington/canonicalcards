@@ -245,6 +245,7 @@ var CardGroup = React.createClass({
           <div className="col-md-11 col-xs-10">
 
             <Result
+              candidates={this.props.candidates}
               question={this.props.question}
               hash={this.props.hash}
               handleAdvanceFrame={this.handleAdvanceFrame}
@@ -254,6 +255,7 @@ var CardGroup = React.createClass({
               settings={this.state.settings}
               done={this.state.done}
               correctLetter={this.state.correctLetter}
+              correctIndex={this.state.correctIndex}
             />
 
           </div>
