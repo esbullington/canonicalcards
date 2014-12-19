@@ -112,7 +112,7 @@ var App = React.createClass({displayName: 'App',
 
 module.exports = App;
 
-},{"../Nav":34,"../auth":40,"./Footer":2,"./controller":3,"constants/EventTypes":242,"firebase":46,"pubsub-js":52,"react":240,"react-router":62}],6:[function(require,module,exports){
+},{"../Nav":34,"../auth":40,"./Footer":2,"./controller":3,"constants/EventTypes":243,"firebase":46,"pubsub-js":52,"react":240,"react-router":62}],6:[function(require,module,exports){
 var React = require('react');
 var Router = require('react-router');
 var $__0=      Router,Route=$__0.Route,RouteHandler=$__0.RouteHandler,Link=$__0.Link;
@@ -711,14 +711,16 @@ module.exports = Result;
 },{"../Grades":15,"../Image":17,"react":240}],21:[function(require,module,exports){
 arguments[4][4][0].apply(exports,arguments)
 },{"./view":22}],22:[function(require,module,exports){
+'use strict';
+
 var React = require('react');
 var ReactPropTypes = React.PropTypes;
+var config = require('config/AppConfig');
+var localStorageKey = config.localStorageKey;
 var Firebase = require('firebase');
-var ref = new Firebase("https://flashcardsapp.firebaseio.com/");
-var constants = require('constants/AppConstants');
+var ref = new Firebase(config.firebase);
 var Result = require('./Result');
 var Explanation = require('./Explanation');
-var localStorageKey = constants.localStorageKey;
 var authRef = require('../../auth');
 var $ = window.jQuery;
 
@@ -870,12 +872,15 @@ var CardGroup = React.createClass({displayName: 'CardGroup',
     }
   },
 
+  handleAdvanceFrameClick: function(e) {
+    if (this.state.done) {
+      this.advanceFrame();
+    }
+  },
+
   handleAdvanceFrame: function(e) {
     var code = e.keyCode ? e.keyCode : e.which;
-    if (this.state.done) {
-      if(code === 32) {
-        this.advanceFrame();
-      }
+    if (this.state.done && (code === 32)) {
       this.advanceFrame();
     }
   },
@@ -961,7 +966,7 @@ var CardGroup = React.createClass({displayName: 'CardGroup',
               candidates: this.props.candidates, 
               question: this.props.question, 
               hash: this.props.hash, 
-              handleAdvanceFrame: this.handleAdvanceFrame, 
+              handleAdvanceFrame: this.handleAdvanceFrameClick, 
               startTime: this.state.startTime, 
               auth: this.state.auth, 
               isCorrect: this.state.isCorrect, 
@@ -985,7 +990,7 @@ var CardGroup = React.createClass({displayName: 'CardGroup',
 
 module.exports = CardGroup;
 
-},{"../../auth":40,"./Explanation":10,"./Result":19,"constants/AppConstants":241,"firebase":46,"react":240}],23:[function(require,module,exports){
+},{"../../auth":40,"./Explanation":10,"./Result":19,"config/AppConfig":241,"firebase":46,"react":240}],23:[function(require,module,exports){
 arguments[4][4][0].apply(exports,arguments)
 },{"./view":24}],24:[function(require,module,exports){
 'use strict';
@@ -1047,17 +1052,26 @@ var EndModal = React.createClass({displayName: 'EndModal',
 
 module.exports = EndModal;
 
-},{"constants/EventTypes":242,"pubsub-js":52,"react":240}],25:[function(require,module,exports){
+},{"constants/EventTypes":243,"pubsub-js":52,"react":240}],25:[function(require,module,exports){
 arguments[4][4][0].apply(exports,arguments)
 },{"./view":26}],26:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
 var PubSub = require('pubsub-js');
+var config = require('config/AppConfig');
+var Firebase = require('firebase');
+var ref = new Firebase(config.firebase);
 var EventTypes = require('constants/EventTypes');
 var DEAL_CARDS = EventTypes.DEAL_CARDS;
 
 var EndModal = React.createClass({displayName: 'EndModal',
+
+  getInitialState: function() {
+    return {
+      done: false
+    }
+  },
 
     killClick: function(e) {
         // clicks on the content shouldn't close the modal
@@ -1068,9 +1082,23 @@ var EndModal = React.createClass({displayName: 'EndModal',
       'margin': '10px 10px 0px'
     },
 
-    handleCardClick: function(e) {
-      PubSub.publish(DEAL_CARDS, "deal'em");
+    handleForm: function(e) {
+      e.preventDefault();
+      var email = this.refs.email.getDOMNode().value;
+      var onError =  function(error) {
+        if (!error) {
+          // No error, say thank you and redeal quiz cards
+          this.setState({done: true});
+          setTimeout(function() {
+            PubSub.publish(DEAL_CARDS, "deal'em");
+          }, 2000);
+        } else {
+          // Error occurred
+          console.log('error saving email');
+        }
+      };
 
+      ref.child('emails').push(email, onError.bind(this));
     },
 
     render: function() {
@@ -1090,11 +1118,13 @@ var EndModal = React.createClass({displayName: 'EndModal',
 
                     React.createElement("form", {role: "form"}, 
                       React.createElement("div", {className: "form-group"}, 
-                        React.createElement("label", {for: "exampleInputEmail1"}, "Email address"), 
-                        React.createElement("input", {type: "email", className: "form-control", id: "exampleInputEmail1", placeholder: "Enter email"})
+                        React.createElement("label", {htmlFor: "emailInput"}, "Email address"), 
+                        React.createElement("input", {type: "email", ref: "email", className: "form-control", id: "emailInput", placeholder: "Enter email"})
                       ), 
-                      React.createElement("button", {type: "submit", className: "btn btn-default"}, "Submit")
-                    )
+                      React.createElement("button", {type: "submit", onClick: this.handleForm, className: "btn btn-default"}, "Submit")
+                    ), 
+
+                    React.createElement("div", null, this.state.done ? "Thank you!" : "")
 
 
                   )
@@ -1111,7 +1141,7 @@ var EndModal = React.createClass({displayName: 'EndModal',
 
 module.exports = EndModal;
 
-},{"constants/EventTypes":242,"pubsub-js":52,"react":240}],27:[function(require,module,exports){
+},{"config/AppConfig":241,"constants/EventTypes":243,"firebase":46,"pubsub-js":52,"react":240}],27:[function(require,module,exports){
 /**
  * Randomize array element order in-place.
  * Using Fisher-Yates shuffle algorithm.
@@ -1290,7 +1320,7 @@ var CardContainer = React.createClass({displayName: 'CardContainer',
 
 module.exports = CardContainer;
 
-},{"../../Authentication":6,"../Cards":21,"./EndModal":23,"./Signup":25,"./controller":27,"constants/AppConstants":241,"constants/EventTypes":242,"firebase":46,"mixins/LayeredComponentMixin":243,"pubsub-js":52,"react":240,"react-router":62}],30:[function(require,module,exports){
+},{"../../Authentication":6,"../Cards":21,"./EndModal":23,"./Signup":25,"./controller":27,"constants/AppConstants":242,"constants/EventTypes":243,"firebase":46,"mixins/LayeredComponentMixin":244,"pubsub-js":52,"react":240,"react-router":62}],30:[function(require,module,exports){
 module.exports = require('./Container');
 
 },{"./Container":28}],31:[function(require,module,exports){
@@ -1958,6 +1988,7 @@ module.exports=require(2)
 },{"react":240}],42:[function(require,module,exports){
 
 module.exports = {
+  firebase: 'flashcardsapp.firebaseio.com',
   localStorageKey: 'firebase:session::flashcardsapp',
   nQuestionCandidates: 3
 };
@@ -25601,10 +25632,18 @@ module.exports = warning;
 module.exports = require('./lib/React');
 
 },{"./lib/React":121}],241:[function(require,module,exports){
-module.exports=require(42)
+
+module.exports = {
+  firebase: 'https://flashcardsapp.firebaseio.com/',
+  localStorageKey: 'firebase:session::flashcardsapp',
+  nQuestionCandidates: 3
+};
+
 },{}],242:[function(require,module,exports){
+module.exports=require(42)
+},{}],243:[function(require,module,exports){
 module.exports=require(43)
-},{"keymirror":51}],243:[function(require,module,exports){
+},{"keymirror":51}],244:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
