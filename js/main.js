@@ -1030,79 +1030,6 @@ var EndModal = React.createClass({displayName: 'EndModal',
 module.exports = EndModal;
 
 },{"constants/EventTypes":238,"pubsub-js":48,"react":236}],24:[function(require,module,exports){
-
-exports.makeCloze = function(str, queryIndex, cb) {
-  var originalString = str;
-  var re = /\{\{([^{{}}]*)\}\}/,
-    output = [],
-    i, match, parts, last;
-
-  while (match = re.exec(str)) {
-      parts = match[0].split("\uFFFF");
-      if (parts.length < 2) {
-          last = output.push(match[0]) - 1;
-      } else {
-          output[last] = parts[0] + output[last] + parts[1];
-      }
-      str = str.replace(re, "\uFFFF");
-  }
-  var candidates = [];
-  var answer;
-  for (i=0; i < output.length; i++) {
-    var val = output[i];
-    var capture = val.match(/\{\{([^]*)\}\}/);
-    if (i === queryIndex) {
-      var newStr = originalString.replace(capture[0], '______');
-      originalString = newStr;
-      answer = capture[1];
-    } else {
-      var newStr = originalString.replace(capture[0], capture[1]);
-      originalString = newStr;
-    }
-  }
-  return {
-    question: originalString,
-    answer: answer
-  }
-}
-
-//http://stackoverflow.com/questions/4009756/how-to-count-string-occurrence-in-string
-exports.occurrences = function(string, subString, allowOverlapping){
-
-    string+=""; subString+="";
-    if(subString.length<=0)return string.length+1;
-
-    var n=0, pos=0;
-    var step=(allowOverlapping)?(1):(subString.length);
-
-    while(true){
-        pos=string.indexOf(subString,pos);
-        if(pos>=0){ n++; pos+=step; } else break;
-    }
-    return(n);
-}
-
-exports.getRandomInt = function(min, max) {
-  return Math.floor(Math.random() * (max - min)) + min;
-}
-
-exports.randomSample = function(obj, mandatoryQuestionHash, n) {
-  var i;
-  var keys = Object.keys(obj)
-  var newObj = {};
-  var count = 0;
-  // We only count up to n -1 since we add the mandatory question at the end
-  while (count < n - 1) {
-    var randomKey = keys[ keys.length * Math.random() << 0];
-    if (!(randomKey in newObj) && (randomKey !== mandatoryQuestionHash)) {
-      newObj[randomKey] = obj[randomKey];
-      count++;
-    }
-    newObj[mandatoryQuestionHash] = obj[mandatoryQuestionHash];
-  }
-  return newObj;
-};
-
 /**
  * Randomize array element order in-place.
  * Using Fisher-Yates shuffle algorithm.
@@ -1198,38 +1125,6 @@ var Container  = React.createClass({displayName: 'Container',
     return controller.shuffleArray(res);
   },
 
-  formatStandard: function(hash, fullCards) {
-    var sampledCards = controller.randomSample(fullCards, hash, constants.nQuestionCandidates);
-    var question = sampledCards[hash].question;
-    var res = [];
-    Object.keys(sampledCards).map(function(val, idx) {
-      var o = {
-        hash: val,
-        text: sampledCards[val].answer,
-        result: sampledCards[val].question === question ? true : false
-      };
-      res.push(o);
-    }, this)
-    return controller.shuffleArray(res);
-  },
-
-  getCloze: function(val) {
-    var nOccurences = controller.occurrences(val.question, '{{', false);
-    var queryIndex = controller.getRandomInt(0, nOccurences);
-    var cloze = controller.makeCloze(val.question, queryIndex);
-    var candidates = val.candidates[queryIndex];
-    var res = [];
-    candidates.map(function(el, idx) {
-      var o = {
-        text: el,
-        result: el == cloze.answer ? true : false
-      };
-      res.push(o);
-    }, this)
-    cloze.candidates = controller.shuffleArray(res);
-    return cloze;
-  },
-
   renderCards: function() {
 
     var cards = this.state.fullCards;
@@ -1240,17 +1135,7 @@ var Container  = React.createClass({displayName: 'Container',
       return cardsArray.map(function(hash, idx) {
         var originalVal = cards[hash];
         var cardIndex = ""+idx;
-        var mutatedVal = $.extend(true, {}, cards[hash]);
-        if (mutatedVal.type === 'template') {
-          var a = true;
-          var cloze = this.getCloze(mutatedVal);
-          mutatedVal.question = cloze.question;
-          candidates = cloze.candidates;
-        } else if (originalVal.type === 'candidate') {
-          candidates = this.formatCandidates(originalVal, originalVal.candidates);
-        } else {
-          console.log('Error formatting cards');
-        }
+        candidates = this.formatCandidates(originalVal, originalVal.candidates);
         return (
             React.createElement("div", {className: "item " + (this.state.cardIndex === idx ? "active" : ""), key: idx}, 
               React.createElement("div", {className: "carousel-wrapped"}, 
@@ -1261,7 +1146,7 @@ var Container  = React.createClass({displayName: 'Container',
                   cardsLength: cardsArray.length, 
                   candidates: candidates, 
                   hash: hash, 
-                  question: originalVal.type === 'template' ? mutatedVal : originalVal, 
+                  question: originalVal, 
                   done: this.state.done, 
                   locked: this.state.locked}
                 )
