@@ -18,6 +18,21 @@ var Result = React.createClass({
     this.setState({showText: this.state.showExplanation ? 'Show' : 'Hide', showExplanation: !this.state.showExplanation});
   },
 
+  renderLinks: function() {
+    if (this.props.question.explanation.links) {
+      return (
+          <div className="explanation links">Links:
+            <ul id="explanationLinksList">
+              {this.props.question.explanation.links.map(function(el, idx) {
+                return <li key={idx}><a href={el.link}>{el.text}</a></li>
+               })
+              }
+            </ul>
+          </div>
+        );
+    }
+  },
+
   renderExplanation: function() {
     var props = this.props;
     var explanation = props.question.explanation.text;
@@ -31,17 +46,19 @@ var Result = React.createClass({
               </blockquote>
             </div>
           </div>
-          <div className="col-md-4 image explanation text-center">
+          <div className="col-md-4 image explanation">
             {this.props.question.images ? 
               this.props.question.images.map(function(image, idx) {
                 return (
-                  <Image 
-                    key={idx}
-                    image={image} 
-                  />
+                  <div key={idx} className="text-center">
+                    <Image 
+                      key={idx}
+                      image={image} 
+                    />
+                    <div>{this.renderLinks()}</div>
+                  </div>
                   )
-                }) :
-                <span/>
+                }) : <div>{this.renderLinks()}</div>
             }
           </div>
         </div>

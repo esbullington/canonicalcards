@@ -561,6 +561,21 @@ var Result = React.createClass({displayName: 'Result',
     this.setState({showText: this.state.showExplanation ? 'Show' : 'Hide', showExplanation: !this.state.showExplanation});
   },
 
+  renderLinks: function() {
+    if (this.props.question.explanation.links) {
+      return (
+          React.createElement("div", {className: "explanation links"}, "Links:", 
+            React.createElement("ul", {id: "explanationLinksList"}, 
+              this.props.question.explanation.links.map(function(el, idx) {
+                return React.createElement("li", {key: idx}, React.createElement("a", {href: el.link}, el.text))
+               })
+              
+            )
+          )
+        );
+    }
+  },
+
   renderExplanation: function() {
     var props = this.props;
     var explanation = props.question.explanation.text;
@@ -574,17 +589,19 @@ var Result = React.createClass({displayName: 'Result',
               )
             )
           ), 
-          React.createElement("div", {className: "col-md-4 image explanation text-center"}, 
+          React.createElement("div", {className: "col-md-4 image explanation"}, 
             this.props.question.images ? 
               this.props.question.images.map(function(image, idx) {
                 return (
-                  React.createElement(Image, {
-                    key: idx, 
-                    image: image}
+                  React.createElement("div", {key: idx, className: "text-center"}, 
+                    React.createElement(Image, {
+                      key: idx, 
+                      image: image}
+                    ), 
+                    React.createElement("div", null, this.renderLinks())
                   )
                   )
-                }) :
-                React.createElement("span", null)
+                }) : React.createElement("div", null, this.renderLinks())
             
           )
         )
