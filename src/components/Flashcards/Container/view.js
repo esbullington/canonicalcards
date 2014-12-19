@@ -75,38 +75,6 @@ var Container  = React.createClass({
     return controller.shuffleArray(res);
   },
 
-  formatStandard: function(hash, fullCards) {
-    var sampledCards = controller.randomSample(fullCards, hash, constants.nQuestionCandidates);
-    var question = sampledCards[hash].question;
-    var res = [];
-    Object.keys(sampledCards).map(function(val, idx) {
-      var o = {
-        hash: val,
-        text: sampledCards[val].answer,
-        result: sampledCards[val].question === question ? true : false
-      };
-      res.push(o);
-    }, this)
-    return controller.shuffleArray(res);
-  },
-
-  getCloze: function(val) {
-    var nOccurences = controller.occurrences(val.question, '{{', false);
-    var queryIndex = controller.getRandomInt(0, nOccurences);
-    var cloze = controller.makeCloze(val.question, queryIndex);
-    var candidates = val.candidates[queryIndex];
-    var res = [];
-    candidates.map(function(el, idx) {
-      var o = {
-        text: el,
-        result: el == cloze.answer ? true : false
-      };
-      res.push(o);
-    }, this)
-    cloze.candidates = controller.shuffleArray(res);
-    return cloze;
-  },
-
   renderCards: function() {
 
     var cards = this.state.fullCards;
@@ -117,17 +85,7 @@ var Container  = React.createClass({
       return cardsArray.map(function(hash, idx) {
         var originalVal = cards[hash];
         var cardIndex = ""+idx;
-        var mutatedVal = $.extend(true, {}, cards[hash]);
-        if (mutatedVal.type === 'template') {
-          var a = true;
-          var cloze = this.getCloze(mutatedVal);
-          mutatedVal.question = cloze.question;
-          candidates = cloze.candidates;
-        } else if (originalVal.type === 'candidate') {
-          candidates = this.formatCandidates(originalVal, originalVal.candidates);
-        } else {
-          console.log('Error formatting cards');
-        }
+        candidates = this.formatCandidates(originalVal, originalVal.candidates);
         return (
             <div className={"item " + (this.state.cardIndex === idx ? "active" : "")} key={idx} >
               <div className="carousel-wrapped">
@@ -138,7 +96,7 @@ var Container  = React.createClass({
                   cardsLength={cardsArray.length}
                   candidates={candidates}
                   hash={hash}
-                  question={originalVal.type === 'template' ? mutatedVal : originalVal}
+                  question={originalVal}
                   done={this.state.done}
                   locked={this.state.locked}
                 />
