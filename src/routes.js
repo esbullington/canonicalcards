@@ -8,14 +8,15 @@ var About = require('./components/About');
 var Dashboard = require('./components/Dashboard');
 var Settings = require('./components/Settings');
 var App = require('./components/App');
-var Cards = require('./components/Flashcards');
+var Cards = require('./components/Cards');
 var Display = require('./components/Display');
 var Welcome = require('./components/Welcome');
+var Home = require('./components/Home');
 var NotFound = require('./components/NotFound');
 
 var routes = (
   <Route handler={App}  >
-    <DefaultRoute handler={Login}/>
+    <DefaultRoute handler={Home}/>
     <Route name="cards" handler={Cards}/>
     <Route name="welcome" handler={Welcome}/>
     <Route name="display"  handler={Display} >

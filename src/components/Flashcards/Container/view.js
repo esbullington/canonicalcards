@@ -7,6 +7,7 @@ var CardComponent = require('../Cards');
 var Authentication = require('../../Authentication');
 var LayeredComponentMixin = require('mixins/LayeredComponentMixin');
 var EndModal = require('./EndModal');
+var Signup = require('./Signup');
 var constants = require('constants/AppConstants');
 var localStorageKey = constants.localStorageKey;
 var firebaseRef = new Firebase("https://flashcardsapp.firebaseio.com/");
@@ -24,7 +25,6 @@ var Container  = React.createClass({
   getInitialState: function() {
     return {
       showModal: false,
-      cloze: null,
       cardIndex: 0,
       fullCards: {},
       done: false,
@@ -111,12 +111,17 @@ var Container  = React.createClass({
   },
 
   renderLayer: function() {
-      if (!this.state.showModal) {
-          return <span />;
+      if (this.state.showModal && (this.props.modalType === 'endmodal')) {
+        return (
+            <EndModal onRequestClose={this.handleEndModal} />
+        );
+      } else if (this.state.showModal && (this.props.modalType === 'signup')) {
+        return (
+            <Signup onRequestClose={this.handleEndModal} />
+        );
+      } else {
+        return <span/>;
       }
-      return (
-          <EndModal onRequestClose={this.handleEndModal} />
-      );
   },
 
   render: function () {
@@ -143,8 +148,8 @@ var CardContainer = React.createClass({
         <div id="right"></div>
         <div id="top"></div>
         <div id="bottom"></div>
-        <Container />
-        <span id="ribbon"><Link to="dashboard">Dashboard</Link></span>
+        <Container modalType={this.props.modalType} />
+        <span id="ribbon"><Link to={this.props.bannerlink}>{this.props.banner}</Link></span>
       </div>
     );
   }
