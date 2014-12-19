@@ -1,11 +1,13 @@
+'use strict';
+
 var React = require('react');
 var ReactPropTypes = React.PropTypes;
+var config = require('config/AppConfig');
+var localStorageKey = config.localStorageKey;
 var Firebase = require('firebase');
-var ref = new Firebase("https://flashcardsapp.firebaseio.com/");
-var constants = require('constants/AppConstants');
+var ref = new Firebase(config.firebase);
 var Result = require('./Result');
 var Explanation = require('./Explanation');
-var localStorageKey = constants.localStorageKey;
 var authRef = require('../../auth');
 var $ = window.jQuery;
 
@@ -157,12 +159,15 @@ var CardGroup = React.createClass({
     }
   },
 
+  handleAdvanceFrameClick: function(e) {
+    if (this.state.done) {
+      this.advanceFrame();
+    }
+  },
+
   handleAdvanceFrame: function(e) {
     var code = e.keyCode ? e.keyCode : e.which;
-    if (this.state.done) {
-      if(code === 32) {
-        this.advanceFrame();
-      }
+    if (this.state.done && (code === 32)) {
       this.advanceFrame();
     }
   },
@@ -248,7 +253,7 @@ var CardGroup = React.createClass({
               candidates={this.props.candidates}
               question={this.props.question}
               hash={this.props.hash}
-              handleAdvanceFrame={this.handleAdvanceFrame}
+              handleAdvanceFrame={this.handleAdvanceFrameClick}
               startTime={this.state.startTime}
               auth={this.state.auth}
               isCorrect={this.state.isCorrect}
