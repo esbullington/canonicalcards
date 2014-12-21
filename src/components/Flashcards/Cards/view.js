@@ -1,14 +1,11 @@
 'use strict';
 
-var React = require('react');
+var React = require('react/addons');
+var ReactCSSTransitionGroup = React.addons.CSSTransitionGroup;
 var ReactPropTypes = React.PropTypes;
+var Result = require('./Result');
 var config = require('config/AppConfig');
 var localStorageKey = config.localStorageKey;
-var Firebase = require('firebase');
-var ref = new Firebase(config.firebase);
-var Result = require('./Result');
-var Explanation = require('./Explanation');
-var authRef = require('../../auth');
 var $ = window.jQuery;
 
 
@@ -50,43 +47,11 @@ var CardGroup = React.createClass({
       locked: false,
       done: false,
       isCorrect: null,
-      auth: null,
       settings: null,
       startTime: 0
     };
   },
 
-  recordAnswer: function(hash, result) {
-    var self = this;
-    if (this.state.auth) {
-      var counterRef = ref.child('users')
-        .child(this.state.auth.uid)
-        .child('stats')
-        .child('flashcards')
-        .child(hash);
-      counterRef.once('value', function(snapshot) {
-        var val = snapshot.val();
-        var attemptedQuestions = val ? val.attemptedQuestions += 1: 1;
-        if (result) {
-          var correctQuestions = val? val.correctQuestions += 1: 1;
-        } else {
-          var correctQuestions = val ? val.correctQuestions: 0;
-        }
-        var hesitationInterval = (new Date().getTime()) - self.state.startTime;
-        var hesitation = val && val.hesitation ? val.hesitation + ';' + hesitationInterval.toString() : hesitationInterval.toString();
-        var toSave = {
-          correctQuestions: correctQuestions,
-          attemptedQuestions: attemptedQuestions,
-          hesitation: hesitation
-        };
-        counterRef.set(toSave, function(error) {
-          if (error) {
-            console.log('error saving results');
-          }
-        });
-      });
-    }
-  },
 
   checkCardIndex: function() {
     var cardIndex = +this.props.cardIndex;
@@ -125,10 +90,8 @@ var CardGroup = React.createClass({
     var thisAnswerCandidate = this.props.candidates[i];
     if (thisAnswerCandidate.result) {
       this.setState({isCorrect: true});
-      this.recordAnswer(this.props.hash, true);
     } else {
       this.setState({isCorrect: false});
-      this.recordAnswer(this.props.hash, false);
     }
     this.setState({done: true});
   },
@@ -190,15 +153,7 @@ var CardGroup = React.createClass({
       window.addEventListener('keypress', this.handleAdvanceFrame);
       var now = new Date();
       this.setState({startTime: now.getTime()});
-      var auth = JSON.parse(localStorage.getItem(localStorageKey)) || authRef.getAuth();
-      if (auth && auth.uid) {
-        this.setState({auth: auth});
-        var settingsRef = ref.child('users').child(auth.uid).child('settings');
-        settingsRef.once('value', function(snapshot) {
-          var settings = snapshot.val();
-          this.setState({settings: settings});
-        }, this);
-      }
+      var localData = JSON.parse(localStorage.getItem(localStorageKey))
       this.props.candidates.forEach(function(val, idx) {
         if (val.result) {
           this.setState({correctIndex: idx, correctLetter: this.getAlpha(idx)});
@@ -255,7 +210,6 @@ var CardGroup = React.createClass({
               hash={this.props.hash}
               handleAdvanceFrame={this.handleAdvanceFrameClick}
               startTime={this.state.startTime}
-              auth={this.state.auth}
               isCorrect={this.state.isCorrect}
               settings={this.state.settings}
               done={this.state.done}

@@ -1,18 +1,13 @@
 var React = require('react');
 var ReactPropTypes = React.PropTypes;
-var Router = require('react-router');
-var Link = Router.Link;
-var Firebase = require("firebase");
 var CardComponent = require('../Cards');
-var Authentication = require('../../Authentication');
 var LayeredComponentMixin = require('mixins/LayeredComponentMixin');
 var EndModal = require('./EndModal');
 var Signup = require('./Signup');
-var constants = require('constants/AppConstants');
-var localStorageKey = constants.localStorageKey;
-var firebaseRef = new Firebase("https://flashcardsapp.firebaseio.com/");
 var controller = require('./controller');
 var PubSub = require('pubsub-js');
+var constants = require('constants/AppConstants');
+var localStorageKey = constants.localStorageKey;
 var EventTypes = require('constants/EventTypes');
 var DEAL_CARDS = EventTypes.DEAL_CARDS;
 var $ = window.jQuery;
@@ -20,7 +15,7 @@ var $ = window.jQuery;
 
 var Container  = React.createClass({
 
-  mixins: [ LayeredComponentMixin, Authentication ],
+  mixins: [ LayeredComponentMixin ],
 
   getInitialState: function() {
     return {
@@ -144,7 +139,7 @@ var CardContainer = React.createClass({
         <div id="top"></div>
         <div id="bottom"></div>
         <Container modalType={this.props.modalType} />
-        <span id="ribbon"><Link to={this.props.bannerlink}>{this.props.banner}</Link></span>
+        <span id="ribbon"><a href="/test">Dashboard</a></span>
       </div>
     );
   }

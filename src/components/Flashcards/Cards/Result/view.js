@@ -2,7 +2,6 @@
 
 var React = require('react');
 var Image = require('../Image');
-var Grades = require('../Grades');
 
 
 var Result = React.createClass({
@@ -98,47 +97,23 @@ var Result = React.createClass({
     var answer = this.props.question.answer;
     var explanation = this.props.question.explanation ? this.props.question.explanation : '';
     var isCorrect = this.props.isCorrect;
-    if (this.props.done && this.props.settings) {
+    if (this.props.done) {
       // First, the render right/wrong paths for those not wanting SRS
-      if (this.props.settings.srs) {
-        return (
-          <div className="result row panel panel-default">
-            <div className="panel-body">
-              <div className="result col-md-12">
-                <div>
-                  {this.renderResponse()}
-                </div>
-              </div>
-              {this.renderExplanation()}
-              <div className="result col-md-12">
-                <Grades
-                  startTime={this.props.startTime}
-                  auth={this.props.auth}
-                  hash={this.props.hash}
-                  handleAdvanceFrame={this.props.handleAdvanceFrame}
-                  isCorrect={isCorrect}
-                />
+      return (
+        <div className="result row panel panel-default">
+          <div className="panel-body">
+            <div className="result col-md-12">
+              <div>
+                {this.renderResponse()}
               </div>
             </div>
-          </div>
-        );
-      } else {
-        return (
-          <div className="result row panel panel-default">
-            <div className="panel-body">
-              <div className="result col-md-12">
-                <div>
-                  {this.renderResponse()}
-                </div>
-              </div>
-              {this.renderExplanation()}
-              <div className="result col-md-12">
-                <a onClick={this.props.handleAdvanceFrame} className="result btn btn-default btn-lg">Next <i className="fa fa-angle-right"></i></a>
-              </div>
+            {this.renderExplanation()}
+            <div className="result col-md-12">
+              <a onClick={this.props.handleAdvanceFrame} className="result btn btn-default btn-lg">Next <i className="fa fa-angle-right"></i></a>
             </div>
           </div>
-        );
-      }
+        </div>
+      );
     }
     return <span></span>;
   }

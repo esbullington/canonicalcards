@@ -4,7 +4,7 @@
   "description": "Flashcards",
   "main": "index.js",
   "scripts": {
-    "watch": "NODE_PATH='/home/eric/repos/flashcards/src' gulp watch",
+    "watch": "NODE_PATH=/home/eric/repos/canonicalcards/src gulp watch",
     "build": "NODE_ENV=production browserify -t reactify src/main.js -o dist/main.js",
     "test": "./node_modules/karma/bin/karma start karma.conf.js"
   },

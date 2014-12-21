@@ -7,7 +7,7 @@ var Cards = React.createClass({
       <Flashcards 
         banner="Dashboard" 
         bannerlink="dashboard" 
-        modalType="endmodal"
+        modalType="signup"
       />
     );
   }
