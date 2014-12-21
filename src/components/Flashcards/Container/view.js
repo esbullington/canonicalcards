@@ -139,7 +139,7 @@ var CardContainer = React.createClass({
         <div id="top"></div>
         <div id="bottom"></div>
         <Container modalType={this.props.modalType} />
-        <span id="ribbon"><a href="/test">Dashboard</a></span>
+        <span id="ribbon"><a href={this.props.bannerlink}>{this.props.banner}</a></span>
       </div>
     );
   }

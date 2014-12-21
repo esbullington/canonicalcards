@@ -5,8 +5,8 @@ var Cards = React.createClass({
   render: function () {
     return (
       <Flashcards 
-        banner="Dashboard" 
-        bannerlink="dashboard" 
+        banner="About" 
+        bannerlink="/" 
         modalType="signup"
       />
     );
