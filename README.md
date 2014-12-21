@@ -19,17 +19,21 @@ I count myself as one of those who have entered the programming from a (mostly) 
 
 To my dismay, I found that most programmer interviews were pretty hard for me.  I've always been an excellent interviewer, so this was quite a blow.  At first, I thought that interviewers were asking "puzzle" questions out of left field.  But eventually, as I've learned more about the foundations of computer science, I'm come to realize that many -- if not most -- of these problems had some basis in the canonical computer science education, which I had missed.
 
-Great! So now I just had to study that material on my own.  Well, this has gone well, and I've learned a lot of interesting things, but I've run into two major difficulties:
+Great! I love learning and self-study, so now I just had to study all this CS material on my own.
+
+Well, this has gone well, and because I'm a self-motivated learner, I've picked up quite a bit of the CS curriculum.
+
+However, I've run into two major difficulties:
 
 1.  A lack of a benchmark with which to gauge my progress.
 2.  A very human tendancy to forget the material I had learned over time.
 
-This project is designed to remedy these two problems, not only for myself, but for the many thousands of programmers who have come to the field via non-traditional routes.  And older programmers who wish to review the state of their knowledge would benefit as well.
+This project is designed to remedy these two problems, not only for myself, but for the many thousands of programmers who have come to the field via non-traditional routes.  And older programmers who wish to review the state of their knowledge would benefit as well, and perhaps eventually, even university students in the middle of their computer science education (although the latter have other means of benchmarking their state of knowledge, namely grades).
 
-So now all that remains to be done is build the app (partially done) and assemble the cards (a huge task!).
+So now all that remains to be done is build the app (partially done, an open source web app using React) and assemble the cards (a huge task!).
 
 ### What this is *not*
-This is *not* intended to teach these CS concepts.  For that, you'll need study on your own.  Coursera and EdX have some excellent CS courses and increasing number of high-quality textbooks are open source.  The goal is to include a brief explanation beside each answer, along with a set of links for in-depth self-study.
+This is *not* intended to teach you all these basic computer science concepts.  For that, you'll need study on your own.  Coursera and EdX have some excellent CS courses and increasing number of high-quality textbooks are open source.  The goal is to include a brief explanation beside each answer, along with a set of links for in-depth self-study.
 
 The flashcards are in the form of multiple choice, although I'm also working on a spaced repetition version.  I'll also probably expand the quiz to use self-reported answer results, so users don't have to see multiple choices if they don't want to when they answer.
 
@@ -47,9 +51,11 @@ Because we have to draw the line somewhere, we're not particularly interested in
 
 The quiz card app itself is also very interesting, and uses React to render the interface.  Contributions and suggestions are very welcome.  I've got a definite goal in mind for the end app, so before making in large changes, please discuss it with me in an issue.
 
+To contribute a question, simply add the needed fields to the `public/data/cards.json` file, and submit a PR.  Right now, it's a crude system hosted on Github, but if it gains interest, I'll set up a database to keep user stats over time, and offer an easier way to contribute questions than writing raw JSON.
+
 ### Installation
 
-Must run `npm install` from /node_modules/gulp-livereload directory also after base installation (don't ask!).
+If you are working on the React app, and want the livereload to work, must run `npm install` from /node_modules/gulp-livereload directory also after base installation (don't ask!).
 
 ### License
 
