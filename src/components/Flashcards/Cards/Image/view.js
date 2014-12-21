@@ -3,8 +3,18 @@ var React = require('react');
 
 var Image = module.exports = React.createClass({
 
-  renderImage: function(type, data) {
-    if (type === 'svg') {
+  propTypes: {
+    imageProp: React.PropTypes.object
+  },
+
+  getDefaultProps: function() {
+    return {
+      imageProp: {}
+    }
+  },
+
+  renderImage: function(imageType, data) {
+    if (imageType === 'svg') {
       return <div id="svgImage" dangerouslySetInnerHTML={{__html: data}} ></div>;
     } else {
       return <img id="imgImage" src={"data:image/png;base64," + data} />;
@@ -12,14 +22,14 @@ var Image = module.exports = React.createClass({
   },
 
   render: function() {
-    var image = this.props.image;
-    var type = image.type;
-    var data = image.data;
-    var caption = this.props.image.caption ? <figcaption>{this.props.image.caption}</figcaption> : <span/>;
-    if (image) {
+    var imageProp = this.props.imageProp;
+    if (imageProp) {
+      var imageType = imageProp.type;
+      var data = imageProp.data;
+      var caption = imageProp.caption ? <figcaption>{imageProp.caption}</figcaption> : <span/>;
       return (
         <figure>
-          {this.renderImage(type, data)}
+          {this.renderImage(imageType, data)}
           {caption}
         </figure>
         );
