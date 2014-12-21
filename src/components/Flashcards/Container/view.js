@@ -39,18 +39,13 @@ var Container  = React.createClass({
   componentDidMount: function() {
 
     if (this.isMounted()) {
-      // var cards = JSON.parse(localStorage.getItem('cards'));
-      // if (cards) {
-      //   this.setState({fullCards: cards});
-      // } else {
+      $.getJSON('data/cards.json', function(data) {
         console.log('Loading cards...');
-        firebaseRef.child('cards').on('value', function(snapshot) {
-          var fullCards = snapshot.val();
-          this.setState({fullCards: fullCards});
-          localStorage.setItem('cards', JSON.stringify(fullCards));
-        }.bind(this));
-      // }
+        this.setState({fullCards: data});
+        localStorage.setItem('cards', JSON.stringify(data));
+      }.bind(this));
     } 
+
     PubSub.subscribe(DEAL_CARDS, function(msg, data) {
       console.log('Dealing cards');
       this.setState({done: false, locked: false, showModal: false});
