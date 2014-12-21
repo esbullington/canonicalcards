@@ -20,7 +20,8 @@ var Result = React.createClass({
   renderLinks: function() {
     if (this.props.question.explanation.links) {
       return (
-          <div className="explanation links">Links:
+          <div className="explanation links">
+            <span id="linksIntro">Links:</span>
             <ul id="explanationLinksList">
               {this.props.question.explanation.links.map(function(el, idx) {
                 return <li key={idx}><a href={el.link}>{el.text}</a></li>
@@ -49,15 +50,18 @@ var Result = React.createClass({
             {this.props.question.images ? 
               this.props.question.images.map(function(image, idx) {
                 return (
-                  <div key={idx} className="text-center">
-                    <Image 
-                      key={idx}
-                      image={image} 
-                    />
-                    <div>{this.renderLinks()}</div>
-                  </div>
+                    <div key={idx}>
+                      <div className="text-center">
+                        <Image 
+                          key={idx}
+                          image={image} 
+                        />
+                      </div>
+                      <hr/>
+                      <div>{this.renderLinks()}</div>
+                    </div>
                   )
-                }) : <div>{this.renderLinks()}</div>
+                }, this) : <div>{this.renderLinks()}</div>
             }
           </div>
         </div>

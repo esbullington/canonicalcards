@@ -77,7 +77,8 @@ var Result = React.createClass({displayName: 'Result',
   renderLinks: function() {
     if (this.props.question.explanation.links) {
       return (
-          React.createElement("div", {className: "explanation links"}, "Links:", 
+          React.createElement("div", {className: "explanation links"}, 
+            React.createElement("span", {id: "linksIntro"}, "Links:"), 
             React.createElement("ul", {id: "explanationLinksList"}, 
               this.props.question.explanation.links.map(function(el, idx) {
                 return React.createElement("li", {key: idx}, React.createElement("a", {href: el.link}, el.text))
@@ -106,15 +107,18 @@ var Result = React.createClass({displayName: 'Result',
             this.props.question.images ? 
               this.props.question.images.map(function(image, idx) {
                 return (
-                  React.createElement("div", {key: idx, className: "text-center"}, 
-                    React.createElement(Image, {
-                      key: idx, 
-                      image: image}
-                    ), 
-                    React.createElement("div", null, this.renderLinks())
+                    React.createElement("div", {key: idx}, 
+                      React.createElement("div", {className: "text-center"}, 
+                        React.createElement(Image, {
+                          key: idx, 
+                          image: image}
+                        )
+                      ), 
+                      React.createElement("hr", null), 
+                      React.createElement("div", null, this.renderLinks())
+                    )
                   )
-                  )
-                }) : React.createElement("div", null, this.renderLinks())
+                }, this) : React.createElement("div", null, this.renderLinks())
             
           )
         )
