@@ -1,4 +1,6 @@
-# Flashcards
+# CanonicalCards
+
+Review cards for core computer science subjects.  (Try it)[]
 
 ### What is this?
 
@@ -43,7 +45,15 @@ First and foremost, I need help building up a set of flashcards that cover the c
 
 Because we have to draw the line somewhere, we're not particularly interested in applied computer science fields like bioinformatics, machine learning, and natural language processing, as interesting as those fields are to us.
 
+The quiz card app itself is also very interesting, and uses React to render the interface.  Contributions and suggestions are very welcome.  I've got a definite goal in mind for the end app, so before making in large changes, please discuss it with me in an issue.
+
 ### Installation
 
 Must run `npm install` from /node_modules/gulp-livereload directory also after base installation (don't ask!).
+
+### License
+
+MIT
+
+Copyright (c) 2014 Eric. S Bullington
 
