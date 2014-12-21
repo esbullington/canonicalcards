@@ -18,18 +18,18 @@ The reasons for this change are vast, but probably boil down to three issues:
 
 I count myself as one of those who have entered the programming from a (mostly) unrelated field.  I completed graduate training in public health but then went on to work as a medical translator for over a decade.  A few years ago, I decided to turn my hobby-level interest in programming into something more serious, and so I set out to become a professional programmer.
 
-To my dismay, I found that most programmer interviews were pretty hard for me.  I've always been an excellent interviewer, so this was quite a blow.  At first, I thought that interviewers were asking "puzzle" questions out of left field.  But eventually, as I've learned more about the foundations of computer science, I'm come to realize that many -- if not most -- of these problems had some basis in the canonical computer science education, which I had missed.
+To my dismay, I found that most programmer interviews were pretty hard for me.  I've always been an excellent interviewer, so this was quite a blow.  At first, I thought that interviewers were asking unfair and irrelevant "puzzle" questions.  But eventually, as I learned more about the foundations of computer science, I came to realize that many -- if not most -- of these problems had some basis in the canons of computer science education\*, which I had missed.
 
 Great! I love learning and self-study, so now I just had to study all this CS material on my own.
 
-Well, this has gone well, and because I'm a self-motivated learner, I've picked up quite a bit of the CS curriculum.
+Well, this went well, and because I'm a self-motivated learner, I picked up quite a bit of the CS curriculum over time.
 
-However, I've run into two major difficulties:
+However, I ran into two major difficulties:
 
 1.  A lack of a benchmark with which to gauge my progress.
 2.  A very human tendancy to forget the material I had learned over time.
 
-This project is designed to remedy these two problems, not only for myself, but for the many thousands of programmers who have come to the field via non-traditional routes.  And older programmers who wish to review the state of their knowledge would benefit as well, and perhaps eventually, even university students in the middle of their computer science education (although the latter have other means of benchmarking their state of knowledge, namely grades).
+This project is designed to remedy these two problems, not only for myself, but for the many thousands of current and future programmers who come to the field via non-traditional routes.  And older programmers who wish to review the state of their knowledge would benefit as well, and perhaps eventually, even university students in the middle of their computer science education (although the latter have other means of benchmarking their state of knowledge, namely grades).
 
 So now all that remains to be done is build the app (partially done, an open source web app using React) and assemble the cards (a huge task!).
 
