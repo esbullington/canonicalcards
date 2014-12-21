@@ -10,9 +10,10 @@ An open source flashcard program to review canonical computer science algorithms
 #### The long version
 A recent [HN thread](https://news.ycombinator.com/item?id=8775375) discussed the fact that many programmers who come to the profession lack the shared vocabulary that programmers had in the past.
 
-The reasons for this change are vast, but probably boil down to two issues:
+The reasons for this change are vast, but probably boil down to three issues:
 
-1. The field is much larger, and continually expanding
+1. The field is much broader, and continually expanding. Not everyone can make a living as a systems programming anymore.
+2. Many programmers now work at a very high level of abstraction, and standard libraries are increasingly comprehensive.
 2. Many programmers are career changers, and lack the formal computer science education most programmers used to have.
 
 I count myself as one of those who have entered the programming from a (mostly) unrelated field.  I completed graduate training in public health but then went on to work as a medical translator for over a decade.  A few years ago, I decided to turn my hobby-level interest in programming into something more serious, and so I set out to become a professional programmer.
