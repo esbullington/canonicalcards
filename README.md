@@ -1,6 +1,6 @@
 # CanonicalCards
 
-Review cards for core computer science subjects.  (Try it)[]
+Review cards for core computer science subjects.  [Try it](http://esbullington.github.io/canonicalcards/)
 
 ### What is this?
 
