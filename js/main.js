@@ -6,8 +6,6 @@ var Cards = React.createClass({displayName: 'Cards',
   render: function () {
     return (
       React.createElement(Flashcards, {
-        banner: "About", 
-        bannerlink: "/", 
         modalType: "signup"}
       )
     );
@@ -730,7 +728,11 @@ var CardContainer = React.createClass({displayName: 'CardContainer',
         React.createElement("div", {id: "top"}), 
         React.createElement("div", {id: "bottom"}), 
         React.createElement(Container, {modalType: this.props.modalType}), 
-        React.createElement("span", {id: "ribbon"}, React.createElement("a", {href: this.props.bannerlink}, this.props.banner))
+        React.createElement("div", {className: "github-fork-ribbon-wrapper right"}, 
+          React.createElement("div", {className: "github-fork-ribbon"}, 
+            React.createElement("a", {href: "https://github.com/esbullington/canonicalcards"}, "Fork me on GitHub")
+          )
+        )
       )
     );
   }
