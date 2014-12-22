@@ -56,7 +56,7 @@ var Result = React.createClass({
           <div className="col-md-8 explanation">
             <div className="explanation explanation-quote">
               <blockquote>
-                <span id="explanationQuote">{explanation} </span>
+                <div id="explanationQuote" dangerouslySetInnerHTML={{"__html": explanation}} ></div>
               </blockquote>
             </div>
           </div>

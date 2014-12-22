@@ -1,4 +1,37 @@
 {
+  "30c2457a-4295-43f2-b2dc-fc95a7001acc" : {
+    "answer" : 0,
+    "candidates" : [ "Chomsky Normal Form (CNF)", "Backus-Naur Form (BNF)", "Extended Backus–Naur Form (EBNF)", "Greibach Normal Form (GNF)" ],
+    "explanation" : {
+      "links": [
+        {
+          "text": "Chomsky, Noam (1959). \"On Certain Formal Properties of Grammars\". Information and Control 2: 137–167. doi:10.1016/s0019-9958(59)90362-6.",
+          "link": "http://www.sciencedirect.com/science/article/pii/S0019995859903626/pdf?md5=9d466f851651bd592afa5ee561b7a0b0&pid=1-s2.0-S0019995859903626-main.pdf"
+        }
+      ],
+      "source": {
+        "text": "Wikipedia",
+        "link": "http://en.wikipedia.org/wiki/Chomsky_normal_form"
+      },
+      "text" : "In computer science, a context-free grammar is said to be in Chomsky normal form if all of its production rules are of the form: <img alt='A \rightarrow BC \text{ or}\\A \rightarrow a' src='img/30c2457a-4295-43f2-b2dc-fc95a7001acc-img1.png' /> where A, B and C are nonterminal symbols, α is a terminal symbol (a symbol that represents a constant value), S is the start symbol, and ε is the empty string. Also, neither B nor C may be the start symbol.<br/>Every grammar in Chomsky normal form is context-free, and conversely, every context-free grammar can be transformed into an equivalent one which is in Chomsky normal form. Several algorithms for performing such a transformation are known."
+    },
+    "question" : "A formal grammar is in Chomsky reduced form if all of its production rules are of the form: <img alt='A \rightarrow BC \text{ or}\\A \rightarrow a' src='img/30c2457a-4295-43f2-b2dc-fc95a7001acc-img0.png' /><br/>where <i>A</i>, <i>B</i> and <i>C</i> are nonterminal symbols, and <i>a</i> is a terminal symbol.",
+    "type" : "candidate"
+  },
+  "2baca5c7-a68d-45d6-8834-cb7504468412" : {
+    "answer" : 0,
+    "candidates" : [ "dynamic programming", "divide-and-conquer", "greedy", "optimization approach" ],
+    "explanation" : {
+      "source" : {
+        "link" : "http://en.wikipedia.org/wiki/Dynamic_programming",
+        "text" : "Wikipedia"
+      },
+      "text" : "In mathematics, computer science, economics, and bioinformatics, dynamic programming is a method for solving a complex problem by breaking it down into a collection of simpler subproblems. It is applicable to problems exhibiting the properties of overlapping subproblems[1] and optimal substructure (described below). When applicable, the method takes far less time than naive methods that don't take advantage of the subproblem overlap (like depth-first search)."
+    },
+    "question" : "It solves small, constrained versions of an algorithmic problem.",
+    "type" : "candidate"
+  },
+
   "292a9ab7-d8af-4043-93fe-1667ee487e4a" : {
     "answer" : 0,
     "candidates" : [ "list of nodes", "single integer node", "boolean matrix", "acyclic graph" ],

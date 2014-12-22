@@ -121,7 +121,7 @@ var Result = React.createClass({displayName: 'Result',
           React.createElement("div", {className: "col-md-8 explanation"}, 
             React.createElement("div", {className: "explanation explanation-quote"}, 
               React.createElement("blockquote", null, 
-                React.createElement("span", {id: "explanationQuote"}, explanation, " ")
+                React.createElement("div", {id: "explanationQuote", dangerouslySetInnerHTML: {"__html": explanation}})
               )
             )
           ), 
@@ -216,7 +216,7 @@ var localStorageKey = config.localStorageKey;
 var $ = window.jQuery;
 
 
-var CardItem = React.createClass({displayName: 'CardItem',
+var CardCandidate = React.createClass({displayName: 'CardCandidate',
 
   render: function() {
     return (
@@ -368,10 +368,10 @@ var CardGroup = React.createClass({displayName: 'CardGroup',
         React.createElement("div", {className: "row"}, 
 
           React.createElement("div", {className: "col-md-11 col-sm-10 col-xs-10"}, 
-            React.createElement("h3", null, this.props.question.question), 
+            React.createElement("h3", {className: "card-question", dangerouslySetInnerHTML: {__html: this.props.question.question}}), 
             this.props.candidates.map(function(el, idx) {
               return (
-                  React.createElement(CardItem, {
+                  React.createElement(CardCandidate, {
                     idx: idx, 
                     checkAnswer: this.checkAnswer.bind(this, idx), 
                     el: el, 

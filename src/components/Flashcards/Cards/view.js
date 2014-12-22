@@ -9,7 +9,7 @@ var localStorageKey = config.localStorageKey;
 var $ = window.jQuery;
 
 
-var CardItem = React.createClass({
+var CardCandidate = React.createClass({
 
   render: function() {
     return (
@@ -161,10 +161,10 @@ var CardGroup = React.createClass({
         <div className="row">
 
           <div className="col-md-11 col-sm-10 col-xs-10">
-            <h3>{this.props.question.question}</h3>
+            <h3 className="card-question" dangerouslySetInnerHTML={{__html: this.props.question.question}}></h3>
             {this.props.candidates.map(function(el, idx) {
               return (
-                  <CardItem
+                  <CardCandidate
                     idx={idx}
                     checkAnswer={this.checkAnswer.bind(this, idx)}
                     el={el}
