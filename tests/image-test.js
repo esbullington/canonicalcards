@@ -1,8 +1,8 @@
 
 var expect = require('chai').expect;
 
-describe('Cards', function() {
-  it('renders cards', function() {
+describe('Image', function() {
+  it('renders image', function() {
     var React = require('react/addons');
 
     var Image = require('components/Flashcards/Cards/Image');

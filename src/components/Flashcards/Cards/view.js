@@ -17,7 +17,7 @@ var CardItem = React.createClass({
           className="card-candidates-item"
           key={this.props.idx}
           // checkAnswerCallback is bound to the index in the calling component
-          onClick={this.props.checkAnswerCallback}
+          onClick={this.props.checkAnswer}
         >
           <div className="card-candidates-item-inner">
             <span>{this.props.cardLetter}. </span>
@@ -47,7 +47,6 @@ var CardGroup = React.createClass({
       locked: false,
       done: false,
       isCorrect: null,
-      settings: null,
       startTime: 0
     };
   },
@@ -58,14 +57,6 @@ var CardGroup = React.createClass({
     var cardsLength = +this.props.cardsLength - 1;
     if (cardIndex === cardsLength) {
       this.setState({locked: true});
-    }
-  },
-
-  checkAnswerCallback: function(i) {
-    if (this.state.settings && this.state.settings.srs) {
-      this.checkSRSAnswer(i)
-    } else {
-      this.checkAnswer(i)
     }
   },
 
@@ -81,22 +72,6 @@ var CardGroup = React.createClass({
   },
 
   checkAnswer: function(i) {
-    this.checkCardIndex();
-    if (this.state.done) {
-      return;
-    };
-    // We've pre-checked the array of answer candidates for the correct answer
-    // So we only have to check if the pre-checked result is true
-    var thisAnswerCandidate = this.props.candidates[i];
-    if (thisAnswerCandidate.result) {
-      this.setState({isCorrect: true});
-    } else {
-      this.setState({isCorrect: false});
-    }
-    this.setState({done: true});
-  },
-
-  checkSRSAnswer: function(i) {
     this.checkCardIndex();
     if (this.state.done) {
       return;
@@ -191,7 +166,7 @@ var CardGroup = React.createClass({
               return (
                   <CardItem
                     idx={idx}
-                    checkAnswerCallback={this.checkAnswerCallback.bind(this, idx)}
+                    checkAnswer={this.checkAnswer.bind(this, idx)}
                     el={el}
                     key={idx}
                     cardLetter={this.getAlpha(idx)}
@@ -211,7 +186,6 @@ var CardGroup = React.createClass({
               handleAdvanceFrame={this.handleAdvanceFrameClick}
               startTime={this.state.startTime}
               isCorrect={this.state.isCorrect}
-              settings={this.state.settings}
               done={this.state.done}
               correctLetter={this.state.correctLetter}
               correctIndex={this.state.correctIndex}

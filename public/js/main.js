@@ -23,8 +23,18 @@ var React = require('react');
 
 var Image = module.exports = React.createClass({displayName: 'exports',
 
-  renderImage: function(type, data) {
-    if (type === 'svg') {
+  propTypes: {
+    imageProp: React.PropTypes.object
+  },
+
+  getDefaultProps: function() {
+    return {
+      imageProp: {}
+    }
+  },
+
+  renderImage: function(imageType, data) {
+    if (imageType === 'svg') {
       return React.createElement("div", {id: "svgImage", dangerouslySetInnerHTML: {__html: data}});
     } else {
       return React.createElement("img", {id: "imgImage", src: "data:image/png;base64," + data});
@@ -32,14 +42,14 @@ var Image = module.exports = React.createClass({displayName: 'exports',
   },
 
   render: function() {
-    var image = this.props.image;
-    var type = image.type;
-    var data = image.data;
-    var caption = this.props.image.caption ? React.createElement("figcaption", null, this.props.image.caption) : React.createElement("span", null);
-    if (image) {
+    var imageProp = this.props.imageProp;
+    if (imageProp) {
+      var imageType = imageProp.type;
+      var data = imageProp.data;
+      var caption = imageProp.caption ? React.createElement("figcaption", null, imageProp.caption) : React.createElement("span", null);
       return (
         React.createElement("figure", null, 
-          this.renderImage(type, data), 
+          this.renderImage(imageType, data), 
           caption
         )
         );
@@ -61,6 +71,17 @@ var Image = require('../Image');
 
 var Result = React.createClass({displayName: 'Result',
 
+  propTypes: {
+    question: React.PropTypes.object.isRequired,
+    candidates: React.PropTypes.array.isRequired,
+    hash: React.PropTypes.string.isRequired,
+    done: React.PropTypes.bool,
+    isCorrect: React.PropTypes.bool,
+    startTime: React.PropTypes.number,
+    correctIndex: React.PropTypes.number,
+    correctLetter: React.PropTypes.string
+  },
+
   getInitialState: function() {
     return {
       showText: 'Show',
@@ -69,7 +90,10 @@ var Result = React.createClass({displayName: 'Result',
   },
 
   handleClick: function(e) {
-    this.setState({showText: this.state.showExplanation ? 'Show' : 'Hide', showExplanation: !this.state.showExplanation});
+    this.setState({
+      showText: this.state.showExplanation ? 'Show' : 'Hide',
+      showExplanation: !this.state.showExplanation
+    });
   },
 
   renderLinks: function() {
@@ -153,9 +177,6 @@ var Result = React.createClass({displayName: 'Result',
   },
 
   render: function() {
-    var answer = this.props.question.answer;
-    var explanation = this.props.question.explanation ? this.props.question.explanation : '';
-    var isCorrect = this.props.isCorrect;
     if (this.props.done) {
       // First, the render right/wrong paths for those not wanting SRS
       return (
@@ -203,7 +224,7 @@ var CardItem = React.createClass({displayName: 'CardItem',
           className: "card-candidates-item", 
           key: this.props.idx, 
           // checkAnswerCallback is bound to the index in the calling component
-          onClick: this.props.checkAnswerCallback
+          onClick: this.props.checkAnswer
         }, 
           React.createElement("div", {className: "card-candidates-item-inner"}, 
             React.createElement("span", null, this.props.cardLetter, ". "), 
@@ -233,7 +254,6 @@ var CardGroup = React.createClass({displayName: 'CardGroup',
       locked: false,
       done: false,
       isCorrect: null,
-      settings: null,
       startTime: 0
     };
   },
@@ -244,14 +264,6 @@ var CardGroup = React.createClass({displayName: 'CardGroup',
     var cardsLength = +this.props.cardsLength - 1;
     if (cardIndex === cardsLength) {
       this.setState({locked: true});
-    }
-  },
-
-  checkAnswerCallback: function(i) {
-    if (this.state.settings && this.state.settings.srs) {
-      this.checkSRSAnswer(i)
-    } else {
-      this.checkAnswer(i)
     }
   },
 
@@ -267,22 +279,6 @@ var CardGroup = React.createClass({displayName: 'CardGroup',
   },
 
   checkAnswer: function(i) {
-    this.checkCardIndex();
-    if (this.state.done) {
-      return;
-    };
-    // We've pre-checked the array of answer candidates for the correct answer
-    // So we only have to check if the pre-checked result is true
-    var thisAnswerCandidate = this.props.candidates[i];
-    if (thisAnswerCandidate.result) {
-      this.setState({isCorrect: true});
-    } else {
-      this.setState({isCorrect: false});
-    }
-    this.setState({done: true});
-  },
-
-  checkSRSAnswer: function(i) {
     this.checkCardIndex();
     if (this.state.done) {
       return;
@@ -377,7 +373,7 @@ var CardGroup = React.createClass({displayName: 'CardGroup',
               return (
                   React.createElement(CardItem, {
                     idx: idx, 
-                    checkAnswerCallback: this.checkAnswerCallback.bind(this, idx), 
+                    checkAnswer: this.checkAnswer.bind(this, idx), 
                     el: el, 
                     key: idx, 
                     cardLetter: this.getAlpha(idx)}
@@ -397,7 +393,6 @@ var CardGroup = React.createClass({displayName: 'CardGroup',
               handleAdvanceFrame: this.handleAdvanceFrameClick, 
               startTime: this.state.startTime, 
               isCorrect: this.state.isCorrect, 
-              settings: this.state.settings, 
               done: this.state.done, 
               correctLetter: this.state.correctLetter, 
               correctIndex: this.state.correctIndex}

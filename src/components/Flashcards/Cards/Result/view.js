@@ -6,6 +6,17 @@ var Image = require('../Image');
 
 var Result = React.createClass({
 
+  propTypes: {
+    question: React.PropTypes.object.isRequired,
+    candidates: React.PropTypes.array.isRequired,
+    hash: React.PropTypes.string.isRequired,
+    done: React.PropTypes.bool,
+    isCorrect: React.PropTypes.bool,
+    startTime: React.PropTypes.number,
+    correctIndex: React.PropTypes.number,
+    correctLetter: React.PropTypes.string
+  },
+
   getInitialState: function() {
     return {
       showText: 'Show',
@@ -14,7 +25,10 @@ var Result = React.createClass({
   },
 
   handleClick: function(e) {
-    this.setState({showText: this.state.showExplanation ? 'Show' : 'Hide', showExplanation: !this.state.showExplanation});
+    this.setState({
+      showText: this.state.showExplanation ? 'Show' : 'Hide',
+      showExplanation: !this.state.showExplanation
+    });
   },
 
   renderLinks: function() {
@@ -98,9 +112,6 @@ var Result = React.createClass({
   },
 
   render: function() {
-    var answer = this.props.question.answer;
-    var explanation = this.props.question.explanation ? this.props.question.explanation : '';
-    var isCorrect = this.props.isCorrect;
     if (this.props.done) {
       // First, the render right/wrong paths for those not wanting SRS
       return (
