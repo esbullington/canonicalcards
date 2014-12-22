@@ -52,7 +52,7 @@ Because we have to draw the line somewhere, we're not particularly interested in
 
 The quiz card app itself is also very interesting, and uses React to render the interface.  Contributions and suggestions are very welcome.  I've got a definite goal in mind for the end app, so before making in large changes, please discuss it with me in an issue.
 
-To contribute a question, simply [generate a UUID](https://www.uuidgenerator.net/) and add the needed fields to the `public/data/cards.json` file, and submit a PR. Every image needed by a card is named by that card's UUID + "img" + image index (e.g., "30c2457a-4295-43f2-b2dc-fc95a7001acc-img0.png" for first card's image for card).
+To contribute a question, simply [generate a UUID](https://www.uuidgenerator.net/) and add the needed fields to the `public/data/cards.json` file, and submit a PR. Every image needed by a card is named by that card's UUID + "img" + image index (e.g., "30c2457a-4295-43f2-b2dc-fc95a7001acc-img0.png" for first card's image for card). Also, this [interactive Latex editor](http://arachnoid.com/latex/) that can generate images is very useful until we've set up a more elegant system.
 
 Right now, it's a crude system hosted on Github, but if it gains interest, I'll set up a database to keep user stats over time, and offer an easier way to contribute questions than writing raw JSON.
 
