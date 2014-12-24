@@ -16,22 +16,7 @@ The reasons for this change are vast, but probably boil down to three issues:
 2. Many programmers now work at a very high level of abstraction, and standard libraries are increasingly comprehensive.
 2. Many programmers are career changers, and lack the formal computer science education most programmers used to have.
 
-I count myself as one of those who have entered the programming from a (mostly) unrelated field.  I completed graduate training in public health but then went on to work as a medical translator for over a decade.  A few years ago, I decided to turn my hobby-level interest in programming into something more serious, and so I set out to become a professional programmer.
-
-To my dismay, I found that most programmer interviews were pretty hard for me.  I've always been an excellent interviewer, so this was quite a blow.  At first, I thought that interviewers were asking unfair and irrelevant "puzzle" questions.  But eventually, as I learned more about the foundations of computer science, I came to realize that many -- if not most -- of these problems had some basis in the canons of computer science education\*, which I had missed.
-
-Great! I love learning and self-study, so now I just had to study all this CS material on my own.
-
-Well, this went well, and because I'm a self-motivated learner, I picked up quite a bit of the CS curriculum over time.
-
-However, I ran into two major difficulties:
-
-1.  A lack of a benchmark with which to gauge my progress.
-2.  A very human tendancy to forget the material I had learned over time.
-
-This project is designed to remedy these two problems, not only for myself, but for the many thousands of current and future programmers who come to the field via non-traditional routes.  And older programmers who wish to review the state of their knowledge would benefit as well, and perhaps eventually, even university students in the middle of their computer science education (although the latter have other means of benchmarking their state of knowledge, namely grades).
-
-So now all that remains to be done is build the app (partially done, an open source web app using React) and assemble the cards (a huge task!).
+With this project, I hope to remedy this problem.  So now, I need to build the app (partially done, an open source web app using React) and assemble the cards (a huge task!).
 
 ### What this is *not*
 This is *not* intended to teach you all these basic computer science concepts.  For that, you'll need study on your own.  Coursera and EdX have some excellent CS courses and increasing number of high-quality textbooks are open source.  The goal is to include a brief explanation beside each answer, along with a set of links for in-depth self-study.
