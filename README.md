@@ -16,7 +16,7 @@ The reasons for this change are vast, but probably boil down to three issues:
 2. Many programmers now work at a very high level of abstraction, and standard libraries are increasingly comprehensive.
 2. Many programmers are career changers, and lack the formal computer science education most programmers used to have.
 
-With this project, I hope to address this problem.  So now, I need to build the app (partially done, an open source web app using React) and assemble the cards (a huge task!).
+With this project, I hope to address a portion of this problem.  A site of comprehensive, open souce computer science flashcards could help learners to master the material.  So now, I need to build this site (partially done, in fact, an open source web app using React) and assemble the cards (a huge task!).
 
 ### What this is *not*
 This is *not* intended to teach you all these basic computer science concepts.  For that, you'll need study on your own.  Coursera and EdX have some excellent CS courses and increasing number of high-quality textbooks are open source.  The goal is to include a brief explanation beside each answer, along with a set of links for in-depth self-study.
